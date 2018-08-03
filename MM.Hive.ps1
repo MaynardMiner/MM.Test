@@ -151,12 +151,25 @@ $Log = 1
  
 Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
 Write-Host "Deleting Old Versions"
+$PreviousVersions = @()
 $PreviousVersions += "MM.Hash"
 
 $PreviousVersions | foreach{
 $PreviousPath = Join-Path "/hive/custom" "$($_)"
 if(Test-Path $PreviousPath)
  {
+  $OldStats = Join-Path $PreviousPath "Stats" -force
+  $OldBackup = Join-Path $PreviousPath "Backup" -force
+  if(Test-Path $OldStats)
+   {
+    New-Item -Path "Stats" -Name "PID" -ItemType "Directory" -force
+    Move-Item -Path "$OldStats\*.txt" -Destination ".\Stats" -force
+   }
+  if(Test-Path $OldBackup)
+   {
+    New-Item -Path "Backup" -Name "PID" -ItemType "Directory" -force
+    Move-Item -Path "$OldBackup\*.txt" -Destination "Backup" -force
+   }
   Remove-Item $PreviousPath -recurse -force
  }
 }
