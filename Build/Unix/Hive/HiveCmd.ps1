@@ -202,6 +202,7 @@ function Get-AlgorithmList {
         if($DeviceCall -eq "dstm"){$MinerArguments = "--dev $($Devices) $($Arguments)"}
         if($DeviceCall -eq "claymore"){$MinerArguments = "-di $($Devices) $($Arguments)"}
         if($DeviceCall -eq "trex"){$MinerArguments = "-d $($Devices) $($Arguments)"}
+        if($DeviceCall -eq "bminer"){$MinerArgument = "-devices $($Devices) $($Arguments)"}
          }
         }
         if($Type -like '*AMD*')
@@ -248,7 +249,7 @@ function Get-AlgorithmList {
          {
             $MinerProcessId.Id | Out-File ".\PID\$($Name)_$($Coins)_$($Type)_PID.txt"
             Get-Date | Out-File ".\PID\$($Name)_$($Coins)_$($Type)_Date.txt"
-            Start-Sleep -S 1
+            Start-Sleep -S 3
         }
 
         $MinerTimer.Stop()
