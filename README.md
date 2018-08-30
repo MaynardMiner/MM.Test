@@ -49,6 +49,7 @@ MM.Hash is a powershell/bash hyrbid miner that is meant to work in both windows 
 ```
 nist5
 blake2s
+balloon
 skein
 ethash
 daggerhashimoto
@@ -59,7 +60,11 @@ allium
 equihash
 x16r
 x16s
-aeriumx
+aergo
+polytimos
+hex
+sonoa
+equihash96
 equihash192
 equihash144xsg
 equihash144btcz
@@ -109,17 +114,16 @@ zpool
 
 **Miners**
 ```
+Avermore
+Bubalisk
 CryptoDredge
-Alexis78
 MSFT
-Krnlx
-OCminer/suprminer
 Tpruvot
 T-rex
 Enemy
 Claymore
 Dstm
-EWBF (new version)
+EWBF
 JayDDee
 ```
 
@@ -180,4 +184,6 @@ Uselessguru
 Aaronsace
 
 They were the pioneers to powershell scriptmining. Their scripts helped me to piece together a buggy but workable linux miner, which was the original purpose of MM.Hash, since none of them did so at the time. Since then it has grown to what it is today.
+
+
 

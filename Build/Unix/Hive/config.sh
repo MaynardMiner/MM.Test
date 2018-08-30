@@ -1,1 +1,1 @@
-./cpuminer-CPU -a yespower -o stratum+tcp://yespower.mine.zergpool.com:6533 -b 0.0.0.0:4048 -u 1DRxiWx6yuZfN9hrEJa3BDXWVJ9yyJU36i -p c=BTC,ID=MMHash 
+./z-enemy-NVIDIA1 -d GTX1070#1,GTX1070#2,GTX1070#3,GTX1070#4,GTX1070#5,GTX1070#6 -a Hex -o stratum+tcp://hex.mine.zergpool.com:5135 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,ID=MMHash 

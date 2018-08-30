@@ -13,6 +13,7 @@ if($GPUDevices2 -ne '')
 #Equihash192
 
 $Commands = [PSCustomObject]@{
+  "equihash-btg" = '--algo 144_5 --pers auto'
   "equihash192" = '--algo 192_7 --pers auto'
   "equihash144" =  '--algo 144_5 --pers auto'
   "equihash96" =  '--algo 96_5 --pers auto'

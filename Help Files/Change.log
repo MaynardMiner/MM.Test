@@ -200,9 +200,18 @@ HiveOS: Changes:
 algorithms miner searches for from pools.
 -added -SGDevices1 -SGDevices2 -SGDevices3 arguments
 
-1.4.1 beta:
+1.4.1b beta:
 
 HiveOS Changes:
+
+DISCLAIMERS: 
+-I added auto-updates back in, but made it case specific for this release. It may be a good idea to save old miner file settings before updating just in case of failure.
+-I made a lot of changed to AMD side, including adding a new system for recording hashrate. Watch and report.
+-I made changes to HiveOS stats watch and report
+-Avermore does not seem to work in blockmasters for me.
+-TDXminer does not seem to work in nicehash for me.
+-Claymore works normally, but screen loading is slow for logging (get-screen command)
+-To get GPU count for AMD- I am using a different method that I do for NVIDIA. Please let me know if it is displaying correct GPU count. I only have 1 GPU to test.
 
 -Added 0.3.4 Dredge
 -Ensured get-screen was working correctly
@@ -215,14 +224,5 @@ HiveOS Changes:
 -More code staging for Unix version
 -Previous Version notes: Poly takes more than 5 minutes to hash an accepted share on lower-model GPUS. You may want to -No_Algo it.
 -Confirmed it is possible to combine AMD & NVIDIA, but not possible to get them both to stat on HiveOS (only 1 Device group will work).
-
-Windows Changes:
-
--Code Staging for 1.4.1a (Windows Version). (Need to make the big changes to miner files to improve speed to match Hive 1.4.0b, and AMD)
--Use 1.4.0a version still. New version soon.
-
-Unix Changes:
-
--No Working Unix version, but getting close.
-
+-Added tdxminer & new system record hashrate with no api.
 
