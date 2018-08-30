@@ -10,18 +10,19 @@ get_nvidia_cards_fan(){
 }
 
 
-
 function miner_stats {
-	local miner=$(< /hive/custom/MM.Hash.ps1/Build/mineref.sh)
+	local mydir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+	local miner=$(< $mydir/Build/Unix/Hive/mineref.sh)
 	local mindex=$2 #empty or 2, 3, 4, ...
-        local Ntemp=$(get_nvidia_cards_temp)	# cards temp
+	local Ntemp=$(get_nvidia_cards_temp)	# cards temp
 	local Nfan=$(get_nvidia_cards_fan)	# cards fan
-	local myhashrate=( $(< /hive/custom/MM.Hash.ps1/Build/hashrates.sh) )
-	local myhs=$(< /hive/custom/MM.Hash.ps1/Build/hashtype.sh)
-	local myacc=$(< /hive/custom/MM.Hash.ps1/Build/accepted.sh)
-        local mykhs=$(< /hive/custom/MM.Hash.ps1/Build/totalhash.sh)
-	local myrj=$(< /hive/custom/MM.Hash.ps1/Build/rejected.sh)
-	local myalgo=$(< /hive/custom/MM.Hash.ps1/Build/algo.sh)
+	local myhashrate=( $(< $mydir/Build/Unix/Hive/hashrates.sh) )
+	local myhs=$(< $mydir/Build/Unix/Hive/hashtype.sh)
+	local myacc=$(< $mydir/Build/Unix/Hive/accepted.sh)
+    local mykhs=$(< $mydir/Build/Unix/Hive/totalhash.sh)
+	local myrj=$(< $mydir/Build/Unix/Hive/rejected.sh)
+	local myalgo=$(< $mydir/Build/Unix/Hive/algo.sh)
+	local myport=$(< $mydir/Build/Unix/Hive/port.sh)
 	khs=0
 	stats=
 	case $miner in
@@ -43,15 +44,47 @@ function miner_stats {
 				        --argjson temp "$Ntemp" \
 				        --argjson fan "$Nfan" \
 					--arg uptime "0" \
-					--arg ac "$ac" --arg rj "$rj" \
+					--arg ac "$myac" --arg rj "$myrj" \
 					--arg algo "$myalgo" \
 					'{$hs, $hs_units, $temp, $fan, $uptime, ar: [$ac, $rj], $algo}')
-                     
-		;;
+	                		truncate -s 0 $mydir/Build/Unix/Hive/hashrates.sh
+					truncate -s 0 $mydir/Build/Unix/Hive/accepted.sh
+					truncate -s 0 $mydir/Build/Unix/Hive/rejected.sh
+					truncate -s 0 $mydir/Build/Unix/Hive/hashtype.sh
+					truncate -s 0 $mydir/Build/Unix/Hive/totalhash.sh
+					truncate -s 0 $mydir/Build/Unix/Hive/algo.sh
+			;;
+		tdxminer) 
+			#Total HashRate For Individual GPUS:
+			#for (( i=0; i < ${#myhashrate[@]}; i++ )); do
+			#khs=`echo $khs ${myhashrate[$i]} | awk '{ printf("%.3f", $1 + $2) }'`
+		        #done
+                        #khs=`echo $khs | sed -E 's/^( *[0-9]+\.[0-9]([0-9]*[1-9])?)0+$/\1/'` #1234.100 -> 1234.1
+
+			#Hashrate From Accepted Shares:
+			khs=$mykhs
+
+
+			stats=$(jq -n \
+					--argjson hs "`echo ${myhashrate[@]} | jq -cs '.'`" \
+					--arg hs_units "hs_units=khs" \
+				        --argjson temp "$Ntemp" \
+				        --argjson fan "$Nfan" \
+					--arg uptime "0" \
+					--arg ac "$myac" --arg rj "$myrj" \
+					--arg algo "$myalgo" \
+					'{$hs, $hs_units, $temp, $fan, $uptime, ar: [$ac, $rj], $algo}')
+	                		truncate -s 0 $mydir/Build/Unix/Hive/hashrates.sh
+					truncate -s 0 $mydir/Build/Unix/Hive/accepted.sh
+					truncate -s 0 $mydir/Build/Unix/Hive/rejected.sh
+					truncate -s 0 $mydir/Build/Unix/Hive/hashtype.sh
+					truncate -s 0 $mydir/Build/Unix/Hive/totalhash.sh
+					truncate -s 0 $mydir/Build/Unix/Hive/algo.sh
+			;;
 		claymore)
-			stats_raw=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat2"}' | nc -w $API_TIMEOUT localhost 3333 | jq '.result'`
+			stats_raw=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat2"}' | nc -w $API_TIMEOUT localhost $myport | jq '.result'`
 			if [[ $? -ne 0  || -z $stats_raw ]]; then
-				echo -e "${YELLOW}Failed to read $miner stats from localhost:3333${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner stats from localhost:$myport${NOCOLOR}"
 			else
 				#[ "10.0 - ETH", "83", "67664;48;0", "28076;27236;12351", "891451;29;0", "421143;408550;61758", "67;40;70;45;69;34", "eth-eu1.nanopool.org:9999;sia-eu1.nanopool.org:7777", "0;0;0;0" ]
 				khs=`echo $stats_raw | jq -r '.[2]' | awk -F';' '{print $1}'`
@@ -86,17 +119,17 @@ fi
 			
 		;;
 		claymore-x)
-			stats=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat1"}' | nc -w $API_TIMEOUT localhost 3337 | jq '.result'`
+			stats=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat1"}' | nc -w $API_TIMEOUT localhost $myport | jq '.result'`
 			if [[ $? -ne 0  || -z $stats ]]; then
-				echo -e "${YELLOW}Failed to read $miner stats from localhost:3337${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner stats from localhost:$myport${NOCOLOR}"
 			else
 				khs=`echo $stats | jq -r '.[2]' | awk -F';' '{print $1/1000}'` #sols to khs
 			fi
 		;;
 		claymore-z)
-			stats=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat1"}' | nc -w $API_TIMEOUT localhost 3335 | jq '.result'`
+			stats=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat1"}' | nc -w $API_TIMEOUT localhost $myport | jq '.result'`
 			if [[ $? -ne 0  || -z $stats ]]; then
-				echo -e "${YELLOW}Failed to read $miner stats from localhost:3335${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner stats from localhost:$myport${NOCOLOR}"
 			else
 				khs=`echo $stats | jq -r '.[2]' | awk -F';' '{print $1/1000}'` #sols to khs
 			fi
@@ -105,9 +138,9 @@ fi
 			#0000:03:00.0, .result[].busid[5:] trims first 5 chars
 			#stats_raw=`curl --connect-timeout 2 --max-time $API_TIMEOUT --silent --noproxy '*' http://localhost:42000/getstat`
 			#curl uses http_proxy env var, we don't need it. --noproxy does not work
-			stats_raw=`echo "GET /getstat" | nc -w $API_TIMEOUT localhost 42000 | tail -n 1`
+			stats_raw=`echo "GET /getstat" | nc -w $API_TIMEOUT localhost $myport | tail -n 1`
 			if [[ $? -ne 0  || -z $stats_raw ]]; then
-				echo -e "${YELLOW}Failed to read $miner stats from localhost:42000${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner stats from localhost:$myport${NOCOLOR}"
 			else
 				khs=`echo $stats_raw | jq -r '.result[].speed_sps' | awk '{s+=$1} END {print s/1000}'` #sum up and convert to khs
 				local ac=$(jq '[.result[].accepted_shares] | add' <<< "$stats_raw")
@@ -152,16 +185,17 @@ fi
 			fi
 		;;
 		ccminer)
-			threads=`echo "threads" | nc -w $API_TIMEOUT localhost 4068` #&& echo $threads
+			threads=`echo "threads" | nc -w $API_TIMEOUT localhost $myport` #&& echo $threads
 			if [[ $? -ne 0  || -z $threads ]]; then
-				echo -e "${YELLOW}Failed to read $miner stats from localhost:4068${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner stats from localhost:$myport${NOCOLOR}"
 			else
-				summary=`echo "summary" | nc -w 2 localhost 4068`
+				summary=`echo "summary" | nc -w 2 localhost $myport`
 				re=';UPTIME=([0-9]+);' && [[ $summary =~ $re ]] && local uptime=${BASH_REMATCH[1]} #&& echo "Matched" || echo "No match"
 				#khs will calculate from cards; re=';KHS=([0-9\.]+);' && [[ $summary =~ $re ]] && khs=${BASH_REMATCH[1]} #&& echo "Matched" || echo "No match"
 				algo=`echo "$summary" | tr ';' '\n' | grep -m1 'ALGO=' | sed -e 's/.*=//'`
 				local ac=`echo "$summary" | tr ';' '\n' | grep -m1 'ACC=' | sed -e 's/.*=//'`
 				local rj=`echo "$summary" | tr ';' '\n' | grep -m1 'REJ=' | sed -e 's/.*=//'`
+
 				#stats=`echo $threads | tr '|' '\n' | tr ';' '\n' | tr -cd '\11\12\15\40-\176' | grep -E 'KHS=' | sed -e 's/.*=//' | jq -cs '{khs:.}'`
 				striplines=`echo "$threads" | tr '|' '\n' | tr ';' '\n' | tr -cd '\11\12\15\40-\176'`
 
@@ -217,9 +251,9 @@ fi
 			fi
 		;;
 		ethminer)
-			stats_raw=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat1"}' | nc -w $API_TIMEOUT localhost 3334 | jq '.result'`
+			stats_raw=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat1"}' | nc -w $API_TIMEOUT localhost $myport | jq '.result'`
 			if [[ $? -ne 0  || -z $stats_raw ]]; then
-				echo -e "${YELLOW}Failed to read $miner stats_raw from localhost:3334${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner stats_raw from localhost:$myport${NOCOLOR}"
 			else
 				khs=`echo $stats_raw | jq -r '.[2]' | awk -F';' '{print $1}'`
 				#`echo $stats_raw | jq -r '.[3]' | awk 'gsub(";", "\n")' | jq -cs .` #send only hashes
@@ -250,19 +284,19 @@ fi
 			fi
 		;;
 		sgminer-gm)
-			stats_raw=`echo '{"command":"summary+devs"}' | nc -w $API_TIMEOUT localhost 4028`
+			stats_raw=`echo '{"command":"summary+devs"}' | nc -w $API_TIMEOUT localhost $myport`
 			if [[ $? -ne 0 || -z $stats_raw ]]; then
-				echo -e "${YELLOW}Failed to read $miner from localhost:4028${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner from localhost:$myport${NOCOLOR}"
 			else
-				khs=`echo $stats_raw | jq '.["summary"][0]["SUMMARY"][0]["KHS 15s"]'`
-				stats=`echo $stats_raw | jq '{khs: [.devs[0].DEVS[]."KHS 15s"], temp: [.devs[0].DEVS[].Temperature], \
-						fan: [.devs[0].DEVS[]."Fan Percent"], uptime: .summary[0].SUMMARY[0].Elapsed, algo: "'$SGMINER_GM_ALGO'"}'`
+				khs=`echo $stats_raw | jq '.["summary"][0]["SUMMARY"][0]["KHS 5s"]'`
+				stats=`echo $stats_raw | jq '{hs: [.devs[0].DEVS[]."KHS 5s"], hs_units: "'khs'", temp: [.devs[0].DEVS[].Temperature], \
+						fan: [.devs[0].DEVS[]."Fan Percent"], uptime: .summary[0].SUMMARY[0].Elapsed, algo: "'$myalgo'"}'`
 			fi
 		;;
 		dstm)
-			stats_raw=`echo '{"id":1, "method":"getstat"}' | nc -w $API_TIMEOUT localhost 43000`
+			stats_raw=`echo '{"id":1, "method":"getstat"}' | nc -w $API_TIMEOUT localhost $myport`
 			if [[ $? -ne 0 || -z $stats_raw ]]; then
-				echo -e "${YELLOW}Failed to read $miner from localhost:43000${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner from localhost:$myport${NOCOLOR}"
 			else
 				khs=`echo $stats_raw | jq '.result[].sol_ps' | awk '{s+=$1} END {print s/1000}'`
 				local uptime=$(( `date +%s` - $(stat -c%X /proc/`pidof zm`) )) #dont think zm will die so soon after getting stats
@@ -300,9 +334,9 @@ fi
 			fi
 		;;
 		bminer) #@see https://www.bminer.me/references/
-			stats_raw=`curl --connect-timeout 2 --max-time $API_TIMEOUT --silent --noproxy '*' http://127.0.0.1:1880/api/status`
+			stats_raw=`curl --connect-timeout 2 --max-time $API_TIMEOUT --silent --noproxy '*' http://127.0.0.1:$myport/api/status`
 			if [[ $? -ne 0 || -z $stats_raw ]]; then
-				echo -e "${YELLOW}Failed to read $miner from localhost:1880${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner from localhost:$myport${NOCOLOR}"
 			else
 				#fucking bminer sorts it's keys as numerics, not natual, e.g. "1", "10", "11", "2", fix that with sed hack by replacing "1":{ with "01":{
 				stats_raw=$(echo "$stats_raw" | sed -E 's/"([0-9])":\s*\{/"0\1":\{/g' | jq -c --sort-keys .)
@@ -346,9 +380,9 @@ fi
 			fi
 		;;
 		optiminer)
-			stats_raw=`curl --connect-timeout 2 --max-time $API_TIMEOUT --silent --noproxy '*' http://localhost:52749`
+			stats_raw=`curl --connect-timeout 2 --max-time $API_TIMEOUT --silent --noproxy '*' http://localhost:$myport`
 			if [[ $? -ne 0 || -z $stats_raw ]]; then
-				echo -e "${YELLOW}Failed to read $miner from localhost:52749${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner from localhost:$myport${NOCOLOR}"
 			else
 				#optiminer sorts it's keys incorrectly, e.g. "GPU1", "GPU10", "GPU2", fixing that with sed hack by replacing "1":{ with "01":{
 				stats_raw=$(echo "$stats_raw" | sed -E 's/"GPU([0-9])"/"GPU0\1"/g' | jq -c --sort-keys .)
@@ -368,10 +402,10 @@ fi
 			fi
 		;;
 		xmr-stak)
-			stats_raw=`curl --connect-timeout 2 --max-time $API_TIMEOUT --silent --noproxy '*' http://127.0.0.1:60045/api.json`
+			stats_raw=`curl --connect-timeout 2 --max-time $API_TIMEOUT --silent --noproxy '*' http://127.0.0.1:$myport/api.json`
 			#echo $stats_raw | jq .
 			if [[ $? -ne 0 || -z $stats_raw ]]; then
-				echo -e "${YELLOW}Failed to read $miner from localhost:60045${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner from localhost:$myport${NOCOLOR}"
 			else
 				khs=`echo $stats_raw | jq -r '.hashrate.total[0]' | awk '{print $1/1000}'`
 				local cpu_temp=`cat /sys/class/hwmon/hwmon0/temp*_input | head -n $(nproc) | awk '{print $1/1000}' | jq -rsc .` #just a try to get CPU temps
@@ -399,10 +433,10 @@ fi
 			fi
 		;;
 		xmrig)
-			stats_raw=`curl --connect-timeout 2 --max-time $API_TIMEOUT --silent --noproxy '*' http://127.0.0.1:60050`
+			stats_raw=`curl --connect-timeout 2 --max-time $API_TIMEOUT --silent --noproxy '*' http://127.0.0.1:$myport`
 			#echo $stats_raw | jq .
 			if [[ $? -ne 0 || -z $stats_raw ]]; then
-				echo -e "${YELLOW}Failed to read $miner from localhost:60050${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner from localhost:$myport${NOCOLOR}"
 			else
 				khs=`echo $stats_raw | jq -r '.hashrate.total[0]' | awk '{print $1/1000}'`
 				local cpu_temp=`cat /sys/class/hwmon/hwmon0/temp*_input | head -n $(nproc) | awk '{print $1/1000}' | jq -rsc .` #just a try to get CPU temps
@@ -410,11 +444,11 @@ fi
 			fi
 		;;
 		cpuminer-opt)
-			threads=`echo "threads" | nc -w $API_TIMEOUT localhost 4048` #&& echo $threads
+			threads=`echo "threads" | nc -w $API_TIMEOUT localhost $myport` #&& echo $threads
 			if [[ $? -ne 0  || -z $threads ]]; then
-				echo -e "${YELLOW}Failed to read $miner stats from localhost:4048${NOCOLOR}"
+				echo -e "${YELLOW}Failed to read $miner stats from localhost:$myport${NOCOLOR}"
 			else
-				summary=`echo "summary" | nc -w $API_TIMEOUT localhost 4048`
+				summary=`echo "summary" | nc -w $API_TIMEOUT localhost $myport`
 #				echo $summary
 				re=';UPTIME=([0-9]+);' && [[ $summary =~ $re ]] && local uptime=${BASH_REMATCH[1]} #&& echo "Matched" || echo "No match"
 				#khs will calculate from cards; re=';KHS=([0-9\.]+);' && [[ $summary =~ $re ]] && khs=${BASH_REMATCH[1]} #&& echo "Matched" || echo "No match"
@@ -488,6 +522,7 @@ fi
 
 	[[ -z $khs ]] && khs=0
 	[[ -z $stats ]] && stats="null"
+
 
 #	[[ ! -z $mindex ]] &&
 #		eval "khs${mindex}"

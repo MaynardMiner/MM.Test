@@ -1,0 +1,228 @@
+ChangeLog
+
+1.2.9:
+
+(ALL VERSIONS)
+-Added New Zergpool Equihash Algos
+
+
+(HIVEOS)
+-Added 'active' command
+ Type 'active' to view active miners in any terminal
+-Add 'stats' command
+ Type 'stats to view MM.Hash miner stats in any terminal
+-Created Help Files Folder
+-Log Integration with HiveOS
+ Logs are now scheduled to HiveOS logging.
+-Added Pools To Main Mining Screen
+-Added Previous HashRates To Main Mining Screen
+-Cleaned up Main Mining Screen
+-Repaired Random Failures Of EWBF Hive Stats
+
+-Added -Benchmark Parameter. Expiremental:
+
+  -Benchmark [seconds]
+
+   If miner hashrate equals $null, -interval time will
+change to -Benchmark time. This only works for NVIDIA1.
+Other device groups will still mine as usual, but will
+have same interval as -Benchmark.
+
+   I did not test fully. Report if it is working correctly
+I will update wiki.
+
+
+
+1.3.0:
+
+(Windows & HiveOS)
+
+-Zergpool https:/. Better API calls.
+-Added Equihash Algorithms - zergpool and mph
+
+(HiveOS)
+-Ensured -Benchmark parameter working
+-Fixed -Timeouts parameter
+-Log rollover every 12 hours. Miner divides logs into 1 hour periods.
+-PID read/write for better process control
+-Discovered actual Powershell Core bug in (where).count -eq 0. It worked when it wanted to. 
+Reported to powershell, and then built workaround.
+-Added Cuda-9-2 folder, will start filling with miner files for HiveOS cuda 9.2.
+You must setup hiveOS to be able to use Cuda9.2 (Not reccommended)
+-Added 10 second wait to give Miners time to spool up. Was noticing occasional lockup becuase
+of too high resource use.
+-Reduced hashrate display time to every 7 seconds instead of 5 for smoother display.
+-Fixed Claymore API. However, noticed Claymore itself was displaying only 1 fan and 1 temp
+during my testing occasionally. In future I will attempt to force defaults from Hive when this happens.
+-Timeout Folder to notify when miners timeout. However, Timeouts no longer set all hashrates to zero. This
+way miner can continue to try to mine that algo/coin. I simply reduces overall daily hashrate. The Timeout
+folder will give you an idea of specific stats you may want to delete and then re-benchmark for fine tuning.
+-Resolved Status flag issues. When typing "active", you should receive correct data.
+-Resolved previous hashrate issues on screen
+-Attempted to display better countdown times. NOTE: Internal countdown time varies by processor to processor.
+However- Run time displayed for Miners is 100% correct.
+
+1.3.2:
+
+Truncate log stats for T-Rex, so user will know when miner isn't hashing in case MM.Hash fails
+Attempted to fix multiple LogData screens
+Migrated total t-rex log hash into try/catch argument to prevent on-screen errors (which is normal if hashrate isn't there).
+Updated Miners
+Migrated into a version setup, with remote upgrading capability- Details on full operation coming soon. (expiremental)
+-Force paramter to clear T-Rex log.
+updated Z-Enemy
+updated T-Rex
+Removed -Algorithms, as it was depreciated. Algorithms can now be changed by editing "Algorithms.txt" file
+miner will self-install powershell
+Added Date to stats command
+Updated Help Files
+Ensured All Miners Display Pool
+
+1.3.3:
+
+zergpool api updated.
+for future implementation- zergpool_coin added
+for future implementation- zerpgool_algo added
+zergpool removed
+blockmasters added (was not tested- Trying to push fast to fix zergpool)
+starpool added (tested)
+New command- "logdata" lets you see the stats recording miners that work from logs. Debug aid.
+New command- "pidinfo" was always running in background- brought it to a screen so you can see MM.Hash process tracking. Debug aid.
+LogData screen opens with every miner, is put to sleep if not needed (to preveny zombie app errors)
+PIDInfo screens opens with every miner- Has always been running, it is just now visual
+PIDInfo is now tracking MM.Hash process- For future implementation.
+Added "clear" background process, work the same as miners- Double close command in case of hangs.
+Small implementation to reduce resources.
+Status flags written to disk, to provide double checking of MM.Hash states and its miners.
+
+1.3.4:
+-HiveOS Added hive integrated "mine" command. Enter to bring up NVIDIA1 screen (mining window).
+-Added -No_Algo argument. -No_Algo excludes aglorithm of your choice. Must match Algorithms.txt.
+Case Sensitive! (All lower case characters)
+-EWBF coins added back in. Updated equihash to match zergpool.
+-Reduced resources on PID system/tracking, removed read/write status- It was redundant.
+-Newer streamlined benchmarking system. (Both versions)
+-Better chance of miner catching and recording timeouts.
+-Recorded hashrate displayed at benchmarking. Recorded hashrate is pulled from file (accurate).
+-Enemy 1.15a
+-CryptoDredge 0.8.3
+-Started staging of much faster -Auto_Coin version. Not implemented yet.
+-Started staging for T-Rex API Rest method hashrate recording (when implemented).
+
+
+1.3.7 HiveOS Silver Lambo Edition:
+-IMPROVED COIN MINING SYSTEM! Highly recommend to try -Auto-Coin "Yes"
+-MM.Hash will not sort or download entire database, miner first sorts by most profitable algorithms, if the best pool is pool that has the capability of selecting a coin other than BTC: IT then chooses the coins of the algorithms of that pool.
+-Stats will show coin list of a particular algorithm if coin mining occurs during that period.
+- -Auto Coin switching is now around a 20-30 second process: which is 200% better.
+-Fixed Powershell Core update bugs with a better workarounds.
+-MM.Hash in background checks stats for possible timeouts, for accurate timeouts.
+-MM.Hash now closes itself and all background windows within a few seconds of it stopping.
+-Added -threshold argument default (internally) is set to .1 - If profit day shows to be .1 btc: MM.Hash ignores algo.
+-Added back & improved active times for miners.
+-Staged miners.txt. Does not work. However, you can see the direction it is going.
+-This is beta version of new system.
+-CPU Miners will now compile to your system. I included an experimental one that can work for ARM cpus. Note- Initial benchmark period is usually long for cpuminers. I would turn up -interval when benchmarking them. After initial benchmarks, you can set -interval to a much lower setting.
+-hex added to algorithms.txt and files.
+-fixed blockmasters pool file.
+-fixed starpool pool file.
+-pools initial stats are now estimate current. 24 hours was causing irregular initial stats. Improved 'stats' command and display.
+-Enemy 1.16 added
+-Code Staging for AMD
+
+1.3.8
+Important: -GPU_Count1 argument was removed. Miner now detects GPU's. You will get errors if used.
+-Upated Windows Version To New Coin Switching System (Windows Miner Down- Could Not Test. Converting it to AMD rig. Please Report Bugs)
+-Added -Favor_Coins argument. Default is "Yes"
+-Combined Windows and Linux Miners into one folder sharing same files.
+-Added Config Folder- Placed algorithms files there.
+-Added \Config\update.txt
+-Due to miner files being combined, you will have to benchmark. However, future updates will no longer your miner files. They will be copied over.
+-Ensured T-Rex accepted/rejected are shown correctly on HiveOS.
+-Lots of Code-Staging/Prep for AMD mining. Did not add AMD miners (having to change a lot to make it happen).
+-Updated Algorithms and their placements to most optimal settings. Should see better hashrates on miners.
+-Removed Alexis-Miner. It's depreciated
+-Remove ocminer. It's depreciated
+-Fixed threshold issues (will test further to confirm).
+-Worked on better miner launch sequence
+-Fixed myr-gr
+-Added algorithms in case pools add them
+
+1.3.9
+-Fixed GPU array from double loading GPU index
+-Removed extra pool files from github CoinPools folder
+-Ensure -Favor_Coins was working.
+-Miner will overwrite 1.3.8 versions, but transfer your miner configurations.
+-Re-wrote benchmark parameter to test bench before writing stat, will write
+message if testbench fails
+-Failed Benchmarking should now require 3 failed benches in a row order to write
+stat to 0
+-Fix T-Rex Hive monitoring: Hashrates will now display correctly for each gpu.
+-Added Sonoa
+-Started Migration of cmdlets from main source code. Added some notations. Not
+finished yet.
+-Removed erroneous files from github.
+-Changed Initialization procedure to a more fluid transision.
+
+1.4.0a
+-Windows Version Now Matches HiveOS version in core design
+-Ensure 100% benchmarking is setting to 0 after 3 failed attempts
+-Fixed some HiveOS stat issues from 1.3.9
+-Updated Z-Enemy to latest version
+-Noticed Times Were inconsistent on "active" screen: Attempted fix
+-Removed Erroneus Messages involving closing screens (now that I know it works consistently)
+-pidinfo now starts at miner startup, MM.Hash will always close within 5 seconds of it being stopped.
+-Started code staging for windows HiveOS API 2.0 (not completed) integration
+-Started code staging for HiveOS new version 1.4.0b
+-Started code staging for Ubuntu new version 1.4.0c
+
+1.4.0b
+HiveOS: Changes:
+-Added AMD miners, and changed code to work for AMD in HiveOS (HiveOS only)
+-AMD miners are not plug-and-play. You will likely have to edit settings in the miner files, AMD Unix is complicated, but you should be familiar with this.
+-Will add more/fine AMD miners- This is simply beta test of core script. Please use and review any issues you see.
+-SGminer is not working on blockmasters- It is a pool issue, not miner.
+-Fixed stats and have background miner logs sent to "Logs" folder
+-Reduced switch load time by a few seconds.
+-New Remote command: get-screen [type]...Show last 100 lines of group1 miner on HiveOS site.
+-Ensured Timeouts will timeout miners.
+-Added Function Restart-Database. Miner will now switch off algorithm/coin if detects no hash after 1 min.
+-Times on 'active' command should be more accurate.
+-'active' now shows database countdown.
+-code staging for Ubuntu version.
+-added more algorithm text files that are case specific for naming convetions between pool and miner.
+-Enemy 1.1.7
+-T-Rex 0.6.2 (added balloon)
+-Lots of migrations and code cleanup to make miner better/faster
+-Fixed "Logs" error from beta
+-Fixed T-rex from beta
+-Removed algorithms.txt. It was redundant. Main algorithm list is get-pool.txt...Just remove/add there. get-pool.txt is the
+algorithms miner searches for from pools.
+-added -SGDevices1 -SGDevices2 -SGDevices3 arguments
+
+1.4.1 beta:
+
+HiveOS Changes:
+
+-Added 0.3.4 Dredge
+-Ensured get-screen was working correctly
+-removed coin name from "stats". This allows it to clearly show up on HiveOS site.
+-Fixed h-stats and commands so I don't accidentally mess up path to commands again.
+-Moved khs value to logdata for trex, so Hive will still recieve stats, even when database starts.
+-Code staging to remove double local api calls from miners (MM.Hash will send data to h-stats, not both gather information from miner)
+-Found some typos of new version- fixed.
+-Miner should transfer miner files: Note previous typo on Enemy-CCDevices 2 file You might copy file from github to change) to prevent errors.
+-More code staging for Unix version
+-Previous Version notes: Poly takes more than 5 minutes to hash an accepted share on lower-model GPUS. You may want to -No_Algo it.
+-Confirmed it is possible to combine AMD & NVIDIA, but not possible to get them both to stat on HiveOS (only 1 Device group will work).
+
+Windows Changes:
+
+-Code Staging for 1.4.1a (Windows Version). (Need to make the big changes to miner files to improve speed to match Hive 1.4.0b, and AMD)
+-Use 1.4.0a version still. New version soon.
+
+Unix Changes:
+
+-No Working Unix version, but getting close.
+
+
