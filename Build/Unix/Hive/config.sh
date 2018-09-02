@@ -1,1 +1,1 @@
-./z-enemy-NVIDIA1 -d GTX1070#1,GTX1070#2,GTX1070#3,GTX1070#4,GTX1070#5,GTX1070#6 -a Hex -o stratum+tcp://hex.mine.zergpool.com:5135 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,ID=MMHash 
+./AMD1-2 -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=GIN 

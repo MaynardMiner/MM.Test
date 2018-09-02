@@ -1,1 +1,1 @@
-ccminer
+tdxminer

@@ -1,5 +1,6 @@
 [string]$Path = $update.nvidia.cryptodredge.path1
 [string]$Uri = $update.nvidia.cryptodredge.uri
+[string]$MinerName = $update.nvidia.cryptodredge.minername
 
 $Build = "Zip"
 
@@ -9,15 +10,22 @@ if($GPUDevices1 -ne ''){$Devices = $GPUDevices1}
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName
 
 $Commands = [PSCustomObject]@{
-        "lyra2v2" = ''
-        "lyra2rev2" = ''
-        "lyra2z" = ''
-        "lyra2re" = ''
-        "allium" = ''
-        "neoscrypt" = ''
-        "blake2s" = ''
-        "skein" = ''
-        "skunk" = ''
+
+"lyra2v2" = ''
+"lyra2rev2" = ''
+"lyra2z" = ''
+"lyra2re" = ''
+"allium" = ''
+"neoscrypt" = ''
+"blake2s" = ''
+"skein" = ''
+"cryptonightv7" = ''
+"cryptonightheavy" = ''
+"aeon" = ''
+"masari" = ''
+"stellite" = ''
+"lbk3" = ''
+        
         }
         
 if($CoinAlgo -eq $null)
@@ -26,9 +34,9 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
   if($Algorithm -eq "$($AlgoPools.$_.Algorithm)")
    {
         [PSCustomObject]@{
-                Platform = $Platform
+        Platform = $Platform
         Symbol = "$($_)"
-        MinerName = "Dredge-NVIDIA1"
+        MinerName = $MinerName
 	Type = "NVIDIA1"
         Path = $Path
         Devices = $Devices
@@ -54,9 +62,9 @@ else{
         Where {$($Commands.$($CoinPools.$_.Algorithm)) -NE $null} |
         foreach {
         [PSCustomObject]@{
-                Platform = $Platform
+        Platform = $Platform
          Symbol = "$($CoinPools.$_.Symbol)"
-         MinerName = "Dredge-NVIDIA1"
+         MinerName = $MinerName
          Type = "NVIDIA1"
          Path = $Path
          Devices = $Devices

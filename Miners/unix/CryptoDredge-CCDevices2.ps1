@@ -1,5 +1,6 @@
 [string]$Path = $update.nvidia.cryptodredge.path2
 [string]$Uri = $update.nvidia.cryptodredge.uri
+[string]$MinerName = $update.nvidia.cryptodredge.minername
 
 $Build = "Zip"
 
@@ -9,6 +10,7 @@ if($GPUDevices2 -ne ''){$Devices = $GPUDevices2}
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName
 
 $Commands = [PSCustomObject]@{
+
   "lyra2v2" = ''
   "lyra2rev2" = ''
   "lyra2z" = ''
@@ -17,7 +19,13 @@ $Commands = [PSCustomObject]@{
   "neoscrypt" = ''
   "blake2s" = ''
   "skein" = ''
-  "skunk" = ''
+  "cryptonightv7" = ''
+  "cryptonightheavy" = ''
+  "aeon" = ''
+  "masari" = ''
+  "stellite" = ''
+  "lbk3" = ''
+  
   }
         
 
@@ -29,7 +37,7 @@ $Commands = [PSCustomObject]@{
                 [PSCustomObject]@{
                 Platform = $Platform
                 Symbol = "$($_)"
-                MinerName = "Dredge-NVIDIA2"
+                MinerName = $MinerName
                 Type = "NVIDIA2"
                 Path = $Path
                 Devices = $Devices
@@ -57,7 +65,7 @@ $Commands = [PSCustomObject]@{
         [PSCustomObject]@{
                 Platform = $Platform
          Symbol = "$($CoinPools.$_.Symbol)"
-         MinerName = "Dredge-NVIDIA2"
+         MinerName = $MinerName
          Type = "NVIDIA2"
          Path = $Path
          Devices = $Devices

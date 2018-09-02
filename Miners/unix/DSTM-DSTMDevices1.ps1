@@ -1,5 +1,6 @@
 [string]$Path = $update.nvidia.dstm.path1
 [string]$Uri = $update.nvidia.dstm.uri
+[string]$MinerName = $update.nvidia.dstm.minername
 
 $Build = "Zip"
 
@@ -22,9 +23,9 @@ if($CoinAlgo -eq $null)
   if($Algorithm -eq "$($AlgoPools.$_.Algorithm)")
    {
     [PSCustomObject]@{
-      Platform = $Platform
-    Symbol = "$($_)"
-    MinerName = "zm-NVIDIA1"
+            Platform = $Platform
+            Symbol = "$($_)"
+            MinerName = $MinerName
             Type = "NVIDIA1"
             Path = $Path
             Distro =  $Distro
@@ -53,7 +54,7 @@ else{
         [PSCustomObject]@{
           Platform = $Platform
          Symbol = "$($CoinPools.$_.Symbol)"
-         MinerName = "zm-NVIDIA1"
+         MinerName = $MinerName
          Type = "NVIDIA1"
          Path = $Path
          Devices = $Devices

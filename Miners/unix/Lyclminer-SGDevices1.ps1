@@ -1,18 +1,24 @@
-[string]$Path = $update.amd.tdxminer.path3
-[string]$Uri = $update.amd.tdxminer.uri
+[string]$Path = $update.amd.lyclminer.path1
+[string]$Uri = $update.amd.lyclminer.uri
+[string]$MinerName = $update.amd.lyclminer.minername
+
 
 $Build = "Zip"
 
-if($SGDevices2 -ne ''){$Devices = $SGDevices2}
-if($GPUDevices2 -ne ''){$Devices = $GPUDevices2}
+if($SGDevices1 -ne ''){$Devices = $SGDevices1}
+if($GPUDevices1 -ne ''){$Devices = $GPUDevices1}
 
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName
 
+#Algorithms:
+#NeoScrypt
+#Groestl
 
 $Commands = [PSCustomObject]@{
-"lyra2z" = ''
-}
 
+  "lyra2v2" = ''
+
+}
 
 if($CoinAlgo -eq $null)
 {
@@ -22,18 +28,21 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
     [PSCustomObject]@{
     Platform = $Platform
     Symbol = "$($_)"
-    MinerName = "tdxminer-AMD3"
-    Type = "AMD3"
+    MinerName = $MinerName
+    Type = "AMD1"
     Path = $Path
     Devices = $Devices
-    DeviceCall = "sgminer-gm"
-    Arguments = "-a $_ -o stratum+tcp://$($AlgoPools.$_.Host):$($AlgoPools.$_.Port) -u $($AlgoPools.$_.User3) -p $($AlgoPools.$_.Pass3) $($Commands.$_)"
+    DeviceCall = "lyclminer"
+    Connection = "$($AlgoPools.$_.Host):$($AlgoPools.$_.Port)"
+    Username =  "$($AlgoPools.$_.User1)"
+    Password = "$($AlgoPools.$_.Pass1)"
+    Arguments = "none"
     HashRates = [PSCustomObject]@{$_ = $Stats."$($Name)_$($_)_HashRate".Day}
     Selected = [PSCustomObject]@{$_ = ""}
     MinerPool = "$($AlgoPools.$_.Name)"
     FullName = "$($AlgoPools.$_.Mining)"
     Port = 0
-    API = "tdxminer"
+    API = "lyclminer"
     Wrap = $false
     URI = $Uri
     BUILD = $Build
@@ -48,19 +57,22 @@ else{
   Where {$($Commands.$($CoinPools.$_.Algorithm)) -NE $null} |
   foreach {
    [PSCustomObject]@{
-    Platform = $Platform
-    Symbol = "$($CoinPools.$_.Symbol)"
-   MinerName = "tdxminer-AMD3"
-   Type = "AMD3"
+   Platform = $Platform
+   Symbol = "$($CoinPools.$_.Symbol)"
+   MinerName = $MinerName
+   Type = "AMD1"
    Path = $Path
    Devices = $Devices
-   DeviceCall = "sgminer-gm"
-   Arguments = "-a $($CoinPools.$_.Algorithm) -o stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port) -u $($CoinPools.$_.User3) -p $($CoinPools.$_.Pass3) $($CoinPools.$Commands.$($CoinPools.$_.Algorithm))"
+   DeviceCall = "lyclminer"
+   Connection = "stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port)"
+   Username = "$($CoinPools.$_.User1)"
+   Password = "$($CoinPools.$_.Pass1)"
+   Arguments = "none"
    HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $Stats."$($Name)_$($CoinPools.$_.Algorithm)_HashRate".Day}
-   API = "tdxminer"
+   API = "lyclminer"
    Selected = [PSCustomObject]@{$CoinPools.$_.Algorithm = ""}
    FullName = "$($CoinPools.$_.Mining)"
-	 MinerPool = "$($CoinPools.$_.Name)"
+   MinerPool = "$($CoinPools.$_.Name)"
    Port = 0
    Wrap = $false
    URI = $Uri

@@ -39,7 +39,7 @@ if($Location -eq "EUROPE")
    $Location = "EUROPE" 
  }
 
-$nicehash_Request.result | Select-Object -ExpandProperty simplemultialgo | ForEach-Object {
+$nicehash_Request.result | Select-Object -ExpandProperty simplemultialgo | Where-Object {$_.Paying -gt 0} | ForEach-Object {
     $nicehash_Host = "$($_.name).$Region.nicehash.com"
     $nicehash_Port = $_.port
     $nicehash_Algorithm = Get-Algorithm $_.name

@@ -12,11 +12,11 @@ function Get-GPUCount {
      if($_ -like "*NVIDIA*")
       {
        Write-Host "Getting NVIDIA GPU Count" -foregroundcolor cyan
-        nvidia-smi -a | Tee-Object ".\GPUCount.txt" | Out-Null
-        $GCount = Get-Content ".\GPUCount.txt" 
-        $AttachedGPU = $GCount | Select-String "Attached GPUS"   
-        [int]$GPU_Count = $AttachedGPU -split ": " | Select -Last 1
-         }
+       lspci | Tee-Object ".\GPUCount.txt" | Out-Null
+       $GCount = Get-Content ".\GPUCount.txt" 
+       $AttachedGPU = $GCount | Select-String "VGA" | Select-String "NVIDIA"   
+       [int]$GPU_Count = $AttachedGPU.Count
+       }
       if($_ -like "*AMD*")
        {
          Write-Host "Getting AMD GPU Count" -foregroundcolor cyan
@@ -166,7 +166,7 @@ function Get-AlgorithmList {
             [String]$DeviceCall,
             [parameter(Mandatory=$false)]
             [String]$Devices='',
-            [parameter(Mandatory=$true)]
+            [parameter(Mandatory=$false)]
             [String]$Arguments,
             [parameter(Mandatory=$true)]
             [String]$MinerName,
@@ -178,21 +178,36 @@ function Get-AlgorithmList {
             [String]$CmdDir,
             [parameter(Mandatory=$true)]
             [String]$MinerDir,
-	    [parameter(Mandatory=$true)]
+	        [parameter(Mandatory=$true)]
             [String]$Logs,
             [parameter(Mandatory=$true)]
-            [String]$Delay
+            [String]$Delay,
+            [parameter(Mandatory=$true)]
+            [string]$MinerInstance,
+            [parameter(Mandatory=$true)]
+            [string]$Algos,
+            [parameter(Mandatory=$true)]
+            [string]$GPUGroups,
+            [parameter(Mandatory=$true)]
+            [string]$APIs,
+            [parameter(Mandatory=$true)]
+            [string]$Ports,
+            [parameter(Mandatory=$true)]
+            [string]$MDir,
+            [parameter(Mandatory=$false)]
+            [string]$Username,                      
+            [parameter(Mandatory=$false)]
+            [string]$Connection,
+            [parameter(Mandatory=$false)]
+            [string]$Password                                           
         )
     
         $MinerTimer = New-Object -TypeName System.Diagnostics.Stopwatch
-        $Export = "/hive/ccminer/cuda"
-	$ClayMinerDir = Join-path "$MinerDir" "$MinerName"
-        
+        $Export = "/hive/ccminer/cuda"         
         Set-Location "/"
         Set-Location $CmdDir
         $PIDMiners = "$($Type)"
         if(Test-Path ".\PID\*$PIDMiners*"){Remove-Item ".\PID\*$PIDMiners*" -Force}
-
         if($Type -like '*NVIDIA*')
         {
         if($Devices -eq ''){$MinerArguments = "$($Arguments)"}
@@ -216,308 +231,86 @@ function Get-AlgorithmList {
         }
         if($Type -like '*CPU*'){$MinerArguments = $Arguments}
         if($Type -like '*ASIC*'){$MinerArguments = $Arguments}
-   	    $MinerConfig = "./$Minername $MinerArguments"
-        $MinerConfig | Set-Content ".\Unix\Hive\config.sh"
-        Start-Sleep -S 1
-        Write-Host "
+   	    $MinerConfig = "./$MinerInstance $MinerArguments"
+        $MinerConfig | Set-Content ".\Unix\Hive\config.sh" -Force
+        if($Type -eq "NVIDIA1" -or $Type -eq "AMD1")
+         {
+         Start-Process ".\Unix\Hive\killall.sh" -ArgumentList "LogData" -Wait
+         Start-Sleep -S 1
+         $DeviceCall | Set-Content ".\Unix\Hive\mineref.sh" -Force
+         $Ports | Set-Content ".\Unix\Hive\port.sh" -Force
+         Start-Process "screen" -ArgumentList "-S LogData -d -m"    
+         Start-Process ".\Unix\Hive\LogData.sh" -ArgumentList "LogData $DeviceCall $Type $GPUGroups $MDir $Algos $APIs $Ports"    
+          }
+       Write-Host "
         
         
         
-        Clearing Screen $($_.Type) & Tracking
-    
-    
-    
+        Clearing Screen $($Type) & Tracking
+
+
+
         "
-        Start-Process ".\Unix\Hive\killall.sh" -ArgumentList "$($Type)" -Wait    
+        Start-Process ".\Unix\Hive\killall.sh" -ArgumentList "$($Type)" -Wait
         Start-Sleep $Delay #Wait to prevent BSOD
         $MiningId = Start-Process "screen" -ArgumentList "-S $($Type) -d -m"
         Start-Sleep -S 1
-        if($Type  -like '*NVIDIA*'){$PreStart = Start-Process ".\Unix\Hive\pre-start.sh" -ArgumentList "$($Type) $Export" -Wait}
-        if($Type -like '*AMD*'){$PreStart = Start-Process ".\Unix\Hive\pre-startamd.sh" -ArgumentList "$($Type)" -Wait}
+        if($DeviceCall -eq "lyclminer"){
+        Set-Location $MinerDir
+        $ConfFile = Get-Content ".\lyclMiner.conf"
+        $NewLines = $ConfFile | ForEach {
+        if($_ -like "*<Connection Url =*"){$_ = "<Connection Url = `"stratum+tcp://$Connection`""}
+        if($_ -like "*Username =*"){$_ = "            Username = `"$Username`"    "}
+        if($_ -like "*Password =*" ){$_ = "            Password = `"$Password`">    "}
+        if($_ -notlike "*<Connection Url*" -or $_ -notlike "*Username*" -or $_ -notlike "*Password*"){$_}
+        }
+        $NewLines | Set-Content ".\lyclMiner.conf"
+        Set-Location $CmdDir
+        }
+        Set-Location $MinerDIr
+        Start-Process "chmod" -ArgumentList "+x $MinerInstance" -Wait
+        Set-Location $CmdDir
+        if($Type  -like '*NVIDIA*'){Start-Process ".\Unix\Hive\pre-start.sh" -ArgumentList "$($Type) $Export" -Wait}
+        if($Type -like '*AMD*'){Start-Process ".\Unix\Hive\pre-startamd.sh" -ArgumentList "$($Type)" -Wait}
 	    Start-Sleep -S 1
         Write-Host "Starting $($Name) Mining $($Coins) on $($Type)" -ForegroundColor Cyan
-	    $NewMiner = Start-Process ".\Unix\Hive\startup.sh" -ArgumentList "$MinerDir $($Type) $CmdDir/Unix/Hive $Logs"
+	    Start-Process ".\Unix\Hive\startup.sh" -ArgumentList "$MinerDir $($Type) $CmdDir/Unix/Hive $Logs"
 
         $MinerTimer.Restart()
-
+        $MinerProcessId = $null
         Do{
            Start-Sleep -S 1
-           Write-Host "Getting Process ID for $MinerName"
-           $MinerProcessId = Get-Process -Name "$($MinerName)" -ErrorAction SilentlyContinue
+           Write-Host "Getting Process ID for $MinerName"           
+           $MinerProcessId = Get-Process -Name "$($MinerInstance)" -ErrorAction SilentlyContinue
           }until($MinerProcessId -ne $null -or ($MinerTimer.Elapsed.TotalSeconds) -ge 10)  
         if($MinerProcessId -ne $null)
          {
-            $MinerProcessId.Id | Out-File ".\PID\$($Name)_$($Coins)_$($Type)_PID.txt"
-            Get-Date | Out-File ".\PID\$($Name)_$($Coins)_$($Type)_Date.txt"
-            Start-Sleep -S 3
+            $MinerProcessId.Id | Set-Content ".\PID\$($Name)_$($Coins)_$($MinerInstance)_PID.txt" -Force
+            Get-Date | Set-Content ".\PID\$($Name)_$($Coins)_$($MinerInstance)_Date.txt" -Force
+            Start-Sleep -S 1
         }
 
         $MinerTimer.Stop()
+        Rename-Item "$MinerDir\$($MinerInstance)" -NewName "$MinerName" -Force
         Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
-
     }
 
-    function Get-Threads {
+    function Get-PID {
         param(
-            [Parameter(Mandatory=$true)]
-            [String]$API,
-            [Parameter(Mandatory=$true)]
-            [Int]$Port,
-            [Parameter(Mandatory=$false)]
-            [Object]$Parameters = @{},
-            [Parameter(Mandatory=$false)]
-            [Bool]$Safe = $false
-        )
+            [parameter(Mandatory=$false)]
+            [String]$Instance
+            )
     
+        $GetPID = "$($Instance)_PID.txt"
+        
+        if(Test-Path $GetPID)
+         {
+          $PIDNumber = Get-Content $GetPID
+          $MinerPID = Get-Process -Id $PIDNumber
+         }
+        else{$MinerPID = $null}
 
-    $Server = "localhost"
+        $MinerPID
 
-    $Multiplier = 1000
-    $Delta = 0.05
-    $Interval = 5
-    $HashRates = @()
-
-    try
-    {
-        switch($API)
-        {
-            "sgminer-gm"
-            {
-                $Message = @{command="summary"; parameter=""} | ConvertTo-Json -Compress
-
-                do
-                {
-                    $Client = New-Object System.Net.Sockets.TcpClient $server, $port
-                    $Writer = New-Object System.IO.StreamWriter $Client.GetStream()
-                    $Reader = New-Object System.IO.StreamReader $Client.GetStream()
-                    $Writer.AutoFlush = $true
-
-                    $Writer.WriteLine($Message)
-                    $Request = $Reader.ReadLine()
-
-                    $Data = $Request.Substring($Request.IndexOf("{"),$Request.LastIndexOf("}")-$Request.IndexOf("{")+1) -replace " ","_" | ConvertFrom-Json
-
-                    $HashRate = if($Data.SUMMARY.HS_5s -ne $null){[Double]$Data.SUMMARY.HS_5s*[Math]::Pow($Multiplier,0)}
-                        elseif($Data.SUMMARY.KHS_5s -ne $null){[Double]$Data.SUMMARY.KHS_5s*[Math]::Pow($Multiplier,1)}
-                        elseif($Data.SUMMARY.MHS_5s -ne $null){[Double]$Data.SUMMARY.MHS_5s*[Math]::Pow($Multiplier,2)}
-                        elseif($Data.SUMMARY.GHS_5s -ne $null){[Double]$Data.SUMMARY.GHS_5s*[Math]::Pow($Multiplier,3)}
-                        elseif($Data.SUMMARY.THS_5s -ne $null){[Double]$Data.SUMMARY.THS_5s*[Math]::Pow($Multiplier,4)}
-                        elseif($Data.SUMMARY.PHS_5s -ne $null){[Double]$Data.SUMMARY.PHS_5s*[Math]::Pow($Multiplier,5)}
-
-                    if($HashRate -ne $null)
-                    {
-                        $HashRates += $HashRate
-                        if(-not $Safe){break}
-                    }
-
-                    $HashRate = if($Data.SUMMARY.HS_av -ne $null){[Double]$Data.SUMMARY.HS_av*[Math]::Pow($Multiplier,0)}
-                        elseif($Data.SUMMARY.KHS_av -ne $null){[Double]$Data.SUMMARY.KHS_av*[Math]::Pow($Multiplier,1)}
-                        elseif($Data.SUMMARY.MHS_av -ne $null){[Double]$Data.SUMMARY.MHS_av*[Math]::Pow($Multiplier,2)}
-                        elseif($Data.SUMMARY.GHS_av -ne $null){[Double]$Data.SUMMARY.GHS_av*[Math]::Pow($Multiplier,3)}
-                        elseif($Data.SUMMARY.THS_av -ne $null){[Double]$Data.SUMMARY.THS_av*[Math]::Pow($Multiplier,4)}
-                        elseif($Data.SUMMARY.PHS_av -ne $null){[Double]$Data.SUMMARY.PHS_av*[Math]::Pow($Multiplier,5)}
-
-                    if($HashRate -eq $null){$HashRates = @(); break}
-                    $HashRates += $HashRate
-                    if(-not $Safe){break}
-
-                    Start-sleep $Interval
-                } while($HashRates.Count -lt 6)
-            }
-            "ccminer"
-            {
-                $Message = "summary"
-
-                do
-                {
-
-                    for($i=0; $i -lt $Data.Count; $i++)
-                    {
-                     $B = $Data | Select -skip $i | Select -first 1
-                     $C = $B -split ";"
-                     $D = $C | Convertfrom-StringData
-                     $GPUArray | Add-Member "GPU$($D)" $D
-                    }  
-
-                    if(-not $Safe){break}
-
-                    Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
-            }
-            "nicehashequihash"
-            {
-                $Message = "status"
-
-                $Client = New-Object System.Net.Sockets.TcpClient $server, $port
-                $Writer = New-Object System.IO.StreamWriter $Client.GetStream()
-                $Reader = New-Object System.IO.StreamReader $Client.GetStream()
-                $Writer.AutoFlush = $true
-
-                do
-                {
-                    $Writer.WriteLine($Message)
-                    $Request = $Reader.ReadLine()
-
-                    $Data = $Request | ConvertFrom-Json
-
-                    $HashRate = $Data.result.speed_hps
-
-                    if($HashRate -eq $null){$HashRate = $Data.result.speed_sps}
-
-                    if($HashRate -eq $null){$HashRates = @(); break}
-
-                    $HashRates += [Double]$HashRate
-
-                    if(-not $Safe){break}
-
-                    Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
-            }
-            "nicehash"
-            {
-                $Message = @{id = 1; method = "algorithm.list"; params = @()} | ConvertTo-Json -Compress
-
-                $Client = New-Object System.Net.Sockets.TcpClient $server, $port
-                $Writer = New-Object System.IO.StreamWriter $Client.GetStream()
-                $Reader = New-Object System.IO.StreamReader $Client.GetStream()
-                $Writer.AutoFlush = $true
-
-                do
-                {
-                    $Writer.WriteLine($Message)
-                    $Request = $Reader.ReadLine()
-
-                    $Data = $Request | ConvertFrom-Json
-
-                    $HashRate = $Data.algorithms.workers.speed
-
-                    if($HashRate -eq $null){$HashRates = @(); break}
-
-                    $HashRates += [Double]($HashRate | Measure-Object -Sum).Sum
-
-                    if(-not $Safe){break}
-
-                    Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
-            }
-            "ewbf"
-            {
-                $Message = @{id = 1; method = "getstat"} | ConvertTo-Json -Compress
-
-                $Client = New-Object System.Net.Sockets.TcpClient $server, $port
-                $Writer = New-Object System.IO.StreamWriter $Client.GetStream()
-                $Reader = New-Object System.IO.StreamReader $Client.GetStream()
-                $Writer.AutoFlush = $true
-
-                do
-                {
-                    $Writer.WriteLine($Message)
-                    $Request = $Reader.ReadLine()
-
-                    $Data = $Request | ConvertFrom-Json
-
-                    $HashRate = $Data.result.speed_sps
-
-                    if($HashRate -eq $null){$HashRates = @(); break}
-
-                    $HashRates += [Double]($HashRate | Measure-Object -Sum).Sum
-
-                    if(-not $Safe){break}
-
-                    Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
-            }
-          "claymore"
-            {
-                do
-                {
-                    $Request = Invoke-WebRequest "http://$($Server):$Port" -UseBasicParsing
-
-                    $Data = $Request.Content.Substring($Request.Content.IndexOf("{"),$Request.Content.LastIndexOf("}")-$Request.Content.IndexOf("{")+1) | ConvertFrom-Json
-
-                    $HashRate = $Data.result[2].Split(";")[0]
-                    if($HashRate -eq $null){$HashRates = @()}
-		    $HashRates += [Double]$HashRate*$Multiplier
-
-                    if(-not $Safe){break}
-
-		    Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
-            }
-            "dstm" {
-                $Message = "summary"
-
-                do {
-                    $Client = New-Object System.Net.Sockets.TcpClient $server, $port
-                    $Writer = New-Object System.IO.StreamWriter $Client.GetStream()
-                    $Reader = New-Object System.IO.StreamReader $Client.GetStream()
-                    $Writer.AutoFlush = $true
-
-                    $Writer.WriteLine($Message)
-
-                    $Request = $Reader.ReadLine()
-
-                    $Data = $Request | ConvertFrom-Json
-
-                    $HashRate = [Double]($Data.result.sol_ps | Measure-Object -Sum).Sum
-                    if (-not $HashRate) {$HashRate = [Double]($Data.result.speed_sps | Measure-Object -Sum).Sum} #ewbf fix
-            
-                    if ($HashRate -eq $null) {$HashRates = @(); break}
-                    
-                    $HashRates += [Double]$HashRate
-                    
-                    if (-not $Safe) {break}
-
-                    Start-Sleep $Interval
-                } while ($HashRates.Count -lt 6)
-              }
-              
-            "fireice"
-            {
-                do
-                {
-                    $Request = Invoke-WebRequest "http://$($Server):$Port/h" -UseBasicParsing
-
-                    $Data = $Request.Content -split "</tr>" -match "total*" -split "<td>" -replace "<[^>]*>",""
-
-                    $HashRate = $Data[1]
-                    if($HashRate -eq ""){$HashRate = $Data[2]}
-                    if($HashRate -eq ""){$HashRate = $Data[3]}
-
-                    if($HashRate -eq $null){$HashRates = @(); break}
-
-                    $HashRates += [Double]$HashRate
-
-                    if(-not $Safe){break}
-
-                    Start-Sleep $Interval
-               } while($HashRates.Count -lt 6)
-            }
-            "wrapper"
-            {
-                do
-                {
-                    $HashRate = Get-Content ".\Wrapper_$Port.txt"
-
-
-                    if($HashRate -eq $null){$HashRates = @(); break}
-
-                    $HashRates += [Double]$HashRate
-
-                    if(-not $Safe){break}
-
-		   Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
-            }
-        }
-
-        $HashRates_Info = $HashRates | Measure-Object -Maximum -Minimum -Average
-        if($HashRates_Info.Maximum-$HashRates_Info.Minimum -le $HashRates_Info.Average*$Delta){$HashRates_Info.Maximum}
-
-        $HashRates_Info_Dual = $HashRates_Dual | Measure-Object -Maximum -Minimum -Average
-        if($HashRates_Info_Dual.Maximum-$HashRates_Info_Dual.Minimum -le $HashRates_Info_Dual.Average*$Delta){$HashRates_Info_Dual.Maximum}
     }
-    catch
-    {
-    }
-}
+    

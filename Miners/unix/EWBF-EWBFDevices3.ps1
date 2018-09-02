@@ -1,5 +1,6 @@
 [string]$Path = $update.nvidia.ewbf.path3
 [string]$Uri = $update.nvidia.ewbf.uri
+[string]$MinerName = $update.nvidia.ewbf.uri
 
 $Build = "Zip"
 
@@ -32,7 +33,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
     [PSCustomObject]@{
       Platform = $Platform
       Symbol = "$($_)"
-      MinerName = "miner-NVIDIA3"
+      MinerName = $MinerName
       Type = "NVIDIA3"
       Path = $Path
       Devices = $Devices
@@ -59,8 +60,8 @@ else{
          [PSCustomObject]@{
           Platform = $Platform
           Symbol = "$($Coinpools.$_.Symbol)"
-           MinerName = "miner-NVIDIA3"
-           Type = "NVIDIA3"
+          MinerName = $MinerName
+          Type = "NVIDIA3"
            Path = $Path
            Devices = $Devices
            DeviceCall = "ewbf"

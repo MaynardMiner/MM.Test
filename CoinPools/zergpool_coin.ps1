@@ -34,8 +34,8 @@ $zergcoinalgo = $CoinAlgo
       if($zergpool_Request.$_.estimate -ne "0.00000")
        {
 
-    $zergpool_Coin = $_
-    $zergpool_Symbol = $_
+    $zergpool_Coin = "$($_)".ToUpper()
+    $zergpool_Symbol = "$($_)".ToUpper()
     switch ($zergpool_Symbol) {
      "HSR"{$zergpool_Symbol = "HSR-Coin"}
      "SIB"{$zergpool_Symbol = "SIB-Coin"}

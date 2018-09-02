@@ -12,74 +12,76 @@ get_nvidia_cards_fan(){
 
 function miner_stats {
 	local mydir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+	local mystats=$(< $mydir/Build/Unix/Hive/hivestats.sh)
 	local miner=$(< $mydir/Build/Unix/Hive/mineref.sh)
+	local myport=$(< $mydir/Build/Unix/Hive/port.sh)
 	local mindex=$2 #empty or 2, 3, 4, ...
 	local Ntemp=$(get_nvidia_cards_temp)	# cards temp
 	local Nfan=$(get_nvidia_cards_fan)	# cards fan
-	local myhashrate=( $(< $mydir/Build/Unix/Hive/hashrates.sh) )
-	local myhs=$(< $mydir/Build/Unix/Hive/hashtype.sh)
-	local myacc=$(< $mydir/Build/Unix/Hive/accepted.sh)
-    local mykhs=$(< $mydir/Build/Unix/Hive/totalhash.sh)
-	local myrj=$(< $mydir/Build/Unix/Hive/rejected.sh)
-	local myalgo=$(< $mydir/Build/Unix/Hive/algo.sh)
-	local myport=$(< $mydir/Build/Unix/Hive/port.sh)
 	khs=0
 	stats=
 	case $miner in
 
 		trex) 
-			#Total HashRate For Individual GPUS:
-			#for (( i=0; i < ${#myhashrate[@]}; i++ )); do
-			#khs=`echo $khs ${myhashrate[$i]} | awk '{ printf("%.3f", $1 + $2) }'`
-		        #done
-                        #khs=`echo $khs | sed -E 's/^( *[0-9]+\.[0-9]([0-9]*[1-9])?)0+$/\1/'` #1234.100 -> 1234.1
 
-			#Hashrate From Accepted Shares:
-			khs=$mykhs
+				cckhs=(`echo "$mystats" | grep 'GPU=' | sed -e 's/.*=//'`)
+				algo=`echo "$mystats" | grep -m1 'ALGO=' | sed -e 's/.*=//'`
+				local ac=`echo "$mystats" | grep -m1 'ACC=' | sed -e 's/.*=//'`
+				local rj=`echo "$mystats" | grep -m1 'REJ=' | sed -e 's/.*=//'`
+
+				khs=`echo "$mystats" | grep -m1 'KHS=' | sed -e 's/.*=//'`
 
 
 			stats=$(jq -n \
-					--argjson hs "`echo ${myhashrate[@]} | jq -cs '.'`" \
+				        --argjson hs "`echo ${cckhs[@]} | tr " " "\n" | jq -cs '.'`" \
 					--arg hs_units "hs_units=khs" \
 				        --argjson temp "$Ntemp" \
 				        --argjson fan "$Nfan" \
 					--arg uptime "0" \
-					--arg ac "$myac" --arg rj "$myrj" \
-					--arg algo "$myalgo" \
+					--arg ac "$ac" --arg rj "$rj" \
+					--arg algo "$algo" \
 					'{$hs, $hs_units, $temp, $fan, $uptime, ar: [$ac, $rj], $algo}')
-	                		truncate -s 0 $mydir/Build/Unix/Hive/hashrates.sh
-					truncate -s 0 $mydir/Build/Unix/Hive/accepted.sh
-					truncate -s 0 $mydir/Build/Unix/Hive/rejected.sh
-					truncate -s 0 $mydir/Build/Unix/Hive/hashtype.sh
-					truncate -s 0 $mydir/Build/Unix/Hive/totalhash.sh
-					truncate -s 0 $mydir/Build/Unix/Hive/algo.sh
+
 			;;
 		tdxminer) 
-			#Total HashRate For Individual GPUS:
-			#for (( i=0; i < ${#myhashrate[@]}; i++ )); do
-			#khs=`echo $khs ${myhashrate[$i]} | awk '{ printf("%.3f", $1 + $2) }'`
-		        #done
-                        #khs=`echo $khs | sed -E 's/^( *[0-9]+\.[0-9]([0-9]*[1-9])?)0+$/\1/'` #1234.100 -> 1234.1
+				tdkhs=(`echo "$mystats" | grep 'GPU=' | sed -e 's/.*=//'`)
+				algo=`echo "$mystats" | grep -m1 'ALGO=' | sed -e 's/.*=//'`
+				local ac=`echo "$mystats" | grep -m1 'ACC=' | sed -e 's/.*=//'`
+				local rj=`echo "$mystats" | grep -m1 'REJ=' | sed -e 's/.*=//'`
 
-			#Hashrate From Accepted Shares:
-			khs=$mykhs
+				khs=`echo "$mystats" | grep -m1 'KHS=' | sed -e 's/.*=//'`
 
 
 			stats=$(jq -n \
-					--argjson hs "`echo ${myhashrate[@]} | jq -cs '.'`" \
+				        --argjson hs "`echo ${tdkhs[@]} | tr " " "\n" | jq -cs '.'`" \
 					--arg hs_units "hs_units=khs" \
 				        --argjson temp "$Ntemp" \
 				        --argjson fan "$Nfan" \
 					--arg uptime "0" \
-					--arg ac "$myac" --arg rj "$myrj" \
-					--arg algo "$myalgo" \
+					--arg ac "$ac" --arg rj "$rj" \
+					--arg algo "$algo" \
 					'{$hs, $hs_units, $temp, $fan, $uptime, ar: [$ac, $rj], $algo}')
-	                		truncate -s 0 $mydir/Build/Unix/Hive/hashrates.sh
-					truncate -s 0 $mydir/Build/Unix/Hive/accepted.sh
-					truncate -s 0 $mydir/Build/Unix/Hive/rejected.sh
-					truncate -s 0 $mydir/Build/Unix/Hive/hashtype.sh
-					truncate -s 0 $mydir/Build/Unix/Hive/totalhash.sh
-					truncate -s 0 $mydir/Build/Unix/Hive/algo.sh
+
+			;;
+		lyclminer) 
+				tdkhs=(`echo "$mystats" | grep 'GPU=' | sed -e 's/.*=//'`)
+				algo=`echo "$mystats" | grep -m1 'ALGO=' | sed -e 's/.*=//'`
+				local ac=`echo "$mystats" | grep -m1 'ACC=' | sed -e 's/.*=//'`
+				local rj=`echo "$mystats" | grep -m1 'REJ=' | sed -e 's/.*=//'`
+
+				khs=`echo "$mystats" | grep -m1 'KHS=' | sed -e 's/.*=//'`
+
+
+			stats=$(jq -n \
+				        --argjson hs "`echo ${tdkhs[@]} | tr " " "\n" | jq -cs '.'`" \
+					--arg hs_units "hs_units=khs" \
+				        --argjson temp "$Ntemp" \
+				        --argjson fan "$Nfan" \
+					--arg uptime "0" \
+					--arg ac "$ac" --arg rj "$rj" \
+					--arg algo "$algo" \
+					'{$hs, $hs_units, $temp, $fan, $uptime, ar: [$ac, $rj], $algo}')
+
 			;;
 		claymore)
 			stats_raw=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat2"}' | nc -w $API_TIMEOUT localhost $myport | jq '.result'`
@@ -105,7 +107,7 @@ function miner_stats {
 
 
 				stats=$(jq -n \
-					--argjson hs "$hs" \
+					--argjson hs "`echo ${cckhs[@]} | tr " " "\n" | jq -cs '.'`"  \
 					--arg hs_units "hs_units='khs'" \
 					--argjson temp "$temp" \
 					--argjson fan "$fan" \

@@ -1,5 +1,6 @@
 [string]$Path = $update.amd.claymore.path2
 [string]$Uri = $update.amd.claymore.uri
+[string]$MinerName = $update.amd.claymore.minername
 
 $Build = "Zip"
 
@@ -25,7 +26,7 @@ if($CoinAlgo -eq $null)
      [PSCustomObject]@{
      Platform = $Platform  
      Symbol = "$($_)"
-	   MinerName = "clayamd-AMD2"
+	   MinerName = $MinerName
      Type = "AMD2"
      Path = $Path
      Devices = $Devices
@@ -54,7 +55,7 @@ if($CoinAlgo -eq $null)
             Platform = $Platform
             Coin = "Yes"
             Symbol = "$($CoinPools.$_.Symbol)"
-            MinerName = "clayamd-AMD2"
+            MinerName = $MinerName
             Type = "AMD2"
             Path = $Path
             Devices = $Devices

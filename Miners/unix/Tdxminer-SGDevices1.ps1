@@ -1,5 +1,6 @@
 [string]$Path = $update.amd.tdxminer.path1
 [string]$Uri = $update.amd.tdxminer.uri
+[string]$MinerName = $update.amd.tdxminer.minername
 
 $Build = "Zip"
 
@@ -22,7 +23,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
     [PSCustomObject]@{
     Platform = $Platform
     Symbol = "$($_)"
-    MinerName = "tdxminer-AMD1"
+    MinerName = $MinerName
     Type = "AMD1"
     Path = $Path
     Devices = $Devices
@@ -50,7 +51,7 @@ else{
    [PSCustomObject]@{
     Platform = $Platform
     Symbol = "$($CoinPools.$_.Symbol)"
-   MinerName = "tdxminer-AMD1"
+   MinerName = $MinerName
    Type = "AMD1"
    Path = $Path
    Devices = $Devices

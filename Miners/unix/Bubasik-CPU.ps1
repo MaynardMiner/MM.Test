@@ -1,5 +1,6 @@
 $Path = $update.cpu.bubasik.path1
 $Uri = $update.cpu.bubasik.uri
+$MinerName = $update.cpu.bubasik.minername
 
 $Build = "Linux"
 
@@ -24,12 +25,12 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
      [PSCustomObject]@{
          platform = $platform
          Symbol = "$($_)"
-         MinerName = "cpuminer-CPU"
+         MinerName = $MinerName
          Type = "CPU"
          Path = $Path
          Devices = $Devices
          DeviceCall = "cpuminer-opt"
-         Arguments = "-a $_ -o stratum+tcp://$($AlgoPools.$_.Host):$($AlgoPools.$_.Port) -b 0.0.0.0:4048 -u $($AlgoPools.$_.CPUser) -p $($AlgoPools.$_.CPUPass) $($Commands.$_)"
+         Arguments = "-t 3 -a $_ -o stratum+tcp://$($AlgoPools.$_.Host):$($AlgoPools.$_.Port) -b 0.0.0.0:4048 -u $($AlgoPools.$_.CPUser) -p $($AlgoPools.$_.CPUPass) $($Commands.$_)"
          HashRates = [PSCustomObject]@{$_ = $Stats."$($Name)_$($_)_HashRate".Day}
          Selected = [PSCustomObject]@{$_ = ""}
          MinerPool = "$($AlgoPools.$_.Name)"
@@ -53,12 +54,12 @@ else{
       [PSCustomObject]@{
        platform = $platform
        Symbol = "$($CoinPools.$_.Symbol)"
-       MinerName = "cpuminer-CPU"
+       MinerName = $MinerName
        Type = "CPU"
        Path = $Path
        Devices = $Devices
        DeviceCall = "cpuminer-opt"
-       Arguments = "-a $($CoinPools.$_.Algorithm) -o stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port) -b 0.0.0.0:4048 -u $($CoinPools.$_.CPUser) -p $($CoinPools.$_.CPUPass) $($Commands.$($CoinPools.$_.Algorithm))"
+       Arguments = "-t 3 -a $($CoinPools.$_.Algorithm) -o stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port) -b 0.0.0.0:4048 -u $($CoinPools.$_.CPUser) -p $($CoinPools.$_.CPUPass) $($Commands.$($CoinPools.$_.Algorithm))"
        HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $Stats."$($Name)_$($CoinPools.$_.Algorithm)_HashRate".Day}
        API = "Ccminer"
        Selected = [PSCustomObject]@{$($CoinPools.$_.Algorithm) = ""}

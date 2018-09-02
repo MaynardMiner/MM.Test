@@ -1,5 +1,6 @@
 [string]$Path = $update.amd.avermore.path3
 [string]$Uri = $update.amd.avermore.uri
+[string]$MinerName = $update.amd.avermore.minername
 
 $Build = "Zip"
 
@@ -32,7 +33,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
     [PSCustomObject]@{
     Platform = $Platform
     Symbol = "$($_)"
-    MinerName = "sgminer-AMD3"
+    MinerName = $MinerName
     Type = "AMD3"
     Path = $Path
     Devices = $Devices
@@ -60,7 +61,7 @@ else{
    [PSCustomObject]@{
    Platform = $Platform
    Symbol = "$($CoinPools.$_.Symbol)"
-   MinerName = "sgminer-AMD3"
+   MinerName = $MinerName
    Type = "AMD3"
    Path = $Path
    Devices = $Devices
