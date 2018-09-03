@@ -158,6 +158,8 @@ param(
     [Parameter(Mandatory=$false)]
     [int]$CPUThreads = $null,
     [Parameter(Mandatory=$false)]
+    [string]$StatLevel = "Live",
+    [Parameter(Mandatory=$false)]
     [string]$CPUOnly = "No"
 )
 #SetLocation & Load Script Files
@@ -322,6 +324,11 @@ $Count = @()
 for($i=0; $i -lt $GPU_Count; $i++){[string]$Count += "$i,"}
 $LogGPUS = $Count.Substring(0,$Count.Length-1)
 
+$Algorithm = @()
+$Algorithm = Get-AlgorithmList -DeviceType $Type -No_Algo $No_Algo -CmdDir $Dir
+$minerupdate = Get-Content ".\Config\Update\updatelinux.txt" | ConvertFrom-Json
+$update = $minerupdate.$Platform  
+$CoinAlgo = $null
 
 ##Reset-Old Stats
 if(Test-Path "Stats"){Get-ChildItemContent "Stats" | ForEach {$Stat = Set-Stat $_.Name $_.Content.Week}}
@@ -380,14 +387,14 @@ Set-Location $Dir
 
 while($true)
 {
-$Algorithm = @()
-$Algorithm = Get-AlgorithmList -DeviceType $Type -No_Algo $No_Algo -CmdDir $Dir
-$minerupdate = Get-Content ".\Config\Update\updatelinux.txt" | ConvertFrom-Json
-$update = $minerupdate.$Platform  
-$CoinAlgo = $null
+  $Algorithm = $null
+  $Algorithm = @()
+  $Algorithm = Get-AlgorithmList -DeviceType $Type -No_Algo $No_Algo -CmdDir $Dir
+  $minerupdate = Get-Content ".\Config\Update\updatelinux.txt" | ConvertFrom-Json
+  $update = $minerupdate.$Platform  
+  $CoinAlgo = $null
 
 ##Remove Coins
-if(Test-Path ".\Stats\*_coin*"){Remove-Item ".\Stats\*_coin*" -force}
 
 ##Check Time Parameters
 $MinerWatch = New-Object -TypeName System.Diagnostics.Stopwatch
@@ -535,6 +542,7 @@ if($LastRan -ne "")
   ##Load File Stats
   if($TimeoutTimer.Elapsed.TotalSeconds -lt $TimeoutTime -or $Timeout -eq 0)
    {
+    $Stats = $null
     $Stats = [PSCustomObject]@{}
     $AllStats = if(Test-Path "Stats"){Get-ChildItemContent "Stats" | ForEach {$Stats | Add-Member $_.Name $_.Content}}
     $AllStats | Out-Null
@@ -559,16 +567,20 @@ if($LastRan -ne "")
 
    ##Load Algo Pools
    Write-Host "Checking Algo Pools" -Foregroundcolor yellow
+   $AllAlgoPools = $null
    $AllAlgoPools = if(Test-Path "AlgoPools"){Get-ChildItemContent "AlgoPools" | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} |
    Where {$PoolName.Count -eq 0 -or (Compare-Object $PoolName $_.Name -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} |
    Where {$Algorithm.Count -eq 0 -or (Compare-Object $Algorithm $_.Algorithm -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}}
    if($AllAlgoPools.Count -eq 0){"No Pools! Check Internet Connection."| Out-Host; start-sleep $Interval; continue}
+   $AlgoPools = $null
    $AlgoPools = [PSCustomObject]@{}
+   $AgloPools_Comparison = $null
    $AlgoPools_Comparison = [PSCustomObject]@{}
    $AllAlgoPools.Symbol | Select -Unique | ForEach {$AlgoPools | Add-Member $_ ($AllAlgoPools | Where Symbol -EQ $_ | Sort-Object Price -Descending | Select -First 1)}
    $AllAlgoPools.Symbol | Select -Unique | ForEach {$AlgoPools_Comparison | Add-Member $_ ($AllAlgoPools | Where Symbol -EQ $_ | Sort-Object StablePrice -Descending | Select -First 1)}
    
    ##Make Algorithm Available Only List
+   $PoolAlgorithms = $null
    $PoolAlgorithms = @()
    $AlgoPools | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name | foreach{
    $PoolAlgorithms += $_
@@ -576,28 +588,28 @@ if($LastRan -ne "")
 
    ##Load Only Needed Algorithm Miners
    Write-Host "Checking Algo Miners"
+   $AlgoMiners = $null
    $AlgoMiners = if(Test-Path "Miners\unix"){Get-ChildItemContent "Miners\unix" | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} | 
    Where {$Platform.Count -eq 0 -or (Compare-Object $Platform $_.Platform -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} |
    Where {$Type.Count -eq 0 -or (Compare-Object $Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} |
    Where {$PoolAlgorithms.Count -eq 0 -or (Compare-Object $PoolAlgorithms $_.Selected.PSObject.Properties.Name -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}}
-
-   ##Get The Miners
+   
+   ##Download Miners
    $AlgoMiners = $AlgoMiners | ForEach {
-   $AlgoMiner = $_
-
-   ##Re-Name Instance In Case Of Crashe\
-    if(Test-Path (Split-Path $_.Path))
-     {
-      Set-Location (Split-Path $_.Path)
-      if(Test-Path "*$($_.Type)*")
-       {
-        $OldInstance = Get-ChildItem "*$($_.Type)*"
-        Rename-Item $OldInstance -NewName "$($_.MinerName)" -force
-       }
-      Set-Location $Dir
-     }
-
-   ##Download Miners Or Add Them To Array
+    $AlgoMiner = $_
+ 
+    ##Re-Name Instance In Case Of Crashe\
+     if(Test-Path (Split-Path $AlgoMiner.Path))
+      {
+       Set-Location (Split-Path $AlgoMiner.Path)
+       if(Test-Path "*$($AlgoMiner.Type)*")
+        {
+         $OldInstance = Get-ChildItem "*$($AlgoMiner.Type)*"
+         Rename-Item $OldInstance -NewName "$($AlgoMiner.MinerName)" -force
+        }
+       Set-Location $Dir
+      }
+ 
     if((Test-Path $AlgoMiner.Path) -eq $false)
     {
     if($AlgoMiner.BUILD -eq "Linux" -or $AlgoMiner.BUILD -eq "Linux-Clean" -or $AlgoMiner.BUILD -eq "Linux-Zip-Build")
@@ -623,7 +635,6 @@ if($LastRan -ne "")
   }
 }
 
-##No Miner Warning
 if($AlgoMiners.Count -eq 0){"No Miners!" | Out-Host; start-sleep $Interval; continue}
 
 ##Sort Alorithm Miners
@@ -668,11 +679,11 @@ $AlgoMiners | ForEach {
            }
        }
 
-       if($null -eq $AlgoMiner_Types){$AlgoMiner_Types = $AlgoMiners.Type | Select -Unique}
-       if($null -eq $AlgoMiner_Indexes){$AlgoMiner_Indexes = $AlgoMiners.Index | Select -Unique}
+       if($AlgoMiner_Types -eq $null){$AlgoMiner_Types = $AlgoMiners.Type | Select -Unique}
+       if($AlgoMiner_Indexes -eq $null){$AlgoMiner_Indexes = $AlgoMiners.Index | Select -Unique}
        
-       if($null -eq $AlgoMiner_Types){$AlgoMiner_Types = ""}
-       if($null -eq $AlgoMiner_Indexes){$AlgoMiner_Indexes = 0}
+       if($AlgoMiner_Types -eq $null){$AlgoMiner_Types = ""}
+       if($AlgoMiner_Indexes -eq $null){$AlgoMiner_Indexes = 0}
        
        $AlgoMiner.HashRates = $AlgoMiner_HashRates
 
@@ -694,17 +705,19 @@ $AlgoMiners | ForEach {
    $AlgoMiners | ForEach {
        $AlgoMiner = $_
        $AlgoMiner_Devices = $AlgoMiner.Device | Select -Unique
-       if($null -eq $AlgoMiner_Devices){$AlgoMiner_Devices = ($AlgoMiners | Where {(Compare-Object $AlgoMiner.Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}).Device | Select -Unique}
-       if($null -eq $AlgoMiner_Devices){$AlgoMiner_Devices = $AlgoMiner.Type}
+       if($AlgoMiner_Devices -eq $null){$AlgoMiner_Devices = ($AlgoMiners | Where {(Compare-Object $AlgoMiner.Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}).Device | Select -Unique}
+       if($AlgoMiner_Devices -eq $null){$AlgoMiner_Devices = $AlgoMiner.Type}
        $AlgoMiner | Add-Member Device $AlgoMiner_Devices -Force
    }
 
    #Don't penalize active miners & sort by threshold
    $ActiveMinerPrograms | ForEach {$AlgoMiners | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments | ForEach {$_.Profit_Bias = $_.Profit}}
+   $GoodAlgoMiners = $null
    $GoodAlgoMiners = @()
    $AlgoMiners | Where [Double]Profit -lt $Threshold | foreach {$GoodAlgoMiners += $_}
 
    #Get most profitable algo miner combination i.e. AMD+NVIDIA+CPU add algo miners to miners list
+   $Miners = $null
    $Miners = @()
    $GoodAlgoMiners | foreach {$Miners += $_}   
    $BestAlgoMiners = $GoodAlgoMiners | Select Type,Index -Unique | ForEach {$AlgoMiner_GPU = $_; ($GoodAlgoMiners | Where {(Compare-Object $AlgoMiner_GPU.Type $_.Type | Measure).Count -eq 0 -and (Compare-Object $AlgoMiner_GPU.Index $_.Index | Measure).Count -eq 0} | Sort-Object -Descending {($_ | Where Profit -EQ $null | Measure).Count},{($_ | Measure Profit_Bias -Sum).Sum},{($_ | Where Profit -NE 0 | Measure).Count} | Select -First 1)}
@@ -721,28 +734,29 @@ $AlgoMiners | ForEach {
    $BestAlgoMiners_Combo = $BestAlgoMiners_Combos | Sort-Object -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count},{($_.Combination | Measure Profit_Bias -Sum).Sum},{($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
    $BestAlgoMiners_Combo_Comparison = $BestAlgoMiners_Combos_Comparison | Sort-Object -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count},{($_.Combination | Measure Profit_Comparison -Sum).Sum},{($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
    $BestMiners_Combo = $BestAlgoMiners_Combo
+   $CoinMiners = $null
 
 #check if Auto_Coin is working- Start Coin Sorting
 if($Auto_Coin -eq "Yes")
  {
+  $AddCoinMiners = $null
   $AddCoinMiners = @()
-  $NeedsToBeBench = "No"
+  $NeedsToBeBench = $false
 
 #Check if Benchmarking/Disable Coins
 $BestAlgoMiners_Combo | foreach {
- if($null -eq $_.Profit)
+ if($_.Profit -eq $null)
   {
-   Write-Host "Miners Require Benchmarking - Coins Disabled" -ForegroundColor magenta
-   $NeedsToBeBench = "Yes"
-   $AddCoinMiners = $null
+   $NeedsToBeBench = $true
+   Write-Host "Coins Disabled - Benchmarking Required." -foreground yellow
   }
   }
 
 #Get Specific Coin Miners
-if($NeedsToBeBench -eq "No"){$BestAlgoMiners_Combo | foreach {if($_.MinerPool -like "*algo*"){$AddCoinMiners += $_}}}
+if($NeedsToBeBench -eq $false){$BestAlgoMiners_Combo | foreach {if($_.MinerPool -like "*algo*"){$AddCoinMiners += $_}}}
 
 #Get Specfic Coin Algorithms
-if($null -ne $AddCoinMiners)
+if($AddCoinMiners -ne $null)
  {
   $CoinAlgo = @()
   $AddCoinMiners.Algo | foreach {$CoinAlgo += $_}
@@ -750,15 +764,19 @@ if($null -ne $AddCoinMiners)
   Write-Host "Best Pool Is CoinPool: Searching For Coins For $($CoinAlgo) Algorithm" -ForegroundColor Magenta
 
 #Load Coin Pools 
+$AllCoinPools = $null
 $AllCoinPools = if(Test-Path "CoinPools"){Get-ChildItemContent "CoinPools" | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} |
 Where {$PoolName.Count -eq 0 -or (Compare-Object $PoolName $_.Name -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} |
 Where {$CoinAlgo.Count -eq 0 -or (Compare-Object $CoinAlgo $_.Algorithm -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}}
+$CoinPools = $null
 $CoinPools = [PSCustomObject]@{}
+$CoinPools_Comparison = $null
 $CoinPools_Comparison = [PSCustomObject]@{}
 $AllCoinPools.Symbol | Select -Unique | ForEach {$CoinPools | Add-Member $_ ($AllCoinPools | Where Symbol -EQ $_ | Sort-Object Price -Descending | Select -Unique -First 1)}
 $AllCoinPools.Symbol | Select -Unique | ForEach {$CoinPools_Comparison | Add-Member $_ ($AllCoinPools | Where Symbol -EQ $_ | Sort-Object StablePrice -Descending | Select -Unique -First 1)}
 
 #Load Coin Miners
+$CoinMiners = $null
 $CoinMiners = if(Test-Path "Miners\unix"){Get-ChildItemContent "Miners\unix" | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} |
 Where {$Platform.Count -eq 0 -or (Compare-Object $Platform $_.Platform -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} |
 Where {$Type.Count -eq 0 -or (Compare-Object $Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} |
@@ -768,7 +786,7 @@ Where {$CoinAlgo.Count -eq 0 -or (Compare-Object $CoinAlgo $_.Selected.PSObject.
 }
 
 ##Sort Coin Miners
-if($null -ne $CoinMiners)
+if($CoinMiners -ne $null)
  {
   $CoinMiners | ForEach {
   $CoinMiner = $_
@@ -810,11 +828,11 @@ if($null -ne $CoinMiners)
    }
   }
       
-  if($null -eq $CoinMiner_Types){$CoinMiner_Types = $CoinMiners.Type | Select -Unique}
-  if($null -eq $CoinMiner_Indexes){$CoinMiner_Indexes = $CoinMiners.Index | Select -Unique}
+  if($CoinMiner_Types -eq $null){$CoinMiner_Types = $CoinMiners.Type | Select -Unique}
+  if($CoinMiner_Indexes -eq $null){$CoinMiner_Indexes = $CoinMiners.Index | Select -Unique}
               
-  if($null -eq $CoinMiner_Types){$CoinMiner_Types = ""}
-  if($null -eq $CoinMiner_Indexes){$CoinMiner_Indexes = 0}
+  if($CoinMiner_Types -eq $null){$CoinMiner_Types = ""}
+  if($CoinMiner_Indexes -eq $null){$CoinMiner_Indexes = 0}
               
   $CoinMiner.HashRates = $CoinMiner_HashRates
               
@@ -835,14 +853,19 @@ if($null -ne $CoinMiners)
   $CoinMiners | ForEach {
   $CoinMiner = $_
   $CoinMiner_Devices = $CoinMiner.Device | Select -Unique
-  if($null -eq $CoinMiner_Devices){$CoinMiner_Devices = ($CoinMiners | Where {(Compare-Object $CoinMiner.Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}).Device | Select -Unique}
-  if($null -eq $CoinMiner_Devices){$CoinMiner_Devices = $CoinMiner.Type}
+  if($CoinMiner_Devices -eq $null){$CoinMiner_Devices = ($CoinMiners | Where {(Compare-Object $CoinMiner.Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}).Device | Select -Unique}
+  if($CoinMiner_Devices -eq $null){$CoinMiner_Devices = $CoinMiner.Type}
   $CoinMiner | Add-Member Device $CoinMiner_Devices -Force
  }
+
+        $NewCoinAlgo = $null
+        $Miners = $null
+        $BestMiners_Combo = $null
         $NewCoinAlgo = @()
         $Miners = @()
 
-        if($Favor_Coins -eq "Yes"){
+        if($Favor_Coins -eq "Yes")
+         {
         $CoinAlgo | foreach {
         if($BestAlgoMiners_Combo.MinerPool -like "*algo*")
          {
@@ -852,10 +875,14 @@ if($null -ne $CoinMiners)
         }
       }
      }
-     
+
+      $ProfitsArray = $null
       $ProfitsArray = @()
 
-      if($Favor_Coins -eq "Yes"){$CoinMiners | Where [Double]Profit -lt $Threshold | foreach {$Miners += $_}}
+      if($Favor_Coins -eq "Yes")
+      {
+      $CoinMiners | Where [Double]Profit -lt $Threshold | foreach {$Miners += $_}
+      }
       else{
       $GoodAlgoMiners | foreach {$Miners += $_}
       $CoinMiners | Where [Double]Profit -lt $Threshold | foreach {$Miners += $_}
@@ -864,34 +891,32 @@ if($null -ne $CoinMiners)
 
       $ActiveMinerPrograms | ForEach {$Miners | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments | ForEach {$_.Profit_Bias = $_.Profit}}
 
-  ##Sort Miners Array
-  $BestMiners = $Miners | Select Type,Index -Unique | ForEach {$Miner_GPU = $_; ($Miners | Where {(Compare-Object $Miner_GPU.Type $_.Type | Measure).Count -eq 0 -and (Compare-Object $Miner_GPU.Index $_.Index | Measure).Count -eq 0} | Sort-Object -Descending {($_ | Where Profit -EQ $null | Measure).Count},{($_ | Measure Profit_Bias -Sum).Sum},{($_ | Where Profit -NE 0 | Measure).Count} | Select -First 1)}
-  $BestDeviceMiners = $Miners | Select Device -Unique | ForEach {$Miner_GPU = $_; ($Miners | Where {(Compare-Object $Miner_GPU.Device $_.Device | Measure).Count -eq 0} | Sort-Object -Descending {($_ | Where Profit -EQ $null | Measure).Count},{($_ | Measure Profit_Bias -Sum).Sum},{($_ | Where Profit -NE 0 | Measure).Count} | Select -First 1)}
-  $BestMiners_Comparison = $Miners | Select Type,Index -Unique | ForEach {$Miner_GPU = $_; ($Miners | Where {(Compare-Object $Miner_GPU.Type $_.Type | Measure).Count -eq 0 -and (Compare-Object $Miner_GPU.Index $_.Index | Measure).Count -eq 0} | Sort-Object -Descending {($_ | Where Profit -EQ $null | Measure).Count},{($_ | Measure Profit_Comparison -Sum).Sum},{($_ | Where Profit -NE 0 | Measure).Count} | Select -First 1)}
-  $BestDeviceMiners_Comparison = $Miners | Select Device -Unique | ForEach {$Miner_GPU = $_; ($Miners | Where {(Compare-Object $Miner_GPU.Device $_.Device | Measure).Count -eq 0} | Sort-Object -Descending {($_ | Where Profit -EQ $null | Measure).Count},{($_ | Measure Profit_Comparison -Sum).Sum},{($_ | Where Profit -NE 0 | Measure).Count} | Select -First 1)}
-  $Miners_Type_Combos = @([PSCustomObject]@{Combination = @()}) + (Get-Combination ($Miners | Select Type -Unique) | Where{(Compare-Object ($_.Combination | Select -ExpandProperty Type -Unique) ($_.Combination | Select -ExpandProperty Type) | Measure).Count -eq 0})
-  $Miners_Index_Combos = @([PSCustomObject]@{Combination = @()}) + (Get-Combination ($Miners | Select Index -Unique) | Where{(Compare-Object ($_.Combination | Select -ExpandProperty Index -Unique) ($_.Combination | Select -ExpandProperty Index) | Measure).Count -eq 0})
-  $Miners_Device_Combos = (Get-Combination ($Miners | Select Device -Unique) | Where{(Compare-Object ($_.Combination | Select -ExpandProperty Device -Unique) ($_.Combination | Select -ExpandProperty Device) | Measure).Count -eq 0})
-  $BestMiners_Combos = $Miners_Type_Combos | ForEach {$Miner_Type_Combo = $_.Combination; $Miners_Index_Combos | ForEach {$Miner_Index_Combo = $_.Combination; [PSCustomObject]@{Combination = $Miner_Type_Combo | ForEach {$Miner_Type_Count = $_.Type.Count; [Regex]$Miner_Type_Regex = '^(' + (($_.Type | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $Miner_Index_Combo | ForEach {$Miner_Index_Count = $_.Index.Count; [Regex]$Miner_Index_Regex = '^(' + (($_.Index | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $BestMiners | Where {([Array]$_.Type -notmatch $Miner_Type_Regex).Count -eq 0 -and ([Array]$_.Index -notmatch $Miner_Index_Regex).Count -eq 0 -and ([Array]$_.Type -match $Miner_Type_Regex).Count -eq $Miner_Type_Count -and ([Array]$_.Index -match $Miner_Index_Regex).Count -eq $Miner_Index_Count}}}}}}
-  $BestMiners_Combos += $Miners_Device_Combos | ForEach {$Miner_Device_Combo = $_.Combination; [PSCustomObject]@{Combination = $Miner_Device_Combo | ForEach {$Miner_Device_Count = $_.Device.Count; [Regex]$Miner_Device_Regex = '^(' + (($_.Device | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $BestDeviceMiners | Where {([Array]$_.Device -notmatch $Miner_Device_Regex).Count -eq 0 -and ([Array]$_.Device -match $Miner_Device_Regex).Count -eq $Miner_Device_Count}}}}
-  $BestMiners_Combos_Comparison = $Miners_Type_Combos | ForEach {$Miner_Type_Combo = $_.Combination; $Miners_Index_Combos | ForEach {$Miner_Index_Combo = $_.Combination; [PSCustomObject]@{Combination = $Miner_Type_Combo | ForEach {$Miner_Type_Count = $_.Type.Count; [Regex]$Miner_Type_Regex = '^(' + (($_.Type | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $Miner_Index_Combo | ForEach {$Miner_Index_Count = $_.Index.Count; [Regex]$Miner_Index_Regex = '^(' + (($_.Index | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $BestMiners_Comparison | Where {([Array]$_.Type -notmatch $Miner_Type_Regex).Count -eq 0 -and ([Array]$_.Index -notmatch $Miner_Index_Regex).Count -eq 0 -and ([Array]$_.Type -match $Miner_Type_Regex).Count -eq $Miner_Type_Count -and ([Array]$_.Index -match $Miner_Index_Regex).Count -eq $Miner_Index_Count}}}}}}
-  $BestMiners_Combos_Comparison += $Miners_Device_Combos | ForEach {$Miner_Device_Combo = $_.Combination; [PSCustomObject]@{Combination = $Miner_Device_Combo | ForEach {$Miner_Device_Count = $_.Device.Count; [Regex]$Miner_Device_Regex = '^(' + (($_.Device | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $BestDeviceMiners_Comparison | Where {([Array]$_.Device -notmatch $Miner_Device_Regex).Count -eq 0 -and ([Array]$_.Device -match $Miner_Device_Regex).Count -eq $Miner_Device_Count}}}}
-  $BestMiners_Combo = $BestMiners_Combos | Sort-Object -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count},{($_.Combination | Measure Profit_Bias -Sum).Sum},{($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
-  $BestMiners_Combo_Comparison = $BestMiners_Combos_Comparison | Sort-Object -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count},{($_.Combination | Measure Profit_Comparison -Sum).Sum},{($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
+       $BestMiners = $Miners | Select Type,Index -Unique | ForEach {$Miner_GPU = $_; ($Miners | Where {(Compare-Object $Miner_GPU.Type $_.Type | Measure).Count -eq 0 -and (Compare-Object $Miner_GPU.Index $_.Index | Measure).Count -eq 0} | Sort-Object -Descending {($_ | Where Profit -EQ $null | Measure).Count},{($_ | Measure Profit_Bias -Sum).Sum},{($_ | Where Profit -NE 0 | Measure).Count} | Select -First 1)}
+       $BestDeviceMiners = $Miners | Select Device -Unique | ForEach {$Miner_GPU = $_; ($Miners | Where {(Compare-Object $Miner_GPU.Device $_.Device | Measure).Count -eq 0} | Sort-Object -Descending {($_ | Where Profit -EQ $null | Measure).Count},{($_ | Measure Profit_Bias -Sum).Sum},{($_ | Where Profit -NE 0 | Measure).Count} | Select -First 1)}
+       $BestMiners_Comparison = $Miners | Select Type,Index -Unique | ForEach {$Miner_GPU = $_; ($Miners | Where {(Compare-Object $Miner_GPU.Type $_.Type | Measure).Count -eq 0 -and (Compare-Object $Miner_GPU.Index $_.Index | Measure).Count -eq 0} | Sort-Object -Descending {($_ | Where Profit -EQ $null | Measure).Count},{($_ | Measure Profit_Comparison -Sum).Sum},{($_ | Where Profit -NE 0 | Measure).Count} | Select -First 1)}
+       $BestDeviceMiners_Comparison = $Miners | Select Device -Unique | ForEach {$Miner_GPU = $_; ($Miners | Where {(Compare-Object $Miner_GPU.Device $_.Device | Measure).Count -eq 0} | Sort-Object -Descending {($_ | Where Profit -EQ $null | Measure).Count},{($_ | Measure Profit_Comparison -Sum).Sum},{($_ | Where Profit -NE 0 | Measure).Count} | Select -First 1)}
+       $Miners_Type_Combos = @([PSCustomObject]@{Combination = @()}) + (Get-Combination ($Miners | Select Type -Unique) | Where{(Compare-Object ($_.Combination | Select -ExpandProperty Type -Unique) ($_.Combination | Select -ExpandProperty Type) | Measure).Count -eq 0})
+       $Miners_Index_Combos = @([PSCustomObject]@{Combination = @()}) + (Get-Combination ($Miners | Select Index -Unique) | Where{(Compare-Object ($_.Combination | Select -ExpandProperty Index -Unique) ($_.Combination | Select -ExpandProperty Index) | Measure).Count -eq 0})
+       $Miners_Device_Combos = (Get-Combination ($Miners | Select Device -Unique) | Where{(Compare-Object ($_.Combination | Select -ExpandProperty Device -Unique) ($_.Combination | Select -ExpandProperty Device) | Measure).Count -eq 0})
+       $BestMiners_Combos = $Miners_Type_Combos | ForEach {$Miner_Type_Combo = $_.Combination; $Miners_Index_Combos | ForEach {$Miner_Index_Combo = $_.Combination; [PSCustomObject]@{Combination = $Miner_Type_Combo | ForEach {$Miner_Type_Count = $_.Type.Count; [Regex]$Miner_Type_Regex = '^(' + (($_.Type | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $Miner_Index_Combo | ForEach {$Miner_Index_Count = $_.Index.Count; [Regex]$Miner_Index_Regex = '^(' + (($_.Index | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $BestMiners | Where {([Array]$_.Type -notmatch $Miner_Type_Regex).Count -eq 0 -and ([Array]$_.Index -notmatch $Miner_Index_Regex).Count -eq 0 -and ([Array]$_.Type -match $Miner_Type_Regex).Count -eq $Miner_Type_Count -and ([Array]$_.Index -match $Miner_Index_Regex).Count -eq $Miner_Index_Count}}}}}}
+       $BestMiners_Combos += $Miners_Device_Combos | ForEach {$Miner_Device_Combo = $_.Combination; [PSCustomObject]@{Combination = $Miner_Device_Combo | ForEach {$Miner_Device_Count = $_.Device.Count; [Regex]$Miner_Device_Regex = '^(' + (($_.Device | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $BestDeviceMiners | Where {([Array]$_.Device -notmatch $Miner_Device_Regex).Count -eq 0 -and ([Array]$_.Device -match $Miner_Device_Regex).Count -eq $Miner_Device_Count}}}}
+       $BestMiners_Combos_Comparison = $Miners_Type_Combos | ForEach {$Miner_Type_Combo = $_.Combination; $Miners_Index_Combos | ForEach {$Miner_Index_Combo = $_.Combination; [PSCustomObject]@{Combination = $Miner_Type_Combo | ForEach {$Miner_Type_Count = $_.Type.Count; [Regex]$Miner_Type_Regex = '^(' + (($_.Type | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $Miner_Index_Combo | ForEach {$Miner_Index_Count = $_.Index.Count; [Regex]$Miner_Index_Regex = '^(' + (($_.Index | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $BestMiners_Comparison | Where {([Array]$_.Type -notmatch $Miner_Type_Regex).Count -eq 0 -and ([Array]$_.Index -notmatch $Miner_Index_Regex).Count -eq 0 -and ([Array]$_.Type -match $Miner_Type_Regex).Count -eq $Miner_Type_Count -and ([Array]$_.Index -match $Miner_Index_Regex).Count -eq $Miner_Index_Count}}}}}}
+       $BestMiners_Combos_Comparison += $Miners_Device_Combos | ForEach {$Miner_Device_Combo = $_.Combination; [PSCustomObject]@{Combination = $Miner_Device_Combo | ForEach {$Miner_Device_Count = $_.Device.Count; [Regex]$Miner_Device_Regex = '^(' + (($_.Device | ForEach {[Regex]::Escape($_)}) -join "|") + ')$'; $BestDeviceMiners_Comparison | Where {([Array]$_.Device -notmatch $Miner_Device_Regex).Count -eq 0 -and ([Array]$_.Device -match $Miner_Device_Regex).Count -eq $Miner_Device_Count}}}}
+       $BestMiners_Combo = $BestMiners_Combos | Sort-Object -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count},{($_.Combination | Measure Profit_Bias -Sum).Sum},{($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
+       $BestMiners_Combo_Comparison = $BestMiners_Combos_Comparison | Sort-Object -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count},{($_.Combination | Measure Profit_Comparison -Sum).Sum},{($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
 
-
-      ##Add Only Coins To Array If Favor Coins "Yes"
-       if($Favor_Coins -eq "Yes"){
+       if($Favor_Coins -eq "Yes")
+        {
        $BestMiners_Combo | Foreach {
         $ProfitsArray += [PSCustomObject]@{
          Type = $_.Type
          Profits = $_.Profit 
         }
        }
-      
-       ##Add Both If "No"
+
        $GoodAlgoMiners | Foreach{
-        if($NewCoinAlgo.$($_.Symbol) -ne "$($_.Symbol)"){
+        if($NewCoinAlgo.$($_.Symbol) -ne "$($_.Symbol)")
+         {
           if(($ProfitsArray | Where Type -EQ $_.Type).Profits -gt $_.Profit)
            {
             $Miners += $_
@@ -901,28 +926,25 @@ if($null -ne $CoinMiners)
        }
     }
   
-  ##Notify User Of Choice
   $BestMiners_Selected = $BestMiners_Combo.Symbol
   $BestPool_Selected = $BestMiners_Combo.MinerPool 
   Write-Host "Most Profitable Choice Is $($BestMiners_Selected) on $($BestPool_Selected)" -foregroundcolor green          
 
- ##Build Profit Table For Display 
+ $ProfitTable = $null
  $ProfitTable = @()
  $Miners | foreach {
  $ProfitTable += [PSCustomObject]@{
-    Type = $_.Type
-    Miner = $_.Name
-    Name = $($_.Symbol)
-    Arguments = $($_.Arguments)
-    HashRates = $_.HashRates.$($_.Symbol)
-    Profits = $_.Profit_Bias
-    Algo = $_.Algo
-    Fullname = $_.FullName
-    MinerPool = $_.MinerPool
+      Type = $_.Type
+      Miner = $_.Name
+      Name = $($_.Symbol)
+      Arguments = $($_.Arguments)
+      HashRates = $_.HashRates.$($_.Symbol)
+      Profits = $_.Profit_Bias
+      Algo = $_.Algo
+      Fullname = $_.FullName
+      MinerPool = $_.MinerPool
     }
-   }
-
- 
+} 
 
  ##Add Instance Settings To Miners For Tracking
  $BestMiners_Combo | ForEach {

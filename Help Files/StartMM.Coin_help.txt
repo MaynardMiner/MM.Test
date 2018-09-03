@@ -101,6 +101,13 @@ These arguments can be added for additional customization and options
 
 Argument            Options             Explanation
 
+-StatLevel	   [Live,		This will allow you to factor period average smoothing. 
+		    Minute_5,		By default everything is live pricing. This will allow you to
+		    Minute_10,		smooth out stat fluctuations if you so desired into the period 
+		    Hour,		specified. Essentially it will allow you choose whether or not 
+		    Day]		you want to base switching on price averages, or live...And if 
+					you choose price averages, what average to base it on.
+
 -CPUOnly	   [Yes or No]		For CPU only miners- This lets HiveOS know whether or not to
 					stat only CPU. Note: Some CPU miners will only send stats on
 					accepted shares, so this means that it can take a while for
