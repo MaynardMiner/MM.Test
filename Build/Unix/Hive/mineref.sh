@@ -1,1 +1,1 @@
-tdxminer
+trex

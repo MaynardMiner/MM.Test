@@ -106,6 +106,72 @@ $Hive | Set-Content ".\Build\Unix\Hive\logstats.sh"
        Write-Host "Logging not needed for this miner" -foregroundcolor yellow
        Start-Sleep -S 10
       }
+    "cryptozeny"
+      {
+       if(Test-Path $HashPath)
+        {
+        Clear-Content ".\Build\Unix\Hive\hivestats.sh" -Force
+        Clear-Content ".\Build\Unix\Hive\logstats.sh" -Force        
+        $Miner_HashRates = Get-HashRate $API $Port
+        $Convert = [string]$GPUS -replace (","," ")
+        $GPU = $Convert -split ' '
+        $HashArray = @()
+        $Hash = @()
+        $A = $null
+        $TotalHash = 0
+        $A = Get-Content $HashPath
+        if($A)
+        {
+        for($i=0; $i -lt $GPU.Count; $i++)
+         {
+            $Hash = $A | Select-String "CPU #$($i)" | Select -Last 1
+            $Hash = $Hash -replace (" ","")
+            $Hash = $Hash -split ":" | Select-String -SimpleMatch "/s"
+            $Hash = $Hash -split "/s" | Select -First 1
+            $Hash = $Hash -replace ("h","")
+            $Hash = $Hash -replace ("m","")
+            $Hash = $Hash -replace ("mh","")
+            $Hash = $Hash -replace ("kh","")
+            $Hash = $Hash | % {iex $_}
+            $Hash | foreach {$HashArray += $_}
+            $Hash | foreach {$TotalHash += $_}
+         }
+        }
+        else{
+        for($i = 0; $i -lt $GPU.Count; $i++)
+        {
+         $HashArray += 0
+        }
+      }
+        $J = $HashArray | % {iex $_}
+        $K = @()
+         for($i = 0; $i -lt $HashArray.Count; $i++)
+           {
+            $SelectedPattern = $J | Select -skip $i | Select -First 1
+            $SelectedPattern | foreach {$K += "GPU=$(([math]::Round($($_)/1000,2)))"}}
+      }
+           $KHS = [math]::Round($TotalHash/1000,2)
+           $Accepted = ($A | Select-String "Accepted").Count
+           $Rejected = ($A | Select-String "Rejected").Count
+$Hive=
+"$($K -join "`n")
+RAW=$TotalHash
+KHS=$KHS
+ACC=$Accepted
+RJ=$Rejected
+ALGO=$MinerAlgo"
+$Hive
+
+$Hive | Set-Content ".\Build\Unix\Hive\hivestats.sh"
+$Hive | Set-Content ".\Build\Unix\Hive\logstats.sh"
+
+Start-Sleep -S 5
+      }
+    "cpuminer-opt"
+     {
+      Write-Host "Logging not needed for this miner" -foregroundcolor yellow
+      Start-Sleep -S 10
+     }
     "claymore"
       {
        Write-Host "Logging not needed for this miner" -foregroundcolor yellow
@@ -163,7 +229,6 @@ $Hive | Set-Content ".\Build\Unix\Hive\logstats.sh"
              $HashArray += 0
             }
           }
-        }
         else{
           for($i = 0; $i -lt $GPU.Count; $i++)
           {
@@ -171,6 +236,7 @@ $Hive | Set-Content ".\Build\Unix\Hive\logstats.sh"
             $HashArray += 0
           }
          }
+        }
         $J = $HashArray | % {iex $_}
         $K = @()
         $TotalRaw = 0

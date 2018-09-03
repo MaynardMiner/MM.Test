@@ -83,6 +83,25 @@ function miner_stats {
 					'{$hs, $hs_units, $temp, $fan, $uptime, ar: [$ac, $rj], $algo}')
 
 			;;
+		cryptozeny) 
+				cpkhs=(`echo "$mystats" | grep 'GPU=' | sed -e 's/.*=//'`)
+				algo=`echo "$mystats" | grep -m1 'ALGO=' | sed -e 's/.*=//'`
+				local ac=`echo "$mystats" | grep -m1 'ACC=' | sed -e 's/.*=//'`
+				local rj=`echo "$mystats" | grep -m1 'REJ=' | sed -e 's/.*=//'`
+
+				khs=`echo "$mystats" | grep -m1 'KHS=' | sed -e 's/.*=//'`
+
+
+			stats=$(jq -n \
+				        --argjson hs "`echo ${cpkhs[@]} | tr " " "\n" | jq -cs '.'`" \
+					--arg hs_units "hs_units=khs" \
+				        --argjson temp "$Ntemp" \
+				        --argjson fan "$Nfan" \
+					--arg uptime "0" \
+					--arg ac "$ac" --arg rj "$rj" \
+					--arg algo "$algo" \
+					'{$hs, $hs_units, $temp, $fan, $uptime, ar: [$ac, $rj], $algo}')
+			;;
 		claymore)
 			stats_raw=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat2"}' | nc -w $API_TIMEOUT localhost $myport | jq '.result'`
 			if [[ $? -ne 0  || -z $stats_raw ]]; then

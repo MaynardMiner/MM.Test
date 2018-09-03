@@ -229,7 +229,14 @@ function Get-AlgorithmList {
           if($DeviceCall -eq "tdxminer"){$MinerArguments = "-d $($Devices) $($Arguments)"}
          }
         }
-        if($Type -like '*CPU*'){$MinerArguments = $Arguments}
+        if($Type -like '*CPU*')
+        {
+        if($Devices -eq ''){$MinerArguments = "$($Arguments)"}
+        else{
+          if($DeviceCall -eq "cpuminer-opt"){$MinerArguments = "-t $($Devices) $($Arguments)"}
+          if($DeviceCall -eq "cryptozeny"){$MinerArguments = "-t $($Devices) $($Arguments)"}
+         }
+        }
         if($Type -like '*ASIC*'){$MinerArguments = $Arguments}
    	    $MinerConfig = "./$MinerInstance $MinerArguments"
         $MinerConfig | Set-Content ".\Unix\Hive\config.sh" -Force
@@ -240,7 +247,19 @@ function Get-AlgorithmList {
          $DeviceCall | Set-Content ".\Unix\Hive\mineref.sh" -Force
          $Ports | Set-Content ".\Unix\Hive\port.sh" -Force
          Start-Process "screen" -ArgumentList "-S LogData -d -m"    
-         Start-Process ".\Unix\Hive\LogData.sh" -ArgumentList "LogData $DeviceCall $Type $GPUGroups $MDir $Algos $APIs $Ports"    
+         Start-Process ".\Unix\Hive\LogData.sh" -ArgumentList "LogData $DeviceCall $Type $GPUGroups $MDir $Algos $APIs $Ports"
+         }
+         if($Type -eq "CPU")
+          {
+          if($CPUOnly -eq "Yes")
+           {
+            $DeviceCall | Set-Content ".\Unix\Hive\mineref.sh" -Force
+            $Ports | Set-Content ".\Unix\Hive\port.sh" -Force
+            Start-Process ".\Unix\Hive\killall.sh" -ArgumentList "LogData" -Wait
+            Start-Sleep -S 1
+            Start-Process "screen" -ArgumentList "-S LogData -d -m"    
+            Start-Process ".\Unix\Hive\LogData.sh" -ArgumentList "LogData $DeviceCall $Type $GPUGroups $MDir $Algos $APIs $Ports"
+           }
           }
        Write-Host "
         
@@ -289,9 +308,9 @@ function Get-AlgorithmList {
             Get-Date | Set-Content ".\PID\$($Name)_$($Coins)_$($MinerInstance)_Date.txt" -Force
             Start-Sleep -S 1
         }
-
         $MinerTimer.Stop()
         Rename-Item "$MinerDir\$($MinerInstance)" -NewName "$MinerName" -Force
+        Start-Sleep -S 1
         Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
     }
 

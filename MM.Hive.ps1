@@ -156,7 +156,9 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$Platform = "linux",
     [Parameter(Mandatory=$false)]
-    [int]$CPUThreads = 3
+    [int]$CPUThreads = $null,
+    [Parameter(Mandatory=$false)]
+    [string]$CPUOnly = "No"
 )
 #SetLocation & Load Script Files
 Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
@@ -184,7 +186,9 @@ Start-Process ".\Build\Unix\Hive\killall.sh" -ArgumentList "$($_)" -Wait
 
 #Start the log
 $Log = 1
-if(-not (Test-Path "Logs")){New-Item "Logs" -ItemType "directory" | Out-Null}
+if(-not (Test-Path "Logs")){
+New-Item "Logs" -ItemType "directory" | Out-Null
+Start-Sleep -S 1}
 Start-Transcript ".\Logs\MM.Hash$($Log).log" -Force
 $LogTimer = New-Object -TypeName System.Diagnostics.Stopwatch
 $LogTimer.Start()
@@ -295,18 +299,29 @@ $Type | Foreach {
 if($_ -eq "NVIDIA1"){
 "NVIDIA1" | Out-File ".\Build\minertype.sh" -Force
 Write-Host "Group 1 is NVIDIA- Commands and Stats will work for NVIDIA1" -foreground yellow
+Start-Sleep -S 3
 }
 if($_ -eq "AMD1"){
 "AMD1" | Out-File ".\Build\minertype.sh" -Force
 Write-Host "Group 1 is AMD- Commands and Stats will work for AMD1" -foreground yellow
+Start-Sleep -S 3
 }
+if($_ -eq "CPU"){
+if($CPUOnly -eq "Yes"){
+"CPU" | Out-File ".\Build\minertype.sh" -Force
+Write-Host "Group 1 is CPU- Commands and Stats will work for CPU" -foreground yellow
+Start-Sleep -S 3
+  }
+ }
 }
 $GPU_Count = Get-GPUCount -DeviceType $Type -CmdDir $CmdDir
 Write-Host "GPU Count = $GPU_Count" -foregroundcolor green
 Start-Sleep -S 2
+if($CPUOnly -eq "Yes"){$GPU_Count = $CPUThreads}
 $Count = @()
 for($i=0; $i -lt $GPU_Count; $i++){[string]$Count += "$i,"}
 $LogGPUS = $Count.Substring(0,$Count.Length-1)
+
 
 ##Reset-Old Stats
 if(Test-Path "Stats"){Get-ChildItemContent "Stats" | ForEach {$Stat = Set-Stat $_.Name $_.Content.Week}}
@@ -827,8 +842,7 @@ if($null -ne $CoinMiners)
         $NewCoinAlgo = @()
         $Miners = @()
 
-        if($Favor_Coins -eq "Yes")
-         {
+        if($Favor_Coins -eq "Yes"){
         $CoinAlgo | foreach {
         if($BestAlgoMiners_Combo.MinerPool -like "*algo*")
          {
@@ -838,12 +852,10 @@ if($null -ne $CoinMiners)
         }
       }
      }
+     
       $ProfitsArray = @()
 
-      if($Favor_Coins -eq "Yes")
-      {
-      $CoinMiners | Where [Double]Profit -lt $Threshold | foreach {$Miners += $_}
-      }
+      if($Favor_Coins -eq "Yes"){$CoinMiners | Where [Double]Profit -lt $Threshold | foreach {$Miners += $_}}
       else{
       $GoodAlgoMiners | foreach {$Miners += $_}
       $CoinMiners | Where [Double]Profit -lt $Threshold | foreach {$Miners += $_}
@@ -869,8 +881,7 @@ if($null -ne $CoinMiners)
 
 
       ##Add Only Coins To Array If Favor Coins "Yes"
-       if($Favor_Coins -eq "Yes")
-        {
+       if($Favor_Coins -eq "Yes"){
        $BestMiners_Combo | Foreach {
         $ProfitsArray += [PSCustomObject]@{
          Type = $_.Type
@@ -880,8 +891,7 @@ if($null -ne $CoinMiners)
       
        ##Add Both If "No"
        $GoodAlgoMiners | Foreach{
-        if($NewCoinAlgo.$($_.Symbol) -ne "$($_.Symbol)")
-         {
+        if($NewCoinAlgo.$($_.Symbol) -ne "$($_.Symbol)"){
           if(($ProfitsArray | Where Type -EQ $_.Type).Profits -gt $_.Profit)
            {
             $Miners += $_
@@ -959,13 +969,11 @@ $ActiveMinerPrograms | foreach {
   if(-not ($BestMiners_Combo | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments))
    {
     $_.XProcess = Get-PID -Instance $($_.Instance)
-    if($_.XProcess.HasExited)
-   {
-   if($_.Status -eq "Running")
-    {
+    if($_.XProcess.HasExited){
+     if($_.Status -eq "Running"){
      $_.Status = "Failed"
+     }
     }
-   }
   else
    {
     $_.Status = "Idle"
@@ -996,6 +1004,7 @@ $ActiveMinerPrograms | foreach {
         $MinerDir = Split-Path $_.Path
         if($null -eq $_.Devices){$GPUGrouping = $LogGPUS}
         else{$GPUGrouping = $_.Devices}
+        if($CPUOnly -eq "Yes"){$GPUGrouping = $LogGPUS}
         $LaunchCodes = @{}
         $LaunchCodes.Add("Type",$_.Type)
         $LaunchCodes.Add("Logs",$LogDir)
@@ -1032,10 +1041,8 @@ $ActiveMinerPrograms | foreach {
         }
       }
       $Instance++
-      if($Restart -eq "Yes")
-       {
-       if($null -eq $_.XProcess -or $_.XProcess.HasExited)
-       {
+      if($Restart -eq "Yes"){
+       if($null -eq $_.XProcess -or $_.XProcess.HasExited){
         $_.Status = "Failed"
         $NoMiners = "Yes"
         Write-Host "$($_.MinerName) Failed To Launch" -ForegroundColor Darkred
@@ -1281,8 +1288,8 @@ function Get-MinerHashRate {
 $ActiveMinerPrograms | Foreach {
   if(Test-Path "$($_.Instance)_PID.txt")
   { 
-    $_.XProcess = Get-PID -Instance $($_.Instance)
-    if($null -eq $_.Xprocess -or $_.XProcess.HasExited){$_.Status = "Failed"}
+   $_.XProcess = Get-PID -Instance $($_.Instance)
+   if($null -eq $_.Xprocess -or $_.XProcess.HasExited){$_.Status = "Failed"}
    $Miner_HashRates = Get-HashRate -API $_.API -Port $_.Port -CPUThreads $CPUThreads
 	 $GetDayStat = Get-Stat "$($_.Name)_$($_.Algo)_HashRate"
    $DayStat = "$($GetDayStat.Day)"

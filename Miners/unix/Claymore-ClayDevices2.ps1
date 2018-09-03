@@ -1,6 +1,6 @@
 [string]$Path = $update.nvidia.claymore.path2
 [string]$Uri = $update.nvidia.claymore.uri
-[string]$MinerName = $update.nvidia.claymore.uri
+[string]$MinerName = $update.nvidia.claymore.minername
 
 $Build = "Zip"
 

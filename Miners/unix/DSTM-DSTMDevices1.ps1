@@ -41,8 +41,8 @@ if($CoinAlgo -eq $null)
             Wrap = $false
             URI = $Uri
             BUILD = $Build
-          Algo = "$($_)"
-          NewAlgo = ''
+            Algo = "$($_)"
+            NewAlgo = ''
           }
         }
       }

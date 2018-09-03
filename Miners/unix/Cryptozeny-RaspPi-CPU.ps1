@@ -2,6 +2,8 @@
 [string]$Uri = $update.cpu.cryptozeny.uri
 [string]$MinerName = $update.cpu.cryptozeny.minername
 
+if($CPUThreads -ne ''){$Devices = $CPUThreads}
+
 $Build =  "Linux"
 
 $Commands = [PSCustomObject]@{
@@ -35,8 +37,8 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
          Type = "CPU"
          Path = $Path
          Devices = $Devices
-         DeviceCall = "cpuminer-opt"
-         Arguments = "-t 3 -a $(Get-AMD($_)) -o stratum+tcp://$($AlgoPools.$_.Host):$($AlgoPools.$_.Port) -b 0.0.0.0:4048 -u $($AlgoPools.$_.User1) -p $($AlgoPools.$_.Pass1) $($Commands.$_)"
+         DeviceCall = "cryptozeny"
+         Arguments = "-a $(Get-AMD($_)) -o stratum+tcp://$($AlgoPools.$_.Host):$($AlgoPools.$_.Port) -b 0.0.0.0:4048 -u $($AlgoPools.$_.User1) -p $($AlgoPools.$_.Pass1) $($Commands.$_)"
          HashRates = [PSCustomObject]@{$_ = $Stats."$($Name)_$($_)_HashRate".Day}
          Selected = [PSCustomObject]@{$_ = ""}
          MinerPool = "$($AlgoPools.$_.Name)"
@@ -64,8 +66,8 @@ else{
        Type = "CPU"
        Path = $Path
        Devices = $Devices
-       DeviceCall = "cpuminer-opt"
-       Arguments = "-t 3 -a $(Get-AMD($CoinPools.$_.Algorithm)) -o stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port) -b 0.0.0.0:4048 -u $($CoinPools.$_.CPUser) -p $($CoinPools.$_.CPUPass) $($Commands.$($CoinPools.$_.Algorithm))"
+       DeviceCall = "cryptozeny"
+       Arguments = "-a $(Get-AMD($CoinPools.$_.Algorithm)) -o stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port) -b 0.0.0.0:4048 -u $($CoinPools.$_.CPUser) -p $($CoinPools.$_.CPUPass) $($Commands.$($CoinPools.$_.Algorithm))"
        HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $Stats."$($Name)_$($CoinPools.$_.Algorithm)_HashRate".Day}
        API = "cpulog"
        Selected = [PSCustomObject]@{$($CoinPools.$_.Algorithm) = ""}

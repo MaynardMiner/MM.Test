@@ -18,6 +18,7 @@ cd `dirname $0`
 [[ -z $CUSTOM_CONFIG_FILENAME ]] && echo -e "${RED}No CUSTOM_CONFIG_FILENAME is set${NOCOLOR}" && exit 1
 [[ ! -f $CUSTOM_CONFIG_FILENAME ]] && echo -e "${RED}Custom config ${YELLOW}$CUSTOM_CONFIG_FILENAME${RED} is not found${NOCOLOR}" && exit 1
 
+
 if ! [ -x "$(command -v pwsh)" ]; then
 sudo apt-get install p7zip-full
 curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -

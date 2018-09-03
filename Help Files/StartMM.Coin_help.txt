@@ -101,6 +101,16 @@ These arguments can be added for additional customization and options
 
 Argument            Options             Explanation
 
+-CPUOnly	   [Yes or No]		For CPU only miners- This lets HiveOS know whether or not to
+					stat only CPU. Note: Some CPU miners will only send stats on
+					accepted shares, so this means that it can take a while for
+					HiveOS to recieve hashrate. MM.Hash internally pulls hashrates
+					from logs to benchmark fast.
+
+-CPUThreads	 [# of CPU threads]	By default HiveOS MM.Hash uses maximum threads. This option let
+					you limit the number of threads you wish to use if you are cpu
+					mining.
+
 -WorkerName          [Any]              Workname ID of Mining Pool Hub. Must use if you are using MPH 
                                         pool. Must be specified along with -Poolname MPH. Go to Mining 
                                         Pool Hub to create account and set up a worker.

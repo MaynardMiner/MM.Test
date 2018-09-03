@@ -1,6 +1,6 @@
 [string]$Path = $update.nvidia.dstm.path2
 [string]$Uri = $update.nvidia.dstm.uri
-[string]$MinerName = $update.nvidia.dstm.uri
+[string]$MinerName = $update.nvidia.dstm.minername
 
 
 $Build = "Zip"
