@@ -258,3 +258,54 @@ than 1 GPU. I'm going to purchase another AMD card, as these miners are making A
 -Because of all the background logging- Increased Sleep time before stats on screen to 20 seconds, and interval of stats on screen to 15 seconds.
 -Changed h-stats.sh to help with the amount of background logging.
 -Changes to core script for tracking, code staging for API (API.ps1). Preliminary tests show it is working.
+
+1.4.4b:
+
+-Fixed a typo that prevented possible clearing of content.
+-Utilized screen logging with a slight dely to reduce further resources.
+-Edited launch timing sequence: May appear slower, but am just giving more time for process to start: No increased delays.
+-Updated Crytpodredge
+-Updated Enemy
+-Code Staging For *nix version
+-Added versions in updatelinux.txt (future use: remote command to check miner versions/change links/name.)
+
+1.4.5b:
+
+-Patch for pool data overload.
+
+1.4.6b [and c]
+
+DISCLAIMERS:
+
+This version requires updating drivers to 396
+Did not get to fixing anything on AMD side. Still working on it.
+
+There is going to be no c version. b version should now work in Ubuntu:
+
+-download/clone MM.Test (beta version).
+-run install.sh as root : sudo ./install.sh. This will install all bash commands.
+-open/edit StartMM with your specified arguments.
+-Launch MM.Hash (Not as superuser!) ./StartMM
+-Operates just like Hive-OS version, just open a new terminal and type desired command.
+-requires 396 drivers for nvidia. Have not tested AMD yet.
+-requires 'screen' to operate.
+
+
+-fixed typo in claymore files [-3333]
+-added new 'version' command. Will update wiki on use.
+-added new 'clear_profits' commmand. Will update wiki on use.
+-change nvidia launch to make Hive version work in Ubuntu.
+-added install filed for ubuntu install. (used instead of h-run.sh)
+-added StartMM, which is the executable to launch ubuntu version.
+-added 'benchmark' command.
+-updated all miners to cuda 9.2
+-changed how updating in MM.Hash works.
+-fixed equihash-btg for mph.
+-'get-screen' will now get MM.Hash transcript (miner)
+-Logs updated to show active log.
+-New export folder contains cuda 9.2 library.
+-Added CUDA 9.2 libs so ccminers can be recompiled now and used
+-Added krnlx-xevan back in for another xevan miner if users want to test. Heard reports it
+was faster than enemy.
+-Added some more visual aids.
+-Removed Algorithm from stats screen. "currently mining is set to print algorithm" at bottom.

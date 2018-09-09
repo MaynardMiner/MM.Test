@@ -39,20 +39,17 @@ if($Location -eq "EUROPE")
    $Location = "EUROPE" 
  }
 
-$nicehash_Request.result | Select-Object -ExpandProperty simplemultialgo | Where-Object {$_.Paying -gt 0} | ForEach-Object {
+$nicehash_Request.result | Select-Object -ExpandProperty simplemultialgo | Where paying -ne 0 | ForEach-Object {
+  
     $nicehash_Host = "$($_.name).$Region.nicehash.com"
     $nicehash_Port = $_.port
     $nicehash_Algorithm = Get-Algorithm $_.name
     $nicehash_Fees = $Nicehash_Fee
     $Divisor = 1000000000
 
- if($Algorithm -eq $nicehash_Algorithm)
-      {
         $Stat = Set-Stat -Name "$($Name)_$($Nicehash_Algorithm)_Profit" -Value ([Double]$_.paying/$Divisor*(1-($Nicehash_Fees/100)))
         $Price = (($Stat.Live*(1-[Math]::Min($Stat.Day_Fluctuation,1)))+($Stat.Day*(0+[Math]::Min($Stat.Day_Fluctuation,1))))
-      }	
-     
-     
+   
      if($Wallet)
 	    {
      if($Nicehash_Wallet1 -ne '' -or $Nicehash_Wallet2 -ne '' -or $Nicehash_Wallet3 -ne '')
@@ -62,15 +59,15 @@ $nicehash_Request.result | Select-Object -ExpandProperty simplemultialgo | Where
             Symbol = $nicehash_Algorithm
             Mining = $nicehash_Algorithm
             Algorithm = $nicehash_Algorithm
-            Price = $Stat.Live
+            Price = $Stat.$StatLevel
             Fees = $nicehash_Fees
             StablePrice = $Stat.Week
             Protocol = "stratum+tcp"
             Host = $nicehash_Host
             Port = $nicehash_Port
-            User1 = "$Nicehash_Wallet1"
-	    User2 = "$Nicehash_Wallet2"
-            User3 = "$Nicehash_Wallet3"
+            User1 = "$Nicehash_Wallet1.$Rigname1"
+	    User2 = "$Nicehash_Wallet2.$Rigname2"
+            User3 = "$Nicehash_Wallet3.$Rigname3"
             CPUser = "$Nicehash_Wallet1.$Rigname1"
             CPUPass = "x"
             Pass1 = "x"

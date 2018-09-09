@@ -29,14 +29,14 @@ switch ($_) {
      return
    }
   
-   $blockpool_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Select-Object -ExpandProperty Name | foreach {
+$blockpool_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Select-Object -ExpandProperty Name | foreach {
 
-   if($blockcoinalgo -eq $blockpool_Request.$_.algo)
+ if($blockcoinalgo -eq $blockpool_Request.$_.algo)
+  {
+  if($blockpool_Request.$_.hashrate -ne "0")
+   {
+   if($blockpool_Request.$_.estimate -ne "0.00000")
     {
-    if($blockpool_Request.$_.hashrate -ne "0")
-     {
-      if($blockpool_Request.$_.estimate -ne "0.00000")
-       {
 
     $blockpool_Coin = "$($_)".ToUpper()
     $blockpool_Symbol = "$($_)".ToUpper()
@@ -78,7 +78,7 @@ switch ($_) {
       Symbol = $blockpool_Symbol
       Mining = $blockpool_CoinName
       Algorithm = $blockpool_Algorithm
-      Price = $Stat.$StatLevel
+      Price = $Stat.Live
       StablePrice = $Stat.Week
       MarginOfError = $Stat.Fluctuation
       Protocol = "stratum+tcp"

@@ -1,6 +1,6 @@
-$Path = $update.cpu.jayddee.path1
-$Uri = $update.cpu.jayddee.uri
-$MinerName = $update.cpu.jayddee.minername
+$Path = $cpu.jayddee.path1
+$Uri = $cpu.jayddee.uri
+$MinerName = $cpu.jayddee.minername
 
 if($CPUThreads -ne ''){$Devices = $CPUThreads}
 

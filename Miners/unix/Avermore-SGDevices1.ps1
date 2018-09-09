@@ -1,6 +1,6 @@
-[string]$Path = $update.amd.avermore.path1
-[string]$Uri = $update.amd.avermore.uri
-[string]$MinerName = $update.amd.avermore.minername
+[string]$Path = $amd.avermore.path1
+[string]$Uri = $amd.avermore.uri
+[string]$MinerName = $amd.avermore.minername
 
 $Build = "Zip"
 

@@ -34,6 +34,7 @@ $zergcoinalgo = $CoinAlgo
       if($zergpool_Request.$_.estimate -ne "0.00000")
        {
 
+    $zergpool_Algorithm = Get-Algorithm $zergpool_Request.$_.algo
     $zergpool_Coin = "$($_)".ToUpper()
     $zergpool_Symbol = "$($_)".ToUpper()
     switch ($zergpool_Symbol) {
@@ -42,7 +43,6 @@ $zergcoinalgo = $CoinAlgo
      '$PAC'{$zergpool_Symbol = "PAC-Coin"}
     }
     $zergpool_Port = $zergpool_Request.$_.port
-    $zergpool_Algorithm = Get-Algorithm $zergpool_Request.$_.algo
     $zergpool_Host = "$($zergpool_Request.$_.algo).mine.zergpool.com"
     $zergpool_Fees = .5
     $zergpool_CoinName = $zergpool_Request.$_.name
@@ -73,7 +73,7 @@ $zergcoinalgo = $CoinAlgo
             Symbol = $zergpool_Symbol
             Mining = $zergpool_CoinName
             Algorithm = $zergpool_Algorithm
-            Price = $Stat.$StatLevel
+            Price = $Stat.Live
             StablePrice = $Stat.Week
             MarginOfError = $Stat.Fluctuation
             Protocol = "stratum+tcp"

@@ -2,9 +2,21 @@
 
 **Profit Switching Miner For HiveOS & Windows.**
 
+**Important Note:**
 
+Version information:
 
-MM.Hash is a powershell/bash hyrbid miner that is meant to work in both windows and HiveOS mining systems. It has the capability of switching between mutliple pools, and multiple algorithms, as well as calucating the most profitable algorithm to mine. It can also perform coin profit switching as well, on pools that can do so. MM.Hash fully integrates with HiveOS, sending stats directly to HiveOS with little/no issues. It accepts remote commands, and can be updated remotely as well. The HiveOS version means you can use all the features of HiveOS, including hashrate monitoring, possible GPU failure detection, miner configuration, all while doing it remotely.
+a - Windows version.
+
+b - HiveOS version.
+
+c - Soon to be Ubuntu version.
+
+Depending on which OS you use- Use the latest version release of that version.
+
+MM.Hash is a powershell/bash hyrbid miner that is meant to work in both windows and HiveOS mining systems. It has the capability of switching between mutliple pools, multiple algorithms based on the most profitable calucation. It can also perform coin profit switching as well, on pools that can do so. MM.Hash fully integrates with HiveOS, sending stats directly to HiveOS with little/no issues. It accepts remote commands, and can be updated remotely as well. The HiveOS version means you can use all the features of HiveOS, including hashrate monitoring, possible GPU failure detection, miner configuration, all while doing it remotely.
+
+I am a sole developer, and have multiple versions to operate in different OS's. I prioritize them by requests and activity, if you would like me to develop/improve a particular version- Just notify me, and I will prioritize it. Currently, the most popular, most used, and most recommended is the HiveOS version.
 
 **Features**
 
@@ -28,7 +40,7 @@ MM.Hash is a powershell/bash hyrbid miner that is meant to work in both windows 
 
 -HiveOS commands to open new windows to view stats, miner history, real-time data.
 
--Coin profit switching. (Not recommended on slower rigs/usb)
+-Coin profit switching. Can be used with algorithm profit switching.
 
 -Algorithm profit switching.
 
@@ -207,6 +219,8 @@ Uselessguru
 Aaronsace
 
 They were the pioneers to powershell scriptmining. Their scripts helped me to piece together a buggy but workable linux miner, which was the original purpose of MM.Hash, since none of them did so at the time. Since then it has grown to what it is today.
+
+
 
 
 

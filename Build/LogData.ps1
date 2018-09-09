@@ -56,7 +56,7 @@ Set-Location $WorkingDir
            else
             {
              $Hash += "kH/s"
-             $HashArray += 0
+             $HashArray += 0.1
             }
            }
           }
@@ -64,7 +64,7 @@ Set-Location $WorkingDir
        for($i = 0; $i -lt $GPU.Count; $i++)
          {
           $Hash += "Kh/s"
-          $HashArray += 0
+          $HashArray += 0.1
          }
         }
         $J = $HashArray | % {iex $_}
@@ -140,7 +140,7 @@ $Hive | Set-Content ".\Build\Unix\Hive\logstats.sh"
         else{
         for($i = 0; $i -lt $GPU.Count; $i++)
         {
-         $HashArray += 0
+         $HashArray += 0.1
         }
       }
         $J = $HashArray | % {iex $_}
@@ -226,14 +226,14 @@ Start-Sleep -S 5
             else
             {
              $Hash += "Kh/s"
-             $HashArray += 0
+             $HashArray += 0.1
             }
           }
         else{
           for($i = 0; $i -lt $GPU.Count; $i++)
           {
             $Hash += "Kh/s"
-            $HashArray += 0
+            $HashArray += 0.1
           }
          }
         }
@@ -302,7 +302,7 @@ Start-Sleep -S 5
           for($i = 0; $i -lt $GPU.Count; $i++)
           {
             $Hash += "Kh/s"
-            $HashArray += 0
+            $HashArray += 0.1
           }
          }
         }
@@ -311,7 +311,7 @@ Start-Sleep -S 5
         for($i = 0; $i -lt $GPU.Count; $i++)
         {
           $Hash += "Kh/s"
-          $HashArray += 0
+          $HashArray += 0.1
         }
        }
       $J = $HashArray | % {iex $_}

@@ -3,14 +3,13 @@ if($Auto_Algo -eq "Yes")
 {
 if($Poolname -eq $Name)
  {
-try
-{
-    $MiningPoolHub_Request = Invoke-WebRequest "https://miningpoolhub.com/index.php?page=api&action=getautoswitchingandprofitsstatistics" -UseBasicParsing | ConvertFrom-Json
-}
-catch
-{
-    return
-}
+    try {
+        $MiningPoolHub_Request = Invoke-RestMethod "http://miningpoolhub.com/index.php?page=api&action=getautoswitchingandprofitsstatistics" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
+    }
+    catch {
+        Write-Log -Level Warn "Pool API ($Name) has failed. "
+        return
+    }
 
 if(-not $MiningPoolHub_Request.success)
 {
@@ -26,36 +25,34 @@ $Locations | foreach {
 
     $MPH_Location = $_
 
-    $MiningPoolHub_Request.return | foreach {
-        
-       $MPH_SymHost = $_.algo
-       Switch($MPH_SymHost)
-        {
-         "Cryptonight-Monero"{$MPH_SymHost = "Cryptonight"}
-        }
+    $MiningPoolHub_Request.return | ForEach-Object {
+    if($Algorithm -eq (Get-Algorithm($_.algo)))
+     {
        $MPH_Algo = Get-Algorithm $_.algo
        $MPH_Port = $_.algo_switch_port
-       if($MPH_Algo -eq "Equihash")
-        {$MPH_Protocol = 'stratum+ssl'}
+       if($MPH_Algo -eq "equihash-btg"){$MPH_Protocol = 'stratum+tcp'}
        else{$MPH_Protocol = 'stratum+tcp'}
-       $MPH_Name = $_.current_mining_coin
+       $MPH_Name = $_.coin_name
+       $MPH_SymHostName = $_.algo
+       Switch($MPH_SymHostName){"Equihash-BTG"{$MPH_SymHostName = "equihash"}
+       }
 
        $MPH_Hostname = $_.all_host_list
-       
+
        if($Location -eq 'Europe')
         {
-         if($MPH_Hostname -ne "us-east.$($MPH_Symhost)-hub.miningpoolhub.com;europe.$($MPH_Symhost)-hub.miningpoolhub.com;asia.$($MPH_Symhost)-hub.miningpoolhub.com"){$MPH_Host = "hub.miningpoolhub.com"}
-         else{$MPH_Host = "europe.$($MPH_Symhost)-hub.miningpoolhub.com"}
+         if($MPH_Hostname -ne "us-east.$($MPH_SymhostName)-hub.miningpoolhub.com;europe.$($MPH_SymhostName)-hub.miningpoolhub.com;asia.$($MPH_SymhostName)-hub.miningpoolhub.com"){$MPH_Host = "hub.miningpoolhub.com"}
+         else{$MPH_Host = "europe.$($MPH_SymhostName)-hub.miningpoolhub.com"}
         }
        if($Location -eq 'US')
         {
-         if($MPH_Hostname -ne "us-east.$($MPH_Symhost)-hub.miningpoolhub.com;europe.$($MPH_Symhost)-hub.miningpoolhub.com;asia.$($MPH_Symhost)-hub.miningpoolhub.com"){$MPH_Host = "hub.miningpoolhub.com"}
-         else{$MPH_Host = "us-east.$($MPH_Symhost)-hub.miningpoolhub.com"}
+         if($MPH_Hostname -ne "us-east.$($MPH_SymhostName)-hub.miningpoolhub.com;europe.$($MPH_SymhostName)-hub.miningpoolhub.com;asia.$($MPH_SymhostName)-hub.miningpoolhub.com"){$MPH_Host = "hub.miningpoolhub.com"}
+         else{$MPH_Host = "us-east.$($MPH_SymhostName)-hub.miningpoolhub.com"}
         }
         if($Location -eq 'Asia')
         {
-         if($MPH_Hostname -ne "us-east.$($MPH_Symhost)-hub.miningpoolhub.com;europe.$($MPH_Symhost)-hub.miningpoolhub.com;asia.$($MPH_Symhost)-hub.miningpoolhub.com"){$MPH_Host = "hub.miningpoolhub.com"}
-         else{$MPH_Host = "asia.$($MPH_Symhost)-hub.miningpoolhub.com"}
+         if($MPH_Hostname -ne "us-east.$($MPH_SymhostName)-hub.miningpoolhub.com;europe.$($MPH_SymhostName)-hub.miningpoolhub.com;asia.$($MPH_SymhostName)-hub.miningpoolhub.com"){$MPH_Host = "hub.miningpoolhub.com"}
+         else{$MPH_Host = "asia.$($MPH_SymhostName)-hub.miningpoolhub.com"}
         }
 
      if($Algorithm -eq $MPH_Algo)
@@ -84,6 +81,7 @@ $Locations | foreach {
             Pass3 = 'x'
             Location = $MPH_Location
             SSL = $true
+           }
 		  }
          }   
        }

@@ -1,6 +1,6 @@
-[string]$Path = $update.cpu.cryptozeny.path1
-[string]$Uri = $update.cpu.cryptozeny.uri
-[string]$MinerName = $update.cpu.cryptozeny.minername
+[string]$Path = $cpu.cryptozeny.path1
+[string]$Uri = $cpu.cryptozeny.uri
+[string]$MinerName = $cpu.cryptozeny.minername
 
 if($CPUThreads -ne ''){$Devices = $CPUThreads}
 

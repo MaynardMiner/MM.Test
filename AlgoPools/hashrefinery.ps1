@@ -28,19 +28,15 @@
  
  
  $Hashrefinery_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Select-Object -ExpandProperty Name | Where-Object {$Hashrefinery_Request.$_.hashrate -gt 0} | ForEach-Object {
-    if($Algorithm -eq $_)
-    {
-    if($Hashrefinery_Request.$_.hashrate -ne "0")
-     {
-      if($Hashrefinery_Request.$_.estimate -ne "0.00000")
-       {
-            
+     
     $Hashrefinery_Host = "$_.us.hashrefinery.com"
     $Hashrefinery_Port = $Hashrefinery_Request.$_.port
     $Hashrefinery_Algorithm = Get-Algorithm $Hashrefinery_Request.$_.name
     $Divisor = (1000000*$Hashrefinery_Request.$_.mbtc_mh_factor)
 
-    $Stat = Set-Stat -Name "$($Name)_$($Hashrefinery_Algorithm)_Profit" -Value ([Double]$Hashrefinery_Request.$_.estimate_current/$Divisor *(1-($Hashrefinery_Request.$_.fees/100)))
+
+    if((Get-Stat -Name "$($Name)_$($Hashrefinery_Algorithm)_Profit") -eq $null){$Stat = Set-Stat -Name "$($Name)_$($Hashrefinery_Algorithm)_Profit" -Value ([Double]$Hashrefinery_Request.$_.estimate_current/$Divisor*(1-($Hashrefinery_Request.$_.fees/100)))}
+    else{$Stat = Set-Stat -Name "$($Name)_$($Hashrefinery_Algorithm)_Profit" -Value ([Double]$Hashrefinery_Request.$_.estimate_current/$Divisor *(1-($Hashrefinery_Request.$_.fees/100)))}
 
        if($Wallet)
 	    {
@@ -49,7 +45,7 @@
             Symbol = $Hashrefinery_Algorithm
             Mining = $Hashrefinery_Algorithm
             Algorithm = $Hashrefinery_Algorithm
-            Price = $Stat.$StatLevel
+            Price = $Stat.$Statlevel
             StablePrice = $Stat.Week
             MarginOfError = $Stat.Fluctuation
             Protocol = "stratum+tcp"
@@ -65,9 +61,6 @@
 	    Pass3 = "c=$Passwordcurrency3,ID=$Rigname3"
             Location = $Location
             SSL = $false
-            }
-           }
-          }
         }
      }
   }    
