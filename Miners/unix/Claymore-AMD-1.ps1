@@ -1,6 +1,6 @@
-[string]$Path = $amd.claymore.path1
-[string]$Uri = $amd.claymore.uri
-[string]$MinerName = $amd.claymore.minername
+[string]$Path = $amd.claymore_amd.path1
+[string]$Uri = $amd.claymore_amd.uri
+[string]$MinerName = $amd.claymore_amd.minername
 
 $Build = "Zip"
 

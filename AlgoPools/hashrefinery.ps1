@@ -13,13 +13,13 @@
      $Hashrefinery_Request = Invoke-RestMethod "http://pool.hashrefinery.com/api/status" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop 
  } 
  catch { 
-     Write-Warning "MM.Hash contacted ($Name) for a failed API. "
+     Write-Warning "SWARM contacted ($Name) for a failed API. "
      return 
  } 
  
  
  if (($Hashrefinery_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Measure-Object Name).Count -le 1) { 
-     Write-Warning "MM.Hash contacted ($Name) but ($Name) Pool API was unreadable. " 
+     Write-Warning "SWARM contacted ($Name) but ($Name) Pool API was unreadable. " 
      return 
  } 
  

@@ -14,7 +14,7 @@ if($Poolname -eq $Name)
 if(-not $MiningPoolHub_Request.success)
 {
     return
-    Write-Host "Warning: MM.Hash Failed To Contact Mining Pool Hub."
+    Write-Host "Warning: SWARM Failed To Contact Mining Pool Hub."
 }
 
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName

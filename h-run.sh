@@ -25,6 +25,7 @@ curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
 sudo curl -o /etc/apt/sources.list.d/microsoft.list https://packages.microsoft.com/config/ubuntu/16.04/prod.list
 sudo apt-get update
 sudo apt-get install -y powershell
+apt-get -f install
 fi
 
 pwsh -command "&.\MM.Hive.ps1 $(< /hive/custom/$CUSTOM_NAME/$CUSTOM_NAME.conf)" $@ && . colors

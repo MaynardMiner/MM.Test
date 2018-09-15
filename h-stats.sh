@@ -33,10 +33,10 @@ function miner_stats {
 
 
 			stats=$(jq -n \
-				        --argjson hs "`echo ${cckhs[@]} | tr " " "\n" | jq -cs '.'`" \
+				    --argjson hs "`echo ${cckhs[@]} | tr " " "\n" | jq -cs '.'`" \
 					--arg hs_units "hs_units=khs" \
-				        --argjson temp "$Ntemp" \
-				        --argjson fan "$Nfan" \
+				    --argjson temp "$Ntemp" \
+				    --argjson fan "$Nfan" \
 					--arg uptime "0" \
 					--arg ac "$ac" --arg rj "$rj" \
 					--arg algo "$algo" \
@@ -53,10 +53,10 @@ function miner_stats {
 
 
 			stats=$(jq -n \
-				        --argjson hs "`echo ${tdkhs[@]} | tr " " "\n" | jq -cs '.'`" \
+				    --argjson hs "`echo ${tdkhs[@]} | tr " " "\n" | jq -cs '.'`" \
 					--arg hs_units "hs_units=khs" \
-				        --argjson temp "$Ntemp" \
-				        --argjson fan "$Nfan" \
+				    --argjson temp "$Ntemp" \
+				    --argjson fan "$Nfan" \
 					--arg uptime "0" \
 					--arg ac "$ac" --arg rj "$rj" \
 					--arg algo "$algo" \
@@ -73,10 +73,10 @@ function miner_stats {
 
 
 			stats=$(jq -n \
-				        --argjson hs "`echo ${tdkhs[@]} | tr " " "\n" | jq -cs '.'`" \
+				    --argjson hs "`echo ${tdkhs[@]} | tr " " "\n" | jq -cs '.'`" \
 					--arg hs_units "hs_units=khs" \
-				        --argjson temp "$Ntemp" \
-				        --argjson fan "$Nfan" \
+				    --argjson temp "$Ntemp" \
+				    --argjson fan "$Nfan" \
 					--arg uptime "0" \
 					--arg ac "$ac" --arg rj "$rj" \
 					--arg algo "$algo" \
@@ -93,10 +93,10 @@ function miner_stats {
 
 
 			stats=$(jq -n \
-				        --argjson hs "`echo ${cpkhs[@]} | tr " " "\n" | jq -cs '.'`" \
+				    --argjson hs "`echo ${cpkhs[@]} | tr " " "\n" | jq -cs '.'`" \
 					--arg hs_units "hs_units=khs" \
-				        --argjson temp "$Ntemp" \
-				        --argjson fan "$Nfan" \
+				    --argjson temp "$Ntemp" \
+				    --argjson fan "$Nfan" \
 					--arg uptime "0" \
 					--arg ac "$ac" --arg rj "$rj" \
 					--arg algo "$algo" \
@@ -260,7 +260,7 @@ fi
 					#--argjson fan "`echo \"$striplines\" | grep 'FAN=' | sed -e 's/.*=//' | jq -cs '.'`" \
 					#--arg ac "$ac" --arg rj "$rj" \
 					#'{$khs, $temp, $fan, $uptime, $algo, ar: [$ac, $rj]}')
-	                        stats=$(jq -nc \
+	            stats=$(jq -nc \
 				--argjson hs "`echo ${cckhs[@]} | tr " " "\n" | jq -cs '.'`" \
 				--arg hs_units "hs_units='khs'" \
 				--argjson temp "`echo ${cctemps[@]} | tr " " "\n" | jq -cs '.'`" \

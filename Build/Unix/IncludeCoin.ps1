@@ -543,7 +543,7 @@ function Get-HashRate {
             }
             "tdxminer"
              {
-                do{
+             do{
 
                 if(Test-Path ".\Build\Unix\Hive\logstats.sh")
                 {
@@ -577,7 +577,6 @@ function Get-HashRate {
              }
             "cpulog"
              {
-
               $Hashrate = 0
               if(Test-Path ".\Logs\CPU.log")
                {
@@ -595,12 +594,9 @@ function Get-HashRate {
                     $Hash = $Hash | % {iex $_}
                     $Hash | foreach{$HashRate += $_}
                  }
-
                 $HashRates += [Double]$HashRate
-                Start-Sleep $Interval
                 }
                 else{$HashRates = @(); break}
-
              }
         }
 

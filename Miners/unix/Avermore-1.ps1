@@ -17,7 +17,6 @@ $Commands = [PSCustomObject]@{
 
 "myr-gr" = ""
 "groestl" = ""
-"xevan" = ""
 "x16r" = ""
 "x16s" = ""
 "equihash" = ""

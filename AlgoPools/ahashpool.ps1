@@ -12,12 +12,12 @@ $Name = Get-Item $MyInvocation.MyCommand.Path | Select-Object -ExpandProperty Ba
      $ahashpool_Request = Invoke-RestMethod "https://www.ahashpool.com/api/status" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop 
  } 
  catch { 
-     Write-Warning "MM.Hash contacted ($Name) for a failed API. "
+     Write-Warning "SWARM contacted ($Name) for a failed API. "
      return 
  }
  
  if (($ahashpool_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Measure-Object Name).Count -le 1) { 
-     Write-Warning "MM.Hash contacted ($Name) but ($Name) Pool API had issues. " 
+     Write-Warning "SWARM contacted ($Name) but ($Name) Pool API had issues. " 
      return 
  } 
   

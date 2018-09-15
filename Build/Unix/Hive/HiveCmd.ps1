@@ -318,6 +318,7 @@ function Get-AlgorithmList {
         if($_ -like "*Password =*" ){$_ = "            Password = `"$Password`">    "}
         if($_ -notlike "*<Connection Url*" -or $_ -notlike "*Username*" -or $_ -notlike "*Password*"){$_}
         }
+        Clear-Content ".\lyclMiner.conf" -force
         $NewLines | Set-Content ".\lyclMiner.conf"
         Set-Location $CmdDir
         }

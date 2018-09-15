@@ -1,40 +1,42 @@
 
-Sunday, September 9, 2018 1:26:26 PM
+Friday, September 14, 2018 11:04:22 PM
 
 
 
 
    Status: Running
 
-    Speed Active                      Launched Command                                                                                                                                                     
-    ----- ------                      -------- -------                                                                                                                                                     
-0.00 PH/s 00 Days 00 Hours 00 Minutes Once     ccminer GTX1050ti#1,GTX1050ti#2,GTX1050ti#3,GTX1050ti#4,GTX1050ti#5,GTX1050ti#6,GTX1050ti#7 -a keccak -o stratum+tcp://keccak.mine.zergpool.com:5133 -b     
-                                               0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,ID=MMHash                                                                                       
-0.00 PH/s 00 Days 00 Hours 00 Minutes Once     t-rex 0,1,2,6,9,10 -a c11 -o stratum+tcp://c11.mine.zergpool.com:3573 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,ID=MMHash              
+      Speed Active                      Launched Command                                                                                                                          
+      ----- ------                      -------- -------                                                                                                                          
+  0.00 PH/s 00 Days 00 Hours 00 Minutes Once     tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=TLR         
+670.00  H/s 00 Days 00 Hours 00 Minutes 2 Times  cpuminer 3 -a yescryptr16 -o stratum+tcp://yescryptR16.mine.zergpool.com:6333 -b 0.0.0.0:4048 -u                                 
+                                                 RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=ELI                                                                               
 
 
    Status: Idle
 
-      Speed Active                      Launched Command                                                                                                                                                   
-      ----- ------                      -------- -------                                                                                                                                                   
- 10.81 GH/s 00 Days 00 Hours 02 Minutes Once     CryptoDredge 3,4,5,7,8,11,12 -a Blake2s -o stratum+tcp://blake2s.mine.zergpool.com:5766 -b 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p          
-                                                 c=RVN,ID=MMHash                                                                                                                                           
- 23.25 GH/s 00 Days 00 Hours 02 Minutes Once     CryptoDredge 0,1,2,6,9,10 -a Blake2s -o stratum+tcp://blake2s.mine.zergpool.com:5766 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p             
-                                                 c=RVN,ID=MMHash                                                                                                                                           
- 20.68 MH/s 00 Days 00 Hours 02 Minutes Once     CryptoDredge 3,4,5,7,8,11,12 -a Allium -o stratum+tcp://allium.mine.zergpool.com:6433 -b 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p            
-                                                 c=RVN,ID=MMHash                                                                                                                                           
-  6.98 MH/s 00 Days 00 Hours 02 Minutes Once     CryptoDredge 0,1,2,6,9,10 -a Neoscrypt -o stratum+tcp://blockmasters.co:4233 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,ID=MMHash     
- 37.23 MH/s 00 Days 00 Hours 03 Minutes Once     t-rex 3,4,5,7,8,11,12 -a x16s -o stratum+tcp://x16s.mine.zergpool.com:3663 -b 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,ID=MMHash       
-127.06 KH/s 00 Days 00 Hours 03 Minutes Once     miner 0 1 2 6 9 10 --api 0.0.0.0:42000 --server equihash96.mine.zergpool.com --port 2148 --user RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H --pass c=RVN,ID=MMHash 
-                                                 --algo 96_5 --pers auto                                                                                                                                   
-  3.49 MH/s 00 Days 00 Hours 02 Minutes Once     CryptoDredge 3,4,5,7,8,11,12 -a Neoscrypt -o stratum+tcp://blockmasters.co:4233 -b 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,ID=MMHash  
- 34.13 MH/s 00 Days 00 Hours 02 Minutes Once     CryptoDredge 0,1,2,6,9,10 -a Allium -o stratum+tcp://allium.mine.zergpool.com:6433 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p               
-                                                 c=RVN,ID=MMHash                                                                                                                                           
-  9.29 MH/s 00 Days 00 Hours 03 Minutes Once     ccminer GTX1050ti#1,GTX1050ti#2,GTX1050ti#3,GTX1050ti#4,GTX1050ti#5,GTX1050ti#6,GTX1050ti#7 -a xevan -o stratum+tcp://xevan.mine.zergpool.com:3739 -b     
-                                                 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,ID=MMHash                                                                                     
- 24.11 MH/s 00 Days 00 Hours 03 Minutes Once     ccminer GTX1070#1,GTX1070#2,GTX1070#3,GTX1070#4,GTX1070#5,GTX1070#6 -a hmq1725 -o stratum+tcp://hmq1725.mine.zergpool.com:3747 -b 0.0.0.0:4068 -u         
-                                                 RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,ID=MMHash                                                                                                     
- 58.37 KH/s 00 Days 00 Hours 02 Minutes Once     miner 3 4 5 7 8 11 12 --api 0.0.0.0:42001 --server equihash96.mine.zergpool.com --port 2148 --user RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H --pass              
-                                                 c=RVN,ID=MMHash --algo 96_5 --pers auto                                                                                                                   
+      Speed Active                      Launched Command                                                                                                                          
+      ----- ------                      -------- -------                                                                                                                          
+  3.10 MH/s 00 Days 00 Hours 10 Minutes 2 Times  tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=VTL         
+770.00  H/s 00 Days 01 Hours 05 Minutes 5 Times  cpuminer 3 -a yespower -o stratum+tcp://yespower.mine.zergpool.com:6533 -b 0.0.0.0:4048 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p 
+                                                 c=RVN,mc=CRP                                                                                                                     
+  3.05 MH/s 00 Days 00 Hours 32 Minutes 3 Times  tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=GIN         
+100.00  H/s 00 Days 00 Hours 21 Minutes 2 Times  lyclMiner  none                                                                                                                  
+  3.09 MH/s 00 Days 00 Hours 05 Minutes Once     tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=CRS         
 
-Time Left Until Database Starts: 60
+
+   Status: Failed
+
+      Speed Active                      Launched Command                                                                                                                          
+      ----- ------                      -------- -------                                                                                                                          
+  3.15 MH/s 00 Days 00 Hours 00 Minutes Once     tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=MANO        
+647.49 KH/s 00 Days 00 Hours 05 Minutes 3 Times  cpuminer 3 -a lyra2re -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -b 0.0.0.0:4048 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p    
+                                                 c=RVN,mc=GIN                                                                                                                     
+643.93 KH/s 00 Days 00 Hours 00 Minutes Once     cpuminer 3 -a lyra2re -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -b 0.0.0.0:4048 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p    
+                                                 c=RVN,mc=ZCR                                                                                                                     
+  2.93 MH/s 00 Days 00 Hours 05 Minutes 2 Times  tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=ZCR         
+  3.10 MH/s 00 Days 00 Hours 00 Minutes 2 Times  tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=GTM         
+680.00  H/s 00 Days 00 Hours 00 Minutes 2 Times  cpuminer 3 -a yescryptr16 -o stratum+tcp://yescryptR16.mine.zergpool.com:6333 -b 0.0.0.0:4048 -u                                 
+                                                 RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=YTN                                                                               
+
+Time Left Until Database Starts: 182

@@ -144,7 +144,7 @@ param(
     [Parameter(Mandatory=$false)]
     [Int]$Nicehash_Fee,
     [Parameter(Mandatory=$false)]
-    [Int]$Benchmark = 120,
+    [Int]$Benchmark = 300,
     [Parameter(Mandatory=$false)]
     [Int]$GPU_Count = 13,
     [Parameter(Mandatory=$false)]
@@ -164,7 +164,9 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$HiveOS = "Yes",
     [Parameter(Mandatory=$false)]
-    [string]$Update = "No"
+    [string]$Update = "No",
+    [Parameter(Mandatory=$false)]
+    [string]$Cuda = "9.1"
 )
 
 #SetLocation & Load Script Files
@@ -311,8 +313,8 @@ try{if((Get-MpPreference).ExclusionPath -notcontains (Convert-Path .)){Start-Pro
 if($Proxy -eq ""){$PSDefaultParameterValues.Remove("*:Proxy")}
 else{$PSDefaultParameterValues["*:Proxy"] = $Proxy}
 
-##Check for libc
-Start-Process ".\Build\Unix\Hive\libc.sh" -wait
+##Check for libc 
+if($HiveOS -eq "Yes"){Start-Process ".\Build\Unix\Hive\libc.sh" -wait}
 
 ##GPU Count & Miner Type
 $Type | Foreach {
@@ -349,24 +351,24 @@ if(Test-Path "Stats"){Get-ChildItemContent "Stats" | ForEach {$Stat = Set-Stat $
 Write-Host "
 
 
-    MMMMMMMM               MMMMMMMMMMMMMMMM               MMMMMMMM        HHHHHHHHH     HHHHHHHHH               AAA                 SSSSSSSSSSSSSSS HHHHHHHHH     HHHHHHHHH
-    M:::::::M             M:::::::MM:::::::M             M:::::::M        H:::::::H     H:::::::H              A:::A              SS:::::::::::::::SH:::::::H     H:::::::H
-    M::::::::M           M::::::::MM::::::::M           M::::::::M        H:::::::H     H:::::::H             A:::::A            S:::::SSSSSS::::::SH:::::::H     H:::::::H
-    M:::::::::M         M:::::::::MM:::::::::M         M:::::::::M        HH::::::H     H::::::HH            A:::::::A           S:::::S     SSSSSSSHH::::::H     H::::::HH
-    M::::::::::M       M::::::::::MM::::::::::M       M::::::::::M          H:::::H     H:::::H             A:::::::::A          S:::::S              H:::::H     H:::::H  
-    M:::::::::::M     M:::::::::::MM:::::::::::M     M:::::::::::M          H:::::H     H:::::H            A:::::A:::::A         S:::::S              H:::::H     H:::::H  
-    M:::::::M::::M   M::::M:::::::MM:::::::M::::M   M::::M:::::::M          H::::::HHHHH::::::H           A:::::A A:::::A         S::::SSSS           H::::::HHHHH::::::H  
-    M::::::M M::::M M::::M M::::::MM::::::M M::::M M::::M M::::::M          H:::::::::::::::::H          A:::::A   A:::::A         SS::::::SSSSS      H:::::::::::::::::H  
-    M::::::M  M::::M::::M  M::::::MM::::::M  M::::M::::M  M::::::M          H:::::::::::::::::H         A:::::A     A:::::A          SSS::::::::SS    H:::::::::::::::::H  
-    M::::::M   M:::::::M   M::::::MM::::::M   M:::::::M   M::::::M          H::::::HHHHH::::::H        A:::::AAAAAAAAA:::::A            SSSSSS::::S   H::::::HHHHH::::::H  
-    M::::::M    M:::::M    M::::::MM::::::M    M:::::M    M::::::M          H:::::H     H:::::H       A:::::::::::::::::::::A                S:::::S  H:::::H     H:::::H  
-    M::::::M     MMMMM     M::::::MM::::::M     MMMMM     M::::::M          H:::::H     H:::::H      A:::::AAAAAAAAAAAAA:::::A               S:::::S  H:::::H     H:::::H  
-    M::::::M               M::::::MM::::::M               M::::::M        HH::::::H     H::::::HH   A:::::A             A:::::A  SSSSSSS     S:::::SHH::::::H     H::::::HH
-    M::::::M               M::::::MM::::::M               M::::::M ...... H:::::::H     H:::::::H  A:::::A               A:::::A S::::::SSSSSS:::::SH:::::::H     H:::::::H
-    M::::::M               M::::::MM::::::M               M::::::M .::::. H:::::::H     H:::::::H A:::::A                 A:::::AS:::::::::::::::SS H:::::::H     H:::::::H
-    MMMMMMMM               MMMMMMMMMMMMMMMM               MMMMMMMM ...... HHHHHHHHH     HHHHHHHHHAAAAAAA                   AAAAAAASSSSSSSSSSSSSSS   HHHHHHHHH     HHHHHHHHH
+                      SSSSSSSSSSSSSSS    WWWWWWWW                          WWWWWWWW     AAA                 RRRRRRRRRRRRRRRRR     MMMMMMMM               MMMMMMMM
+                    SS:::::::::::::::S   W::::::W                          W::::::W    A:::A                R::::::::::::::::R    M:::::::M             M:::::::M
+                    S:::::SSSSSS::::::S  W::::::W                          W::::::W   A:::::A               R::::::RRRRRR:::::R   M::::::::M           M::::::::M
+                    S:::::S     SSSSSSS  W::::::W                          W::::::W  A:::::::A              RR:::::R     R:::::R  M:::::::::M         M:::::::::M
+                    S:::::S               W:::::W          WWWWW           W:::::W  A:::::::::A               R::::R     R:::::R  M::::::::::M       M::::::::::M
+                    S:::::S                W:::::W        W:::::W         W:::::W  A:::::A:::::A              R::::R     R:::::R  M:::::::::::M     M:::::::::::M
+                    S::::SSSS              W:::::W       W:::::::W       W:::::W  A:::::A A:::::A             R::::RRRRRR:::::R   M:::::::M::::M   M::::M:::::::M
+                     SS::::::SSSSS          W:::::W     W:::::::::W     W:::::W  A:::::A   A:::::A            R:::::::::::::RR    M::::::M M::::M M::::M M::::::M
+                       SSS::::::::SS         W:::::W   W:::::W:::::W   W:::::W  A:::::A     A:::::A           R::::RRRRRR:::::R   M::::::M  M::::M::::M  M::::::M
+                          SSSSSS::::S         W:::::W W:::::W W:::::W W:::::W  A:::::AAAAAAAAA:::::A          R::::R     R:::::R  M::::::M   M:::::::M   M::::::M
+                               S:::::S         W:::::W:::::W   W:::::W:::::W  A:::::::::::::::::::::A         R::::R     R:::::R  M::::::M    M:::::M    M::::::M
+                               S:::::S          W:::::::::W     W:::::::::W  A:::::AAAAAAAAAAAAA:::::A        R::::R     R:::::R  M::::::M     MMMMM     M::::::M
+                    SSSSSSS     S:::::S           W:::::::W      W:::::::W  A:::::A             A:::::A     RR:::::R     R:::::R  M::::::M               M::::::M
+                    S::::::SSSSSS:::::S            W:::::W        W:::::W  A:::::A               A:::::A    R::::::R     R:::::R  M::::::M               M::::::M
+                    S:::::::::::::::SS              W:::W          W:::W  A:::::A                 A:::::A   R::::::R     R:::::R  M::::::M               M::::::M
+                    SSSSSSSSSSSSSSS                  WWW            WWW  AAAAAAA                   AAAAAAA  RRRRRRRR     RRRRRRR  MMMMMMMM               MMMMMMMM
 
-				             By: MaynardMiner                  v1.4.5b Hive              GitHub: http://Github.com/MaynardMiner/MM.Hash
+				             By: MaynardMiner                  v1.4.6b Hive              GitHub: http://Github.com/MaynardMiner/Swarm
                                                                                                      
                                                                                 SUDO APT-GET LAMBO
                                                                           ____    _     __     _    ____
@@ -389,36 +391,37 @@ Write-Host "
 
 
 " -foregroundColor "darkred"
-
+#Start Watchdog
 Set-Location $CmdDir
 $PID | Set-Content ".\PID\miner_PID.txt" -Force
 Start-Process "screen" -ArgumentList "-S PIDInfo -d -m"
 Start-Sleep -S 1
 Start-Process ".\Unix\Hive\PIDInfo.sh" -ArgumentList "PIDInfo miner"
 Set-Location $Dir
+#Get-Algorithms
+$Algorithm = @()
+$Algorithm = Get-AlgorithmList -DeviceType $Type -No_Algo $No_Algo -CmdDir $Dir
+#Get-Miner Files
+$nvidia = [PSCustomObject]@{}
+$amd = [PSCustomObject]@{}
+$cpu = [PSCustomObject]@{}
+if($Cuda -eq "9.1"){$miner_update_nvidia = Get-Content ".\Config\Update\nvidia9.1-linux.conf" | ConvertFrom-Json}
+if($Cuda -eq "9.2"){$miner_update_nvidia = Get-Content ".\Config\Update\nvidia9.2-linux.conf" | ConvertFrom-Json}
+$miner_update_amd = Get-Content ".\Config\Update\amd-linux.conf" | ConvertFrom-Json
+$miner_update_cpu = Get-Content ".\Config\Update\cpu-linux.conf" | ConvertFrom-Json
+$miner_update_nvidia | foreach {
+$nvidia | Add-Member $_.Name $_
+}
+$miner_update_amd | foreach {
+$amd | Add-Member $_.Name $_
+}
+$miner_update_cpu | foreach {
+$cpu | Add-Member $_.Name $_
+}
 
 while($true)
 {
-  $CoinAlgo = $null
-  $Algorithm = $null
-  $Algorithm = @()
-  $Algorithm = Get-AlgorithmList -DeviceType $Type -No_Algo $No_Algo -CmdDir $Dir
-  $nvidia = [PSCustomObject]@{}
-  $amd = [PSCustomObject]@{}
-  $cpu = [PSCustomObject]@{}
-  $miner_update_nvidia = Get-Content ".\Config\Update\nvidia-linux.conf" | ConvertFrom-Json
-  $miner_update_amd = Get-Content ".\Config\Update\amd-linux.conf" | ConvertFrom-Json
-  $miner_update_cpu = Get-Content ".\Config\Update\cpu-linux.conf" | ConvertFrom-Json
-  $miner_update_nvidia | foreach {
-  $nvidia | Add-Member $_.Name $_
-  }
-  $miner_update_amd | foreach {
-  $amd | Add-Member $_.Name $_
-  }
-  $miner_update_cpu | foreach {
-  $cpu | Add-Member $_.Name $_
-  }
-  
+$CoinAlgo = $null  
 ##Remove Coins
 if(Test-Path ".\Stats\*_coin*"){Remove-Item ".\Stats\*_coin*" -force}
 
@@ -554,7 +557,7 @@ if($LastRan -ne "")
   try {
 	$T = [string]$CoinExchange
 	$R= [string]$Currency
-	Write-Host "MM.Hash Is Entering Sniper Mode: Building The Coin Database- It Can Take Some Time." -foreground "yellow"   
+	Write-Host "SWARM Is Entering Sniper Mode: Building The Coin Database- It Can Take Some Time." -foreground "yellow"   
   $Exchanged =  Invoke-RestMethod "https://min-api.cryptocompare.com/data/price?fsym=$T&tsyms=$R" -UseBasicParsing | Select-Object -ExpandProperty $R
 	$Rates = Invoke-RestMethod "https://api.coinbase.com/v2/exchange-rates?currency=$R" -UseBasicParsing | Select-Object -ExpandProperty data | Select-Object -ExpandProperty rates
   $Currency | Where-Object {$Rates.$_} | ForEach-Object {$Rates | Add-Member $_ ([Double]$Rates.$_) -Force}
@@ -575,6 +578,7 @@ if($LastRan -ne "")
     $AllStats = if(Test-Path "Stats"){Get-ChildItemContent "Stats" | ForEach {$Stats | Add-Member $_.Name $_.Content}}
     $AllStats | Out-Null
    }
+  ##Timeout Reset
   else
    {
     $AllStats = if(Test-Path "./Stats"){Get-ChildItemContent "./Stats"}
@@ -583,8 +587,8 @@ if($LastRan -ne "")
      {
       $Removed = Join-Path "./Stats" "$($_.Name).txt"
       $Change = $($_.Name) -replace "HashRate","TIMEOUT"
-      if(Test-Path (Join-Path "./Timeout" "$($Change).txt")){Remove-Item (Join-Path "./Timeout" "$($Change).txt")}
-	    Remove-Item $Removed
+      if(Test-Path (Join-Path "./Timeout" "$($Change).txt")){Remove-Item (Join-Path "./Timeout" "$($Change).txt") -Force}
+	    Remove-Item $Removed -Force
       Write-Host "$($_.Name) Hashrate and Timeout Notification was Removed"
      }
    }
@@ -595,11 +599,9 @@ if($LastRan -ne "")
 
    ##Load Algo Pools
    Write-Host "Checking Algo Pools" -Foregroundcolor yellow
-   $AllAlgoPools = $null
    $AllAlgoPools = if(Test-Path "AlgoPools"){Get-ChildItemContent "AlgoPools" | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} |
    Where {$PoolName.Count -eq 0 -or (Compare-Object $PoolName $_.Name -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}}
    if($AllAlgoPools.Count -eq 0){"No Pools! Check Internet Connection."| Out-Host; start-sleep $Interval; continue}
-   $AlgoPools = $null
    $AlgoPools = [PSCustomObject]@{}
    $AlgoPools_Comparison = $null
    $AlgoPools_Comparison = [PSCustomObject]@{}
@@ -608,7 +610,6 @@ if($LastRan -ne "")
 
    ##Load Only Needed Algorithm Miners
    Write-Host "Checking Algo Miners"
-   $AlgoMiners = $null
    $AlgoMiners = if(Test-Path "Miners\unix"){Get-ChildItemContent "Miners\unix" | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} | 
    Where {$Platform.Count -eq 0 -or (Compare-Object $Platform $_.Platform -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} |
    Where {$Type.Count -eq 0 -or (Compare-Object $Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}}
@@ -736,12 +737,10 @@ $AlgoMiners | ForEach {
 
    #Don't penalize active miners & sort by threshold
    $ActiveMinerPrograms | ForEach {$AlgoMiners | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments | ForEach {$_.Profit_Bias = $_.Profit}}
-   $GoodAlgoMiners = $null
    $GoodAlgoMiners = @()
    $AlgoMiners | Where [Double]Profit -lt $Threshold | foreach {$GoodAlgoMiners += $_}
 
    #Get most profitable algo miner combination i.e. AMD+NVIDIA+CPU add algo miners to miners list
-   $Miners = $null
    $Miners = @()
    $GoodAlgoMiners | foreach {$Miners += $_}
    $BestAlgoMiners = $GoodAlgoMiners | Select Type,Index -Unique | ForEach {$AlgoMiner_GPU = $_; ($GoodAlgoMiners | Where {(Compare-Object $AlgoMiner_GPU.Type $_.Type | Measure).Count -eq 0 -and (Compare-Object $AlgoMiner_GPU.Index $_.Index | Measure).Count -eq 0} | Sort-Object -Descending {($_ | Where Profit -EQ $null | Measure).Count},{($_ | Measure Profit_Bias -Sum).Sum},{($_ | Where Profit -NE 0 | Measure).Count} | Select -First 1)}
@@ -758,12 +757,10 @@ $AlgoMiners | ForEach {
    $BestAlgoMiners_Combo = $BestAlgoMiners_Combos | Sort-Object -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count},{($_.Combination | Measure Profit_Bias -Sum).Sum},{($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
    $BestAlgoMiners_Combo_Comparison = $BestAlgoMiners_Combos_Comparison | Sort-Object -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count},{($_.Combination | Measure Profit_Comparison -Sum).Sum},{($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
    $BestMiners_Combo = $BestAlgoMiners_Combo
-   $CoinMiners = $null
 
 #check if Auto_Coin is working- Start Coin Sorting
 if($Auto_Coin -eq "Yes")
  {
-  $AddCoinMiners = $null
   $AddCoinMiners = @()
   $NeedsToBeBench = $false
 
@@ -788,11 +785,9 @@ if($AddCoinMiners -ne $null)
   Write-Host "Best Pool Is CoinPool: Searching For Coins For $($CoinAlgo) Algorithm" -ForegroundColor Magenta
 
 #Load Coin Pools 
-$AllCoinPools = $null
 $AllCoinPools = if(Test-Path "CoinPools"){Get-ChildItemContent "CoinPools" | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} |
 Where {$PoolName.Count -eq 0 -or (Compare-Object $PoolName $_.Name -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} |
 Where {$CoinAlgo.Count -eq 0 -or (Compare-Object $CoinAlgo $_.Algorithm -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}}
-$CoinPools = $null
 $CoinPools = [PSCustomObject]@{}
 $CoinPools_Comparison = $null
 $CoinPools_Comparison = [PSCustomObject]@{}
@@ -800,7 +795,6 @@ $AllCoinPools.Symbol | Select -Unique | ForEach {$CoinPools | Add-Member $_ ($Al
 $AllCoinPools.Symbol | Select -Unique | ForEach {$CoinPools_Comparison | Add-Member $_ ($AllCoinPools | Where Symbol -EQ $_ | Sort-Object StablePrice -Descending | Select -Unique -First 1)}
 
 #Load Coin Miners
-$CoinMiners = $null
 $CoinMiners = if(Test-Path "Miners\unix"){Get-ChildItemContent "Miners\unix" | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} |
 Where {$Platform.Count -eq 0 -or (Compare-Object $Platform $_.Platform -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} |
 Where {$Type.Count -eq 0 -or (Compare-Object $Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} |
@@ -882,26 +876,22 @@ if($CoinMiners -ne $null)
   $CoinMiner | Add-Member Device $CoinMiner_Devices -Force
  }
 
-        $NewCoinAlgo = $null
-        $Miners = $null
-        $BestMiners_Combo = $null
-        $NewCoinAlgo = @()
-        $Miners = @()
+   $NewCoinAlgo = @()
+   $Miners = @()
 
-        if($Favor_Coins -eq "Yes")
-         {
-        $CoinAlgo | foreach {
-        if($BestAlgoMiners_Combo.MinerPool -like "*algo*")
-         {
-        $NewCoinAlgo += [PSCustomObject]@{
-        $_ = "$($_)"
+   if($Favor_Coins -eq "Yes")
+    {
+     $CoinAlgo | foreach {
+     if($BestAlgoMiners_Combo.MinerPool -like "*algo*")
+      {
+       $NewCoinAlgo += [PSCustomObject]@{
+       $_ = "$($_)"
          }
         }
       }
      }
 
-      $ProfitsArray = $null
-      $ProfitsArray = @()
+    $ProfitsArray = @()
 
       if($Favor_Coins -eq "Yes")
       {
@@ -948,11 +938,12 @@ if($CoinMiners -ne $null)
         }
        }
     }
-    
+  ##Write On Screen Best Choice  
   $BestMiners_Selected = $BestMiners_Combo.Symbol
   $BestPool_Selected = $BestMiners_Combo.MinerPool 
   Write-Host "Most Profitable Choice Is $($BestMiners_Selected) on $($BestPool_Selected)" -foregroundcolor green          
 
+ ##Build Stats Table
  $ProfitTable = $null
  $ProfitTable = @()
  $Miners | foreach {
@@ -1011,6 +1002,7 @@ if($CoinMiners -ne $null)
 $Restart = $false
 $NoMiners = $false
 
+#Determine Which Miner Should Be Active
 $ActiveMinerPrograms | foreach {
 if($BestMiners_Combo | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments){$_.BestMiner = $true}
 else{$_.BestMiner = $false}
@@ -1118,14 +1110,14 @@ if($NoMiners -eq $true)
        
        
   There are miners that have failed! Check Your Settings And Arguments!
-  https://github.com/MaynardMiner/MM.Hash/wiki/Arguments-(Miner-Configuration) >> Right Click 'Open URL In Browser'
+  https://github.com/MaynardMiner/SWARM/wiki/Arguments-(Miner-Configuration) >> Right Click 'Open URL In Browser'
 
 
   " -foreground Darkred
   Start-Sleep -s 20
 }
 
-#Notify User Of Delayy
+#Notify User Of Delay
 if($Restart -eq $true)
  {
    Write-Host "
@@ -1137,7 +1129,7 @@ Type 'mine' in another terminal to see miner working- This is NOT a remote comma
 
 Type 'get-screen [MinerType]' to see last 100 lines of log- This IS a remote command!
 
-https://github.com/MaynardMiner/MM.Hash/wiki/HiveOS-management >> Right Click 'Open URL In Browser'  
+https://github.com/MaynardMiner/SWARM/wiki/HiveOS-management >> Right Click 'Open URL In Browser'  
 
 
    " -foreground Magenta
@@ -1173,16 +1165,16 @@ function Get-MinerActive {
 ##Get Details Of All Miners
 function Get-MinerStatus {
        Write-Host "
-                                                                             *      *         )        (       )
-                                                                           (  `   (  `     ( /(  (     )\ ) ( /(
-                                                                          )\))(  )\))(    )\()) )\   (()/( )\())
-                                                                          ((_)()\((_)()\  ((_)((((_)(  /(_)|(_)\
-                                                                          (_()((_|_()((_)  _((_)\ _ )\(_))  _((_)
-                                                                          |  \/  |  \/  | | || (_)_\(_) __|| || |
-                                                                          | |\/| | |\/| |_| __ |/ _ \ \__ \| __ |
-                                                                          |_|  |_|_|  |_(_)_||_/_/ \_\|___/|_||_|
-                                                                                                                                               " -foregroundcolor "DarkRed"
-        Write-Host "                                                                                    Sudo Apt-Get Lambo" -foregroundcolor "Yellow"
+                                                                      (                       (       *     
+                                                                      )\ )  (  (       (      )\ )  (  `    
+                                                                    (()/(  )\))(   '  )\    (()/(  )\))(   
+                                                                     /(_))((_)()\ ) ((((_)(   /(_))((_)()\  
+                                                                    (_))  _(())\_)() )\ _ )\ (_)) (_()((_) 
+                                                                    / __| \ \((_)/ /(_)_\(_)| _ \ |  \/  | 
+                                                                    \__ \  \ \/\/ /  / _ \  |   / | |\/| | 
+                                                                    |___/   \_/\_/  /_/ \_\ |_|_\ |_|  |_| 
+                                                                                                                                                     " -foregroundcolor "DarkRed"
+        Write-Host "                                                                               Sudo Apt-Get Lambo" -foregroundcolor "Yellow"
         Write-Host ""
         Write-Host ""
         Write-Host ""
@@ -1205,16 +1197,16 @@ function Get-MinerStatus {
       }
 
 #Check For Bechmark
-$BenchmarkMode = "No"
+$BenchmarkMode = $false
 $ActiveMinerPrograms | Foreach {
 if($null -eq (Get-Item ".\Stats\$($_.Name)_$($_.Algo)_HashRate.txt" -ErrorAction SilentlyContinue))
  {
-  $BenchmarkMode = "Yes"
+  $BenchmarkMode = $true
  }
 }
 
 #Set Interval
-if($BenchmarkMode -eq "Yes"){$MinerInterval = $Benchmark}
+if($BenchmarkMode -eq $true){$MinerInterval = $Benchmark}
 else{$MinerInterval = $Interval}
 
 #Clear Logs If There Are 12
@@ -1257,10 +1249,10 @@ $MiningStatus = "$me[${mcolor}mCurrently Mining $($BestMiners_Combo.Algo) Algori
 $MiningStatus | Out-File ".\Build\Unix\Hive\minerstats.sh" -Append
 if($Favor_Coins -eq "Yes")
  {
-  if($BechmarkMode -eq "No")
+  if($BenchmarkMode -eq $false)
    {
 $Crazy = "No- You are not crazy. Algorithms are removed from this list so that coin is at the top. See github wik FAQ section as to why."
-$CrazyLink = "https://github.com/MaynardMiner/MM.Hash/wiki/FAQ >> Right Click 'Open URL In Browser"
+$CrazyLink = "https://github.com/MaynardMiner/Swarm/wiki/FAQ >> Right Click 'Open URL In Browser"
 $Crazy | Out-File ".\Build\Unix\Hive\minerstats.sh" -Append
 $CrazyLink | Out-File ".\Build\Unix\Hive\minerstats.sh" -Append
    }
@@ -1443,7 +1435,7 @@ Do{
   Write-Host "
 
       Type 'stats' in another terminal to view miner statistics- This IS a remote command!
-      https://github.com/MaynardMiner/MM.Hash/wiki/HiveOS-management >> Right Click 'Open URL In Browser'
+      https://github.com/MaynardMiner/Swarm/wiki/HiveOS-management >> Right Click 'Open URL In Browser'
 
   " -foreground Magenta
   Get-MinerHashRate
@@ -1462,7 +1454,7 @@ Do{
   Write-Host "
 
       Type 'active' in another terminal to view active/previous miners- this IS a remote command!
-      https://github.com/MaynardMiner/MM.Hash/wiki/HiveOS-management >> Right Click 'Open URL In Browser'
+      https://github.com/MaynardMiner/Swarm/wiki/HiveOS-management >> Right Click 'Open URL In Browser'
 
   " -foreground Magenta
   Get-MinerHashRate
@@ -1558,11 +1550,8 @@ if($_.Timeout -gt 2 -or $null -eq $_.XProcess -or $_.XProcess.HasExited)
     $_.New = $False
     $_.Timeout = 0
     Write-Host "$($_.Name) $($_.Coins) Hashrate Check Timed Out $($_.Bad_Benchmark) Times- It Was Noted In Timeout Folder" -foregroundcolor "darkred"
-    if($_.Bad_Benchmark -gt 2)
-     {
-      $Stat = Set-Stat -Name "$($_.Name)_$($_.Algo)_HashRate" -Value 0
-      Write-Host "Benchmarking Has Failed Three Times - Setting Stat to 0" -ForegroundColor DarkRed
-     }
+    $Stat = Set-Stat -Name "$($_.Name)_$($_.Algo)_HashRate" -Value 0
+    Write-Host "Benchmarking Has Failed - Setting Stat To 0. Delete Stat In Stats Folder To Reset" -ForegroundColor DarkRed
     }
    }
   }

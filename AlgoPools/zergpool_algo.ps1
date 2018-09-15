@@ -14,12 +14,12 @@ if($Auto_Algo -eq "Yes")
         $ZergpoolAlgo_Request = Invoke-RestMethod "http://zergpool.com:8080/api/status" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
     }
     catch {
-        Write-Warning "MM.Hash contacted ($Name) for a failed API check. "
+        Write-Warning "SWARM contacted ($Name) for a failed API check. "
         return
     }
    
     if (($zergpoolAlgo_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Measure-Object Name).Count -le 1) {
-        Write-Warning "MM.Hash contacted ($Name) but ($Name) Pool API was unreadable. (Algorithm) "
+        Write-Warning "SWARM contacted ($Name) but ($Name) Pool API was unreadable. (Algorithm) "
         return
      }
 
