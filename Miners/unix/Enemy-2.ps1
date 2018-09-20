@@ -1,6 +1,6 @@
-[string]$Path = $nvidia.enemy.path2
-[string]$Uri = $nvidia.enemy.uri
-[string]$MinerName = $nvidia.enemy.minername
+$Path = "$($nvidia.enemy.path2)"
+$Uri = "$($nvidia.enemy.uri)"
+$MinerName = "$($nvidia.enemy.MinerName)"
 
 
 $Build = "Zip"
@@ -21,7 +21,7 @@ $Commands = [PSCustomObject]@{
   "timetravel" = ''
   "xevan" = ''
   "sonoa" = ''
-
+  "bcd" = ''
 
 }
   

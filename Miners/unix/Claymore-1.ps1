@@ -1,6 +1,6 @@
-[string]$Path = $nvidia.claymore.path1
-[string]$Uri = $nvidia.claymore.uri
-[string]$MinerName = $nvidia.claymore.minername
+$Path = "$($nvidia.claymore.path1)"
+$Uri = "$($nvidia.claymore.uri)"
+$MinerName = "$($nvidia.claymore.minername)"
 
 $Build = "Zip"
 

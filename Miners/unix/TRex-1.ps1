@@ -1,6 +1,6 @@
-[string]$Path = $nvidia.trex.path1
-[string]$Uri = $nvidia.trex.uri
-[string]$MinerName = $nvidia.trex.minername
+$Path = "$($nvidia.trex.path1)"
+$Uri = "$($nvidia.trex.uri)"
+$MinerName = "$($nvidia.trex.minername)"
 
 
 $Build = "Zip"
@@ -24,7 +24,7 @@ $Commands = [PSCustomObject]@{
 "skunk" = ''
 "x16r" = ''
 "x16s" = ''
-
+"hmq1725" = ''
 }
         
 if($CoinAlgo -eq $null)

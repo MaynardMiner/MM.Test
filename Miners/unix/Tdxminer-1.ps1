@@ -1,6 +1,6 @@
-[string]$Path = $amd.tdxminer.path1
-[string]$Uri = $amd.tdxminer.uri
-[string]$MinerName = $amd.tdxminer.minername
+$Path = "$($amd.tdxminer.path1)"
+$Uri = "$($amd.tdxminer.uri)"
+$MinerName = "$($amd.tdxminer.minername)"
 
 $Build = "Zip"
 

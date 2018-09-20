@@ -1,6 +1,6 @@
-[string]$Path = $nvidia.ewbf.path2
-[string]$Uri = $nvidia.ewbf.uri
-[string]$MinerName = $nvidia.ewbf.minername
+$Path = "$($nvidia.ewbf.path2)"
+$Uri = "$($nvidia.ewbf.uri)"
+$MinerName = "$($nvidia.ewbf.minername)"
 
 $Build = "Zip"
 

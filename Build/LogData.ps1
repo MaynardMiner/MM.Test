@@ -1,3 +1,16 @@
+<#
+SWARM is open-source software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+SWARM is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#>
+
 param(
         [Parameter(Mandatory=$false)]
         [String]$DeviceCall,
@@ -18,6 +31,98 @@ param(
 Set-Location $WorkingDir
 
  . .\Build\Unix\IncludeCoin.ps1
+
+##Apply OC Setings
+
+if($Type -like "*NVIDIA*")
+ {
+$OCSettings = Get-Content ".\Config\OC-Nvidia.conf" | ConvertFrom-Json
+$DefaultCore = $OCSettings.Default.Core -split ' '
+$DefaultMem = $OCSettings.Default.Memory -split ' '
+$DefaultPower = $OCSettings.Default.Power -split ' '
+$Core = $OCSettings.$Miner_Algo.Core -split ' '
+$Mem = $OCSettings.$Miner_Algo.Memory -split ' '
+$Power = $OCSettings.$Miner_Algo.Power -split ' '
+$Card = $OCSettings.Cards -split ' '
+$Default = $true
+if($Card -ne "")
+ {
+  if($Core -ne "")
+   {
+  $Default = $false
+  $OCArgs = @()
+  for($i=0; $i -lt $Power.Count; $i++)
+  {
+    $PWLSelected = $Power | Select -skip $i | Select -First 1
+    Start-Process "nvidia-smi" -ArgumentList "-i $i -pl $PWLSelected" -Wait
+  }
+  for($i=0; $i -lt $Core.Count; $i++)
+  {
+    $X = 3
+    Switch($Card | Select -skip $i | Select -First 1){
+    "1050"{$X = 2}
+    "1050ti"{$X = 2}
+    "P106-100"{$X = 2}
+    "P106-090"{$X = 1}
+    "P104-100"{$X = 1}
+    "P102-100"{$X = 1}
+    }
+    $OCArgs += " -a [gpu:$i]/GPUGraphicsClockOffset[$X]=$($Core | Select -skip $i | Select -First 1)"
+    $OCArgs += " -a [gpu:$i]/GPUMemoryTransferRateOffset[$X]=$($Mem | Select -skip $i | Select -First 1)"
+  }
+ if($OCArgs -ne $null){Start-Process "nvidia-settings" -ArgumentList "$OCArgs"}
+ }
+ else{
+  $OCArgs = @()
+  for($i=0; $i -lt $DefaultPower.Count; $i++)
+  {
+    $PWLSelected = $DefaultPower | Select -skip $i | Select -First 1
+    Start-Process "nvidia-smi" -ArgumentList "-i $i -pl $PWLSelected" -Wait
+  }
+  for($i=0; $i -lt $DefaultCore.Count; $i++)
+  {
+    $X = 3
+    Switch($Card | Select -Skip $i | Select -First 1){
+    "1050"{$X = 2}
+    "1050ti"{$X = 2}
+    "P106-100"{$X = 2}
+    "P106-090"{$X = 1}
+    "P104-100"{$X = 1}
+    "P102-100"{$X = 1}
+    }
+    $OCArgs += " -a [gpu:$i]/GPUGraphicsClockOffset[$X]=$($DefaultCore | Select -Skip $i | Select -First 1)"
+    $OCArgs += " -a [gpu:$i]/GPUMemoryTransferRateOffset[$X]=$($DefaultMem | Select -Skip $i | Select -First 1)"
+  }
+ if($OCArgs -ne $null){Start-Process "nvidia-settings" -ArgumentList "$OCArgs"}
+  }
+ }
+}
+
+if($Default -eq $true)
+{
+$OCMessage = "
+Current OC Profile:
+Algorithm is $Miner_Algo
+Default: $Default
+Cards: $($OCSettings.Cards)
+Power Settings: $($OCSettings.Default.Power)
+Core Settings: $($OCSettings.Default.Core)
+Memory Settings: $($OCSettings.Default.Memory)
+"
+}
+else{
+$OCMessage = "
+Current OC Profile:
+Algorithm is $Miner_Algo
+Default: $Default
+Cards: $($OCSettings.Cards)
+Power Settings: $($OCSettings.$Miner_Algo.Power)
+Core Settings: $($OCSettings.$Miner_Algo.Core)
+Memory Settings: $($OCSettings.$Miner_Algo.Memory)
+"
+}
+
+$OCMessage | Out-File ".\Build\OC-Settings.txt"
 
  While($true)
  {

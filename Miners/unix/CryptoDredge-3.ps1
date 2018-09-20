@@ -1,6 +1,6 @@
-[string]$Path = $nvidia.cryptodredge.path3
-[string]$Uri = $nvidia.cryptodredge.uri
-[string]$MinerName = $nvidia.cryptodredge.minername
+$Path = "$($nvidia.cryptodredge.path3)"
+$Uri = "$($nvidia.cryptodredge.uri)"
+$MinerName = "$($nvidia.cryptodredge.minername)"
 
 $Build = "Zip"
 

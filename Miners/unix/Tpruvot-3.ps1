@@ -1,6 +1,6 @@
-[string]$Path = $nvidia.tpruvot.path3
-[string]$Uri = $nvidia.tpruvot.uri
-[string]$MinerName = $nvidia.tpruvot.minername
+$Path = "$($nvidia.tpruvot.path3)"
+$Uri = "$($nvidia.tpruvot.uri)"
+$MinerName = "$($nvidia.tpruvot.minername)"
 
 $Build = "Zip"
 
@@ -28,7 +28,7 @@ $Commands = [PSCustomObject]@{
 "x12" = ''
 "sib" = ''
 "myr-gr" = ''
-"hmq1725" = ''
+
 }
 
 if($CoinAlgo -eq $null)
@@ -55,7 +55,6 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
     URI = $Uri
     BUILD = $Build
     Algo = "$($_)"
-    NewAlgo = ''
      }
     }
    }

@@ -28,4 +28,4 @@ sudo apt-get install -y powershell
 apt-get -f install
 fi
 
-pwsh -command "&.\MM.Hive.ps1 $(< /hive/custom/$CUSTOM_NAME/$CUSTOM_NAME.conf)" $@ && . colors
+pwsh -command "&.\SWARM.ps1 $(< /hive/custom/$CUSTOM_NAME/$CUSTOM_NAME.conf)" $@ && . colors

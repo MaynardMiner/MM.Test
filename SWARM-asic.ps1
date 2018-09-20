@@ -1,3 +1,16 @@
+<#
+SWARM is open-source software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+SWARM is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#>
+
 param(
     [Parameter(Mandatory=$false)]
     [String]$Wallet = "Yes",  ##Miner Can Load Pools
@@ -525,7 +538,7 @@ if($LastRan -ne "")
         $Wallet = $WalletSwitch
         $Wallet1 = $WalletSwitch1
         $Wallet2 = $WalletSwitch2
-	      $Wallet3 = $WalletSwitch3
+	    $Wallet3 = $WalletSwitch3
         $ZergpoolWallet1 = $ZergpoolWallet1Switch
         $ZergpoolWallet2 = $ZergpoolWallet2Switch
         $ZergpoolWallet3 = $ZergpoolWallet3Switch
@@ -534,7 +547,7 @@ if($LastRan -ne "")
         $Nicehash_Wallet3 = $Nicehash_Wallet3Switch
         $CPUWallet = $CPUWalletSwitch
       	$UserName = $UserSwitch
-	      $WorkerName = $WorkerSwitch
+	    $WorkerName = $WorkerSwitch
       	$RigName = $RigSwitch
         $Interval = $IntervalSwitch
         $Passwordcurrency = $PasswordSwitch
@@ -557,7 +570,7 @@ if($LastRan -ne "")
   try {
 	$T = [string]$CoinExchange
 	$R= [string]$Currency
-	Write-Host "SWARM Is Entering Sniper Mode: Building The Coin Database- It Can Take Some Time." -foreground "yellow"   
+	Write-Host "SWARM Is Entering Sniper Mode: Building The Algorithm Database First:" -foreground "yellow"   
   $Exchanged =  Invoke-RestMethod "https://min-api.cryptocompare.com/data/price?fsym=$T&tsyms=$R" -UseBasicParsing | Select-Object -ExpandProperty $R
 	$Rates = Invoke-RestMethod "https://api.coinbase.com/v2/exchange-rates?currency=$R" -UseBasicParsing | Select-Object -ExpandProperty data | Select-Object -ExpandProperty rates
   $Currency | Where-Object {$Rates.$_} | ForEach-Object {$Rates | Add-Member $_ ([Double]$Rates.$_) -Force}

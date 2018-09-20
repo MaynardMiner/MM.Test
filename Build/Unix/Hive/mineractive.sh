@@ -1,42 +1,39 @@
 
-Friday, September 14, 2018 11:04:22 PM
+Thursday, September 20, 2018 12:21:40 AM
 
 
 
 
    Status: Running
 
-      Speed Active                      Launched Command                                                                                                                          
-      ----- ------                      -------- -------                                                                                                                          
-  0.00 PH/s 00 Days 00 Hours 00 Minutes Once     tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=TLR         
-670.00  H/s 00 Days 00 Hours 00 Minutes 2 Times  cpuminer 3 -a yescryptr16 -o stratum+tcp://yescryptR16.mine.zergpool.com:6333 -b 0.0.0.0:4048 -u                                 
-                                                 RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=ELI                                                                               
+     Speed Active                      Launched Command                                                                                                                                        
+     ----- ------                      -------- -------                                                                                                                                        
+40.64 MH/s 00 Days 00 Hours 23 Minutes 5 Times  t-rex 3,4,5,7,8,11,12 -a x17 -o stratum+tcp://x17.mine.zergpool.com:3737 -b 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=MLM 
+87.58 MH/s 00 Days 01 Hours 36 Minutes 7 Times  t-rex 0,1,2,6,9,10 -a x17 -o stratum+tcp://x17.mine.zergpool.com:3737 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=MLM    
 
 
    Status: Idle
 
-      Speed Active                      Launched Command                                                                                                                          
-      ----- ------                      -------- -------                                                                                                                          
-  3.10 MH/s 00 Days 00 Hours 10 Minutes 2 Times  tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=VTL         
-770.00  H/s 00 Days 01 Hours 05 Minutes 5 Times  cpuminer 3 -a yespower -o stratum+tcp://yespower.mine.zergpool.com:6533 -b 0.0.0.0:4048 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p 
-                                                 c=RVN,mc=CRP                                                                                                                     
-  3.05 MH/s 00 Days 00 Hours 32 Minutes 3 Times  tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=GIN         
-100.00  H/s 00 Days 00 Hours 21 Minutes 2 Times  lyclMiner  none                                                                                                                  
-  3.09 MH/s 00 Days 00 Hours 05 Minutes Once     tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=CRS         
+     Speed Active                      Launched Command                                                                                                                                                    
+     ----- ------                      -------- -------                                                                                                                                                    
+94.24 KH/s 00 Days 00 Hours 06 Minutes 7 Times  t-rex 3,4,5,7,8,11,12 -a balloon -o stratum+tcp://balloon.mine.zergpool.com:5100 -b 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=DEFT    
+18.23 MH/s 00 Days 01 Hours 03 Minutes 9 Times  CryptoDredge 3,4,5,7,8,11,12 -a phi2 -o stratum+tcp://phi2.mine.zergpool.com:8332 -b 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=LUX    
+ 7.65 MH/s 00 Days 00 Hours 11 Minutes 2 Times  z-enemy GTX1050ti#1,GTX1050ti#2,GTX1050ti#3,GTX1050ti#4,GTX1050ti#5,GTX1050ti#6,GTX1050ti#7 -a Xevan -o stratum+tcp://xevan.mine.zergpool.com:3739 -b      
+                                                0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=BSD                                                                                         
+87.34 MH/s 00 Days 00 Hours 29 Minutes 4 Times  t-rex 0,1,2,6,9,10 -a x16s -o stratum+tcp://x16s.mine.zergpool.com:3663 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=ACED             
+68.12 MH/s 00 Days 00 Hours 06 Minutes Once     t-rex 3,4,5,7,8,11,12 -a phi -o stratum+tcp://phi.mine.zergpool.com:8333 -b 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=FLM             
 
 
    Status: Failed
 
-      Speed Active                      Launched Command                                                                                                                          
-      ----- ------                      -------- -------                                                                                                                          
-  3.15 MH/s 00 Days 00 Hours 00 Minutes Once     tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=MANO        
-647.49 KH/s 00 Days 00 Hours 05 Minutes 3 Times  cpuminer 3 -a lyra2re -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -b 0.0.0.0:4048 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p    
-                                                 c=RVN,mc=GIN                                                                                                                     
-643.93 KH/s 00 Days 00 Hours 00 Minutes Once     cpuminer 3 -a lyra2re -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -b 0.0.0.0:4048 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p    
-                                                 c=RVN,mc=ZCR                                                                                                                     
-  2.93 MH/s 00 Days 00 Hours 05 Minutes 2 Times  tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=ZCR         
-  3.10 MH/s 00 Days 00 Hours 00 Minutes 2 Times  tdxminer  -a lyra2z -o stratum+tcp://lyra2z.mine.zergpool.com:4553 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=GTM         
-680.00  H/s 00 Days 00 Hours 00 Minutes 2 Times  cpuminer 3 -a yescryptr16 -o stratum+tcp://yescryptR16.mine.zergpool.com:6333 -b 0.0.0.0:4048 -u                                 
-                                                 RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=YTN                                                                               
+      Speed Active                      Launched Command                                                                                                                                                   
+      ----- ------                      -------- -------                                                                                                                                                   
+199.66 KH/s 00 Days 00 Hours 34 Minutes 6 Times  t-rex 0,1,2,6,9,10 -a balloon -o stratum+tcp://balloon.mine.zergpool.com:5100 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=DEFT      
+ 31.13 MH/s 00 Days 00 Hours 00 Minutes 3 Times  CryptoDredge 0,1,2,6,9,10 -a phi2 -o stratum+tcp://phi2.mine.zergpool.com:8332 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=LUX      
+ 77.99 MH/s 00 Days 00 Hours 00 Minutes 2 Times  t-rex 3,4,5,7,8,11,12 -a polytimos -o stratum+tcp://polytimos.mine.zergpool.com:8463 -b 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p             
+                                                 c=RVN,mc=POLY                                                                                                                                             
+164.00 MH/s 00 Days 00 Hours 00 Minutes 2 Times  t-rex 0,1,2,6,9,10 -a polytimos -o stratum+tcp://polytimos.mine.zergpool.com:8463 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=POLY  
+ 20.06 MH/s 00 Days 00 Hours 00 Minutes Once     t-rex 3,4,5,7,8,11,12 -a hmq1725 -o stratum+tcp://hmq1725.mine.zergpool.com:3747 -b 0.0.0.0:4069 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=BUEN   
+ 43.32 MH/s 00 Days 00 Hours 05 Minutes 2 Times  t-rex 0,1,2,6,9,10 -a hmq1725 -o stratum+tcp://hmq1725.mine.zergpool.com:3747 -b 0.0.0.0:4068 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=BUEN      
 
-Time Left Until Database Starts: 182
+Time Left Until Database Starts: 2

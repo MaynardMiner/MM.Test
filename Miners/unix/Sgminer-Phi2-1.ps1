@@ -1,6 +1,6 @@
-[string]$Path = $amd.sgminerphi2.path1
-[string]$Uri = $amd.sgminerphi2.uri
-[string]$MinerName = $amd.sgminerphi2.minername
+$Path = "$($amd.sgminerphi2.path1)"
+$Uri = "$($amd.sgminerphi2.uri)"
+$MinerName = "$($amd.sgminerphi2.minername)"
 
 $Build = "Zip"
 

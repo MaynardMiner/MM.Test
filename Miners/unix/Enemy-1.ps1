@@ -1,6 +1,6 @@
-[string]$Path = $nvidia.enemy.path1
-[string]$Uri = $nvidia.enemy.uri
-[string]$MinerName = $nvidia.enemy.MinerName
+$Path = "$($nvidia.enemy.path1)"
+$Uri = "$($nvidia.enemy.uri)"
+$MinerName = "$($nvidia.enemy.MinerName)"
 
 
 
@@ -23,7 +23,7 @@ $Commands = [PSCustomObject]@{
   "timetravel" = ''
   "xevan" = ''
   "sonoa" = ''
-
+  "bcd" = ''
 }
   
 if($CoinAlgo -eq $null)

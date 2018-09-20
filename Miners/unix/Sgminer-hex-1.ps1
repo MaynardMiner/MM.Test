@@ -1,6 +1,6 @@
-[string]$Path = $amd.sgminerhex.path1
-[string]$Uri = $amd.sgminerhex.uri
-[string]$MinerName = $amd.sgminerhex.minername
+$Path = "$($amd.sgminerhex.path1)"
+$Uri = "$($amd.sgminerhex.uri)"
+$MinerName = "$($amd.sgminerhex.minername)"
 
 $Build = "Zip"
 

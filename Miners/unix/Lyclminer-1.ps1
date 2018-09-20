@@ -1,6 +1,6 @@
-[string]$Path = $amd.lyclminer.path1
-[string]$Uri = $amd.lyclminer.uri
-[string]$MinerName = $amd.lyclminer.minername
+$Path = "$($amd.lyclminer.path1)"
+$Uri = "$($amd.lyclminer.uri)"
+$MinerName = "$($amd.lyclminer.minername)"
 
 
 $Build = "Zip"
@@ -36,7 +36,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
     Connection = "$($AlgoPools.$_.Host):$($AlgoPools.$_.Port)"
     Username =  "$($AlgoPools.$_.User1)"
     Password = "$($AlgoPools.$_.Pass1)"
-    Arguments = "none"
+    Arguments = "$($AlgoPools.$_.Host):$($AlgoPools.$_.Port) $($AlgoPools.$_.User1) $($AlgoPools.$_.Pass1)"
     HashRates = [PSCustomObject]@{$_ = $Stats."$($Name)_$($_)_HashRate".Day}
     Selected = [PSCustomObject]@{$_ = ""}
     MinerPool = "$($AlgoPools.$_.Name)"
@@ -67,7 +67,7 @@ else{
    Connection = "stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port)"
    Username = "$($CoinPools.$_.User1)"
    Password = "$($CoinPools.$_.Pass1)"
-   Arguments = "none"
+   Arguments = "stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port) $($CoinPools.$_.User1) $($CoinPools.$_.Pass1)"
    HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $Stats."$($Name)_$($CoinPools.$_.Algorithm)_HashRate".Day}
    API = "lyclminer"
    Selected = [PSCustomObject]@{$CoinPools.$_.Algorithm = ""}

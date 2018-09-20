@@ -1,3 +1,16 @@
+<#
+SWARM is open-source software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+SWARM is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#>
+
 function Set-Stat {
     param(
         [Parameter(Mandatory=$true)]
@@ -29,7 +42,7 @@ function Set-Stat {
         Updated = $Date
     }
 
-    if(Test-Path $Path){$Stat = Get-Content $Path | ConvertFrom-Json}
+    if(Test-Path $Path){$Stat = Get-Content $Path -Force | ConvertFrom-Json}
 
     $Stat = [PSCustomObject]@{
         Live = [Double]$Stat.Live
@@ -94,7 +107,7 @@ function Set-Stat {
         Week = [Decimal]$Stat.Week
         Week_Fluctuation = [Double]$Stat.Week_Fluctuation
         Updated = [DateTime]$Stat.Updated
-    } | ConvertTo-Json | Set-Content $Path
+    } | ConvertTo-Json | Set-Content $Path -Force
 
     $Stat
 }
@@ -130,7 +143,7 @@ function Set-BadStat {
         Updated = $Date
     }
 
-    if(Test-Path $Path){$Stat = Get-Content $Path | ConvertFrom-Json}
+    if(Test-Path $Path){$Stat = Get-Content $Path -Force | ConvertFrom-Json}
 
     $Stat = [PSCustomObject]@{
         Live = $Value
@@ -182,7 +195,7 @@ function Set-BadStat {
         Week = [Decimal]$Stat.Week
         Week_Fluctuation = [Double]$Stat.Week_Fluctuation
         Updated = [DateTime]$Stat.Updated
-    } | ConvertTo-Json | Set-Content $Path
+    } | ConvertTo-Json | Set-Content $Path -Force
 
     $Stat
 }
@@ -194,8 +207,8 @@ function Get-Stat {
         [String]$Name
     )
 
-    if(-not (Test-Path "Stats")){New-Item "Stats" -ItemType "directory"}
-    Get-ChildItem "Stats" | Where-Object Extension -NE ".ps1" | Where-Object BaseName -EQ $Name | Get-Content | ConvertFrom-Json
+    if(-not (Test-Path "Stats")){New-Item "Stats" -Force -ItemType "directory"}
+    Get-ChildItem "Stats" -Force | Where-Object Extension -NE ".ps1" | Where-Object BaseName -EQ $Name | Get-Content | ConvertFrom-Json
 }
 
 function Remove-Stat {
@@ -219,7 +232,7 @@ function Get-ChildItemContent {
         [String]$Path
     )
 
-    $ChildItems = Get-ChildItem $Path | ForEach-Object {
+    $ChildItems = Get-ChildItem $Path -Force | ForEach-Object {
         $Name = $_.BaseName
         $Content = @()
         if($_.Extension -eq ".ps1")
@@ -228,7 +241,7 @@ function Get-ChildItemContent {
         }
         else
         {
-           $Content = $_ | Get-Content | ConvertFrom-Json
+           $Content = $_ | Get-Content -Force | ConvertFrom-Json
 
         }
         $Content | ForEach-Object {
@@ -556,7 +569,7 @@ function Get-HashRate {
                 }
 
                 } while($HashRates.Count -lt 6)
-                Clear-Content ".\Build\Unix\Hive\logstats.sh"
+                Clear-Content ".\Build\Unix\Hive\logstats.sh" -Force
              }
              "lyclminer"
              {
@@ -564,7 +577,7 @@ function Get-HashRate {
 
                 if(Test-Path ".\Build\Unix\Hive\logstats.sh")
                 {
-                $Data = Get-Content ".\Build\Unix\Hive\logstats.sh" | ConvertFrom-StringData
+                $Data = Get-Content ".\Build\Unix\Hive\logstats.sh" -Force | ConvertFrom-StringData
                 $HashRate = $Data.RAW
                 if($HashRate -eq $null){$HashRates = @(); break}
                 $HashRates += [Double]$HashRate
@@ -573,14 +586,14 @@ function Get-HashRate {
                 }
 
                 } while($HashRates.Count -lt 6)
-                Clear-Content ".\Build\Unix\Hive\logstats.sh"
+                Clear-Content ".\Build\Unix\Hive\logstats.sh" -Force
              }
             "cpulog"
              {
               $Hashrate = 0
               if(Test-Path ".\Logs\CPU.log")
                {
-                $CPUlog = Get-Content ".\Logs\CPU.log" | Select-String "CPU"
+                $CPUlog = Get-Content ".\Logs\CPU.log" -Force | Select-String "CPU"
                 for($i=0; $i -lt $CPUThreads; $i++)
                  {
                     $Hash = $CPUlog | Select-String "CPU #$($i)" | Select -Last 1
@@ -627,7 +640,7 @@ function Get-PID {
     $PIDPath = ".\Build\PID\$($PIDName)_$($PIDCoins)_$($PIDType)_PID.txt"
     if(Test-Path $PIDPath)
      {
-      if((Get-Content $PIDPath) -ne $null){$GetPID = Get-Content $PIDPath}
+      if((Get-Content $PIDPath -Force) -ne $null){$GetPID = Get-Content $PIDPath -Force}
       else{$GetPID -eq $null}
       $GetPID
      }
@@ -649,7 +662,7 @@ function Get-PID {
     $StatusPath = ".\Build\PID\$($PIDName)_$($PIDCoins)_$($PIDType)_status.txt"
     if(Test-Path $StatusPath)
      {
-      if((Get-Content $StatusPath) -ne $null){$GetStatus = Get-Content $StatusPath}
+      if((Get-Content $StatusPath -Force) -ne $null){$GetStatus = Get-Content $StatusPath -Force}
       else{$GetStatus -eq $null}
       $GetStatus
      }
@@ -679,7 +692,7 @@ switch($DeviceCall)
       if(Test-Path $MinerLog)
        {
         ##Total Hashrate
-        $AA = Get-Content $MinerLog
+        $AA = Get-Content $MinerLog -Force
         if([regex]::match($AA,"/s").success -eq $true)
          {
           $BB = $AA | Select-String "/s" | Select-String "-"
@@ -895,12 +908,12 @@ function Expand-WebRequest {
 	    Write-Host "Downloading Windows Binaries"
 	    Start-Process -Filepath "wget" -ArgumentList "$Uri -O $FileName1" -Wait
            if (".msi", ".exe" -contains ([IO.FileInfo](Split-Path $Uri -Leaf)).Extension)
-	    {
+	        {
              Start-Process -FilePath "wine" -ArgumentList "$FileName" -Wait
             }
   	    else {
 		   $Path_Old = (Join-Path (Split-Path $Path) ([IO.FileInfo](Split-Path $Uri -Leaf)).BaseName)
-                   $Path_New = (Join-Path (Split-Path $Path) (Split-Path $Path -Leaf))
+           $Path_New = (Join-Path (Split-Path $Path) (Split-Path $Path -Leaf))
 
 
                     if (Test-Path $Path_Old) {Remove-Item $Path_Old -Recurse -Force}
@@ -909,13 +922,13 @@ function Expand-WebRequest {
 
 
                     if (Test-Path $Path_New) {Remove-Item $Path_New -Recurse -Force}
-                    if (Get-ChildItem $Path_Old | Where-Object PSIsContainer -EQ $false)
-		     {
-                     Rename-Item $Path_Old (Split-Path $Path -Leaf)
+                    if (Get-ChildItem $Path_Old -Force | Where-Object PSIsContainer -EQ $false)
+		             {
+                     Rename-Item $Path_Old (Split-Path $Path -Leaf) -Force
                      }
                     else
-		       {
-                         Get-ChildItem $Path_Old | Where-Object PSIsContainer -EQ $true | ForEach-Object {Move-Item (Join-Path $Path_Old $_) $Path_New}
+		             {
+                         Get-ChildItem $Path_Old -Force -Directory | ForEach-Object {Move-Item (Join-Path $Path_Old $_) $Path_New -Force}
                          if($MineName -eq "lyclMiner"){
                          Set-Location $Path_New
                          Start-Process "./lyclMiner" -ArgumentList "-g lyclMiner.conf" -Wait
@@ -927,7 +940,7 @@ function Expand-WebRequest {
                            Start-Process "chmod" -ArgumentLIst "+x $MineName"
                            Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
                           }
-                         Remove-Item $Path_Old
+                         Remove-Item $Path_Old -Recurse -Force
 		       }
                   }
 
@@ -953,7 +966,7 @@ if($BuildPath -eq "Linux-Zip")
         [String]$Coin
     )
 
-    $Coins = Get-Content ".\Config\get-nvidia.txt" | ConvertFrom-Json
+    $Coins = Get-Content ".\Config\get-nvidia.txt" -Force | ConvertFrom-Json
 
     $Coin = (Get-Culture).TextInfo.ToTitleCase(($Coin -replace "_"," ")) -replace " "
 
@@ -967,7 +980,7 @@ function Get-AMD {
         [String]$Coin
     )
 
-    $Coins = Get-Content ".\Config\get-amd.txt" | ConvertFrom-Json
+    $Coins = Get-Content ".\Config\get-amd.txt" -Force | ConvertFrom-Json
 
     $Coin = (Get-Culture).TextInfo.ToTitleCase(($Coin -replace "_"," ")) -replace " "
 
@@ -981,7 +994,7 @@ function Get-Algorithm {
         [String]$Algorithm
     )
 
-    $Algorithms = Get-Content ".\Config\get-pool.txt" | ConvertFrom-Json
+    $Algorithms = Get-Content ".\Config\get-pool.txt" -Force | ConvertFrom-Json
 
     $Algorithm = (Get-Culture).TextInfo.ToTitleCase(($Algorithm -replace "_"," ")) -replace " "
 
@@ -1002,3 +1015,34 @@ function Convert-DateString ([string]$Date, [string[]]$Format)
 
 		if ($Convertible) { $result }
 	}
+
+    function Get-AlgorithmList {
+        param (
+            [Parameter(Mandatory=$true)]
+            [Array]$DeviceType,
+            [Parameter(Mandatory=$true)]
+            [String]$CmdDir,
+            [Parameter(Mandatory=$false)]
+            [Array]$No_Algo
+        )
+    
+        Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
+    
+        $AlgorithmList = @()
+        $GetAlgorithms = Get-Content ".\Config\get-pool.txt" -Force | ConvertFrom-Json
+        $PoolAlgorithms = @()
+        $GetAlgorithms | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {
+         $PoolAlgorithms += $_
+        }
+        
+        if($No_Algo -ne $null)
+         {
+         $GetNoAlgo = Compare-Object $No_Algo $PoolAlgorithms
+         $GetNoAlgo.InputObject | foreach{$AlgorithmList += $_}
+         }
+         else{$PoolAlgorithms | foreach { $AlgorithmList += $($_)} }
+             
+        $AlgorithmList
+        Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
+        }
+    

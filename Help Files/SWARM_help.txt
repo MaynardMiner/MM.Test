@@ -6,12 +6,6 @@ Arguments & Explanations:
 
 Argument          Options           Explanation
 
--Update          [Yes or No]        Allows HiveOS remote update, which will transfer Default set to "No". Old
-                                    miner files/settings from previous version, then remove it for you. Pay
-                                    attention to releases and notes- Changes/additions to internal miner files
-                                    or settings (and previous version bug fixes) may get transferred in if you
-                                    attempt to perform remote update!
-
 -GPU_Count1       [1-1000]	    Total number of GPU's for HiveOS. This is needed for miner to determine
 				    correct hashrate for each GPU. If you are dividing your miner into seperate
 				    device groups, then you must add -GPU_Count2 and -GPU_Count3 for each
@@ -73,7 +67,8 @@ Argument          Options           Explanation
 -Type         [CPU,                 Device groups you wish to mine with. Nvidia has three groups in case
                NVIDIA1,             you wish to divide your GPU devices into seperate groups to assist in
                NVIDIA2,             benchmarking, or to prevent entire miner from becoming inoperable if
-               NVIDIA3]             one gpu fails.
+               NVIDIA3              one gpu fails. Currently only 1 AMD group supported.
+               AMD1]
 
 -Donate      [Percentage]           Percent you wish to donate daily to support further development. 
                                     Miner remembers when you open or close, so it will not steal 
@@ -108,8 +103,22 @@ These arguments can be added for additional customization and options
 
 Argument            Options             Explanation
 
--StatLevel	   [Live,		This will allow you to factor period average smoothing. 
-		    Minute_5,		By default everything is live pricing. This will allow you to
+-HiveOS         [YES or No]         Default is "Yes". Specifies Unix version whether or not operating system
+                                    is HiveOS. HiveOS version operates slightly different that *nix version.
+
+-Cuda           [9.1 or 9.2]        Default is 9.1. Specifies Unix version which miners to use. HiveOS currently
+                                    is 9.1 by default. Therefor default is 9.1. If user intends to use 9.1 miners,
+                                    argument is not neccesary.
+
+-Update          [Yes or No]        Allows HiveOS remote update, which will transfer Default set to "No". Old
+                                    miner files/settings from previous version, then remove it for you. Pay
+                                    attention to releases and notes- Changes/additions to internal miner files
+                                    or settings (and previous version bug fixes) may get transferred in if you
+                                    attempt to perform remote update! Default changes based on miner version
+                                    updates, and whether or not it is safe to transfer files.
+
+-Stat_Coin	   [Live,		This will allow you to factor period average smoothing. 
+-Stat_Algo	    Minute_5,		By default everything is live pricing. This will allow you to
 		    Minute_10,		smooth out stat fluctuations if you so desired into the period 
 		    Hour,		specified. Essentially it will allow you choose whether or not 
 		    Day]		you want to base switching on price averages, or live...And if 

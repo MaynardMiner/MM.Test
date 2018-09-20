@@ -1,6 +1,6 @@
-[string]$Path = $nvidia.klaust.path3
-[string]$Uri = $nvidia.klaust.uri
-[string]$MinerName = $nvidia.klaust.minername
+$Path = "$($nvidia.klaust.path3)"
+$Uri = "$($nvidia.klaust.uri)"
+$MinerName = "$($nvidia.klaust.minername)"
 
 
 $Build = "Zip"
