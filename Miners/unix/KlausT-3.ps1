@@ -3,7 +3,7 @@ $Uri = "$($nvidia.klaust.uri)"
 $MinerName = "$($nvidia.klaust.minername)"
 
 
-$Build = "Zip"
+$Build = "Tar"
 
 if($CCDevices3 -ne ''){$Devices = $CCDevices3}
 if($GPUDevices3 -ne ''){$Devices = $GPUDevices3}

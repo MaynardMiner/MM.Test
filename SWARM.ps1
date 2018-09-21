@@ -632,7 +632,6 @@ if($LastRan -ne "")
    $AlgoMiners = if(Test-Path "Miners\unix"){Get-ChildItemContent "Miners\unix" | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} | 
    Where {$Type.Count -eq 0 -or (Compare-Object $Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}}
 
-
    ##Re-Name Instance In Case Of Crashes
    $AlgoMiners | ForEach {
     $AlgoMiner = $_

@@ -2,7 +2,7 @@ $Path = "$($amd.sgminerphi2.path1)"
 $Uri = "$($amd.sgminerphi2.uri)"
 $MinerName = "$($amd.sgminerphi2.minername)"
 
-$Build = "Zip"
+$Build = "Tar"
 
 if($SGDevices1 -ne ''){$Devices = $SGDevices1}
 if($GPUDevices1 -ne ''){$Devices = $GPUDevices1}

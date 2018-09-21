@@ -279,11 +279,41 @@ function Get-AlgorithmList {
         }
         if($Type -like '*AMD*')
         {
-        if($Devices -eq ''){$MinerArguments = "$($Arguments)"}
+        if($Devices -eq ''){
+        $MinerArguments = "$($Arguments)"
+        if($DeviceCall -eq "lyclminer"){
+            $MinerArguments = ""
+            Set-Location $MinerDir
+            $ConfFile = Get-Content ".\lyclMiner.conf" -Force
+            $NewLines = $ConfFile | ForEach {
+            if($_ -like "*<Connection Url =*"){$_ = "<Connection Url = `"stratum+tcp://$Connection`""}
+            if($_ -like "*Username =*"){$_ = "            Username = `"$Username`"    "}
+            if($_ -like "*Password =*" ){$_ = "            Password = `"$Password`">    "}
+            if($_ -notlike "*<Connection Url*" -or $_ -notlike "*Username*" -or $_ -notlike "*Password*"){$_}
+            }
+            Clear-Content ".\lyclMiner.conf" -force
+            $NewLines | Set-Content ".\lyclMiner.conf"
+            Set-Location $CmdDir
+            }
+           }
         else{
           if($DeviceCall -eq "claymore"){$MinerArguments = "-di $($Devices) $($Arguments)"}
           if($DeviceCall -eq "sgminer"){$MinerArguments = "-d $($Devices) $($Arguments)"}
           if($DeviceCall -eq "tdxminer"){$MinerArguments = "-d $($Devices) $($Arguments)"}
+          if($DeviceCall -eq "lyclminer"){
+            $MinerArguments = ""
+            Set-Location $MinerDir
+            $ConfFile = Get-Content ".\lyclMiner.conf" -Force
+            $NewLines = $ConfFile | ForEach {
+            if($_ -like "*<Connection Url =*"){$_ = "<Connection Url = `"stratum+tcp://$Connection`""}
+            if($_ -like "*Username =*"){$_ = "            Username = `"$Username`"    "}
+            if($_ -like "*Password =*" ){$_ = "            Password = `"$Password`">    "}
+            if($_ -notlike "*<Connection Url*" -or $_ -notlike "*Username*" -or $_ -notlike "*Password*"){$_}
+            }
+            Clear-Content ".\lyclMiner.conf" -force
+            $NewLines | Set-Content ".\lyclMiner.conf"
+            Set-Location $CmdDir
+            }
          }
         }
         if($Type -like '*CPU*')
@@ -331,19 +361,6 @@ function Get-AlgorithmList {
         Start-Process ".\Unix\Hive\killall.sh" -ArgumentList "$($Type)" -Wait
         Start-Sleep $Delay #Wait to prevent BSOD
         Start-Sleep -S .25
-        if($DeviceCall -eq "lyclminer"){
-        Set-Location $MinerDir
-        $ConfFile = Get-Content ".\lyclMiner.conf" -Force
-        $NewLines = $ConfFile | ForEach {
-        if($_ -like "*<Connection Url =*"){$_ = "<Connection Url = `"stratum+tcp://$Connection`""}
-        if($_ -like "*Username =*"){$_ = "            Username = `"$Username`"    "}
-        if($_ -like "*Password =*" ){$_ = "            Password = `"$Password`">    "}
-        if($_ -notlike "*<Connection Url*" -or $_ -notlike "*Username*" -or $_ -notlike "*Password*"){$_}
-        }
-        Clear-Content ".\lyclMiner.conf" -force
-        $NewLines | Set-Content ".\lyclMiner.conf"
-        Set-Location $CmdDir
-        }
         Set-Location $MinerDIr
         Start-Process "chmod" -ArgumentList "+x $MinerInstance" -Wait
         Set-Location $CmdDir

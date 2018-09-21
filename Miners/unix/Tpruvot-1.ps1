@@ -3,7 +3,7 @@ $Uri = "$($nvidia.tpruvot.uri)"
 $MinerName = "$($nvidia.tpruvot.minername)"
 
 
-$Build = "Zip"
+$Build = "Tar"
 
 if($CCDevices1 -ne ''){$Devices = $CCDevices1}
 if($GPUDevices1 -ne ''){$Devices = $GPUDevices1}

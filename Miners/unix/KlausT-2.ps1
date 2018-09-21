@@ -2,7 +2,7 @@ $Path = "$($nvidia.klaust.path2)"
 $Uri = "$($nvidia.klaust.uri)"
 $MinerName = "$($nvidia.klaust.minername)"
 
-$Build = "Zip"
+$Build = "Tar"
 
 if($CCDevices2 -ne ''){$Devices = $CCDevices2}
 if($GPUDevices2 -ne ''){$Devices = $GPUDevices2}

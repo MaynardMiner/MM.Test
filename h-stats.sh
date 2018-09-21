@@ -15,7 +15,6 @@ function miner_stats {
 	local mystats=$(< $mydir/Build/Unix/Hive/hivestats.sh)
 	local miner=$(< $mydir/Build/Unix/Hive/mineref.sh)
 	local myport=$(< $mydir/Build/Unix/Hive/port.sh)
-	local myname=$(< $mydir/Build/Unix/Hive/minername.sh)
 	local mindex=$2 #empty or 2, 3, 4, ...
 	local Ntemp=$(get_nvidia_cards_temp)	# cards temp
 	local Nfan=$(get_nvidia_cards_fan)	# cards fan
@@ -266,11 +265,10 @@ fi
 				--arg hs_units "hs_units='khs'" \
 				--argjson temp "`echo ${cctemps[@]} | tr " " "\n" | jq -cs '.'`" \
 				--argjson fan "`echo \"$striplines\" | grep 'FAN=' | sed -e 's/.*=//' | jq -cs '.'`" \
-				--arg miner "$myname" \
 				--arg uptime "$uptime", --arg algo "$algo" \
 				--arg ac $ac --arg rj "$rj" \
 				--arg algo "$algo" \
-				'{$hs, $hs_units, $temp, $fan, $miner, $uptime, ar: [$ac, $rj], $algo}')
+				'{$hs, $hs_units, $temp, $fan, $uptime, ar: [$ac, $rj], $algo}')
 			fi
 		;;
 		ethminer)

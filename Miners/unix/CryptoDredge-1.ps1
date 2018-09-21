@@ -2,7 +2,7 @@ $Path = "$($nvidia.cryptodredge.path1)"
 $Uri = "$($nvidia.cryptodredge.uri)"
 $MinerName = "$($nvidia.cryptodredge.minername)"
 
-$Build = "Zip"
+$Build = "Tar"
 
 if($RexDevices1 -ne ''){$Devices = $RexDevices1}
 if($GPUDevices1 -ne ''){$Devices = $GPUDevices1}

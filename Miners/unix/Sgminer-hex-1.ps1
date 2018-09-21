@@ -2,7 +2,7 @@ $Path = "$($amd.sgminerhex.path1)"
 $Uri = "$($amd.sgminerhex.uri)"
 $MinerName = "$($amd.sgminerhex.minername)"
 
-$Build = "Zip"
+$Build = "Tar"
 
 if($SGDevices1 -ne ''){$Devices = $SGDevices1}
 if($GPUDevices1 -ne ''){$Devices = $GPUDevices1}

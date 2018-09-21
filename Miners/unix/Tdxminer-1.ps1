@@ -2,7 +2,7 @@ $Path = "$($amd.tdxminer.path1)"
 $Uri = "$($amd.tdxminer.uri)"
 $MinerName = "$($amd.tdxminer.minername)"
 
-$Build = "Zip"
+$Build = "Tar"
 
 if($SGDevices1 -ne ''){$Devices = $SGDevices1}
 if($GPUDevices1 -ne ''){$Devices = $GPUDevices1}
