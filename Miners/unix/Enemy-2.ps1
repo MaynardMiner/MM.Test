@@ -21,7 +21,6 @@ $Commands = [PSCustomObject]@{
   "timetravel" = ''
   "xevan" = ''
   "sonoa" = ''
-  "bcd" = ''
 
 }
   

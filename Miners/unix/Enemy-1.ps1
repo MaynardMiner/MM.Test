@@ -23,7 +23,6 @@ $Commands = [PSCustomObject]@{
   "timetravel" = ''
   "xevan" = ''
   "sonoa" = ''
-  "bcd" = ''
 }
   
 if($CoinAlgo -eq $null)

@@ -25,6 +25,7 @@ $Commands = [PSCustomObject]@{
 "x16r" = ''
 "x16s" = ''
 "hmq1725" = ''
+"bcd" = ''
 }
         
 if($CoinAlgo -eq $null)
