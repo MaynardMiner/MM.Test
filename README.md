@@ -1,11 +1,5 @@
 **SWARM**
 
-**Previously known as MM.Hash**
-
-Note: This github wiki and repo is under construction. To see previous versions & wiki on how to use: please navigate to former github repository:
-
-https://github.com/MaynardMiner/MM.Hash
-
 **Hybrid Profit Switching Miner For HiveOS & Windows.**
 
 **Important Note:**
@@ -14,17 +8,21 @@ Version information:
 
 a - Windows version.
 
-b - HiveOS version.
-
-c - Soon to be Ubuntu version.
+b - HiveOS/Unix version.
 
 Depending on which OS you use- Use the latest version release of that version.
 
-SWARM is a powershell/bash hyrbid miner that is meant to work in both windows and HiveOS mining systems. It has the capability of switching between mutliple pools, multiple algorithms based on the most profitable calucation. It can also perform coin profit switching as well, on pools that can do so. SWARM fully integrates with HiveOS, sending stats directly to HiveOS with little/no issues. It accepts remote commands, and can be updated remotely as well. The HiveOS version means you can use all the features of HiveOS, including hashrate monitoring, possible GPU failure detection, miner configuration, all while doing it remotely.
+SWARM is a powershell/bash hyrbid miner that is meant to work in both windows and HiveOS mining systems. It has the capability of switching between mutliple pools, multiple algorithms based on the most profitable calucation. It can also perform coin profit switching as well, on pools that can do so. SWARM fully integrates with HiveOS, sending stats directly to HiveOS with little/no issues. The HiveOS compatibility means you can use all the features of HiveOS, and the dilligent effort HiveOS makes to bring bleeding edge technology to gpu and cpu mining. Working with foundation of HiveOS, mostly every aspect of SWARM can be viewed and modified remotely, from profit statistics, miner runtime, individual miner updates, to even oc profiling for algorithms (nvida only, amd coming soon).
 
 I am a sole developer, and have multiple versions to operate in different OS's. I prioritize them by requests and activity, if you would like me to develop/improve a particular version- Just notify me, and I will prioritize it. Currently, the most popular, most used, and most recommended is the HiveOS version.
 
+SWARM focuses on quality versus quantity, from profit data, miner implementation, to user-features to ensure smooth runtime.
+
 **Features**
+
+-Works within HiveOS, all linux miners- AMD miners Windows cannot use.
+
+-No Windows WDDM driver stack means faster spool up times compared to windows. Critical for profit switching.
 
 -Algorithm specific OC Tuning (HIVEOS version).
 
@@ -73,6 +71,7 @@ I am a sole developer, and have multiple versions to operate in different OS's. 
     "aeon": "aeon",
     "allium": "allium",
     "balloon": "balloon",
+    "bcd": "bcd",
     "bitcore": "bitcore",
     "blake": "blakecoin",
     "blakecoin": "blakecoin",
@@ -82,6 +81,7 @@ I am a sole developer, and have multiple versions to operate in different OS's. 
     "cryptonightheavy": "cryptonightheavy",
     "cryptonightmonero": "cryptonight",
     "cryptonightv7": "cryptonightv7",
+    "cryptonightsaber": "cryptonightsaber",
     "daggerhashimoto": "daggerhashimoto",
     "equihash": "equihash",
     "equihash96": "equihash96",
@@ -92,6 +92,7 @@ I am a sole developer, and have multiple versions to operate in different OS's. 
     "equihash-btg": "equihash-btg",
     "ethash": "ethash",
     "groestl": "groestl",
+    "geek": "geek",
     "hex": "hex",
     "hmq1725": "hmq1725",
     "hodl": "hodl",
@@ -172,20 +173,14 @@ tdxminer (AMD)
 
 Simple Install Instructions (HIVEOS):
 
-Use ```gparted``` to expand your HiveOS partition to maximum size. SWARM requires at least 1 gb of data extra to download all miner files, and store logs. ```gparted``` is very easy to use. Should take 30 seconds. Do not use ```gparted``` or attempt to install ```gparted``` in the initial loading screen. You have to righ click >>> ```terminal emulator``` and use that window.
+This is an example of how to remote install/update miner. It is the fastest way to get going. Insert link for tar.gz. Enter 'blah' in the fields required just like the photo below. Lastly, your setup arguments go in the last box, labeled extra config <a href="https://github.com/MaynardMiner/SWARM/wiki/Arguments-(Miner-Configuration)">arguments</a>. After that, you are are good to go! See wiki on proper argument use. Here is a photo of setup:
 
-```sudo apt-get install gparted```
+**Note** These photos are a little old, the arguments shown like -GPU_Count are no longer needed, and is MM.Hash (previous version). I will change photo soon, but shows the process.
 
-To Run:
-
-```gparted```
-
-This is an example of how to remote install/update miner. It is the fastest way to get going. Simply enter tar.gz file name from latest release. Then insert link for tar.gz. Lastly, your setup arguments go in the last box, labeled extra config <a href="https://github.com/MaynardMiner/SWARM/wiki/Arguments-(Miner-Configuration)">arguments</a>. After that, you are are good to go! See wiki on proper argument use. Here is a photo of setup:
-
-![alt text](https://raw.githubusercontent.com/MaynardMiner/SWARM/master/Build/Data/First_Step.png)
+https://raw.githubusercontent.com/MaynardMiner/SWARM/master/Build/Data/First_Step.png
 
 
-![alt text](https://raw.githubusercontent.com/MaynardMiner/SWARM/master/Build/Data/Second_Step.png)
+https://raw.githubusercontent.com/MaynardMiner/SWARM/master/Build/Data/Second_Step.png
 
 **Note**
 

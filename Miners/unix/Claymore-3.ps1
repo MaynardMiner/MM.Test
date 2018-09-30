@@ -22,7 +22,7 @@ if($GPUDevices3 -ne '')
     {
      $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name | ForEach-Object {
       if($Algorithm -eq "$($AlgoPools.$_.Algorithm)")
-       {
+      {
         [PSCustomObject]@{
         Platform = $Platform  
         Symbol = "$($_)"
@@ -32,8 +32,8 @@ if($GPUDevices3 -ne '')
         Devices = $Devices
         DeviceCall = "claymore"
         Arguments = "-mport 3335 -mode 1 -allcoins 1 -allpools 1 -epool $($AlgoPools.$_.Protocol)://$($AlgoPools.$_.Host):$($AlgoPools.$_.Port) -ewal $($AlgoPools.$_.User3) -epsw $($AlgoPools.$_.Pass3) -wd 0 -dbg -1 -eres 1 $($Commands.$_)"
-        HashRates = [PSCustomObject]@{$_ = $Stats."$($Name)_$($_)_HashRate".Day}
-        Selected = [PSCustomObject]@{$_ = ""}
+        HashRates = [PSCustomObject]@{$_ = $MinerWatts}
+        PowerX = [PSCustomObject]@{$_ = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($_)_Power".Day)}elseif($Watts.$($_).NVIDIA3_Watts){$Watts.$($_).NVIDIA3_Watts}elseif($Watts.default.NVIDIA3_Watts){$Watts.default.NVIDIA3_Watts}else{0}}
         FullName = "$($AlgoPools.$_.Mining)"
         API = "claymore"
         Port = 3335
@@ -51,7 +51,7 @@ if($GPUDevices3 -ne '')
          $CoinPools | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name |
          Where {$($Commands.$($CoinPools.$_.Algorithm)) -NE $null} |
          foreach {
-             [PSCustomObject]@{
+               [PSCustomObject]@{
                Platform = $Platform
                Coin = "Yes"
                Symbol = "$($CoinPools.$_.Symbol)"
@@ -61,8 +61,8 @@ if($GPUDevices3 -ne '')
                Devices = $Devices
                DeviceCall = "claymore"
                Arguments = "-mport 3335 -mode 1 -allcoins 1 -allpools 1 -epool $($CoinPools.$_.Protocol)://$($CoinPools.$_.Host):$($CoinPools.$_.Port) -ewal $($CoinPools.$_.User3) -epsw $($CoinPools.$_.Pass3) -wd 0 -dbg -1 -eres 1 $($Commands.$($CoinPools.$_.Algorithm))"
-               HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $Stats."$($Name)_$($CoinPools.$_.Algorithm)_HashRate".Day}
-               Selected = [PSCustomObject]@{$($CoinPools.$_.Algorithm) = ""}
+               HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $MinerWatts}
+               PowerX = [PSCustomObject]@{$CoinPools.$_.Symbol = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($CoinPools.$_.Algorithm)_Power".Day)}elseif($Watts.$($_).NVIDIA3_Watts){$Watts.$($_).NVIDIA3_Watts}elseif($Watts.default.NVIDIA3_Watts){$Watts.default.NVIDIA3_Watts}else{0}}
                FullName = "$($CoinPools.$_.Mining)"
                MinerPool = "$($CoinPools.$_.Name)"
                API = "claymore"

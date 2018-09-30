@@ -10,15 +10,14 @@ $Zergpool_Sorted = [PSCustomObject]@{}
   {
    try {
      $zergpool_Request = Invoke-RestMethod "http://zergpool.com:8080/api/currencies" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
-     #$ZergpoolAlgo_Request = Invoke-RestMethod "http://api.zergpool.com/api/status" -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
        }
    catch {
-     Write-Warning "MM.Hash contacted ($Name) for a failed API check. (Coins)"
+     Write-Warning "SWARM contacted ($Name) for a failed API check. (Coins)"
      return
         }
 
  if (($zergpool_Request | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Measure-Object Name).Count -le 1) {
-     Write-Warning "MM.Hash contacted ($Name) but ($Name) Pool API was unreadable. "
+     Write-Warning "SWARM contacted ($Name) but ($Name) Pool API was unreadable. "
      return
    }
    
@@ -45,7 +44,7 @@ $Zergpool_Sorted | Get-Member -MemberType NoteProperty -ErrorAction Ignore | Sel
     $zergpool_24h= "24h_btc"
     $Divisor = (1000000*$Zergpool_Sorted.$_.mbtc_mh_factor)
     
-    $Stat = Set-Stat -Name "$($Name)_$($zergpool_Coin)_Profit"-Value ([Double]$zergpool_Estimate/$Divisor *(1-($zergpool_fees/100)))
+    $Stat = Set-Stat -Name "$($Name)_$($zergpool_Coin)_Profit" -Value ([Double]$zergpool_Estimate/$Divisor *(1-($zergpool_fees/100)))
 
       if($Wallet)
        {

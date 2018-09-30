@@ -42,6 +42,12 @@ param(
     [Parameter(Mandatory=$false)]
     [String]$Nicehash_Wallet3 = '',  ##Group 3 Nicehash Wallet
     [Parameter(Mandatory=$false)]
+    [String]$nlWallet1 = '',  ##Group 3 Nicehash Wallet
+    [Parameter(Mandatory=$false)]
+    [String]$nlWallet2 = '',  ##Group 3 Nicehash Wallet
+    [Parameter(Mandatory=$false)]
+    [String]$nlWallet3 = '',  ##Group 3 Nicehash Wallet
+    [Parameter(Mandatory=$false)]
     [String]$UserName = "MaynardVII", ##MPH Username
     [Parameter(Mandatory=$false)]
     [String]$WorkerName = "Rig1",  ##MPH Workername
@@ -58,7 +64,7 @@ param(
     [Parameter(Mandatory=$false)]
     [Int]$Timeout = 0,  ##Hours Before Mine Clears All Hashrates/Profit 0 files
     [Parameter(Mandatory=$false)]
-    [Int]$Interval = 180, #seconds before reading hash rate from miners
+    [Int]$Interval = 300, #seconds before reading hash rate from miners
     [Parameter(Mandatory=$false)] 
     [Int]$StatsInterval = 1, #seconds of current active to gather hashrate if not gathered yet 
     [Parameter(Mandatory=$false)]
@@ -110,7 +116,7 @@ param(
     [Parameter(Mandatory=$false)]
     [String]$SGDevices3,
     [Parameter(Mandatory=$false)]
-    [Array]$PoolName = ("zergpool_algo","zergpool_coin"), 
+    [Array]$PoolName = ("zergpool_algo","zergpool_coin","nicehash","blazepool"), 
     [Parameter(Mandatory=$false)]
     [Array]$Currency = ("USD"), #i.e. GBP,EUR,ZEC,ETH ect.
     [Parameter(Mandatory=$false)]
@@ -136,6 +142,12 @@ param(
     [Parameter(Mandatory=$false)]
     [String]$blockmasterspassword3 = '', #i.e. BTC,LTC,ZEC,ETH ect.
     [Parameter(Mandatory=$false)]
+    [String]$nlpassword1 = '', #i.e. BTC,LTC,ZEC,ETH ect.
+    [Parameter(Mandatory=$false)]
+    [String]$nlpassword2 = '', #i.e. BTC,LTC,ZEC,ETH ect.
+    [Parameter(Mandatory=$false)]
+    [String]$nlpassword3 = '', #i.e. BTC,LTC,ZEC,ETH ect.
+    [Parameter(Mandatory=$false)]
     [Int]$Donate = .5, #Percent per Day
     [Parameter(Mandatory=$false)]
     [String]$Proxy = "", #i.e http://192.0.0.1:8080 
@@ -154,11 +166,9 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$Auto_Coin = "Yes",
     [Parameter(Mandatory=$false)]
-    [string]$Auto_Algo = "Yes",
+    [Int]$Nicehash_Fee = "2",
     [Parameter(Mandatory=$false)]
-    [Int]$Nicehash_Fee,
-    [Parameter(Mandatory=$false)]
-    [Int]$Benchmark = 300,
+    [Int]$Benchmark = 120,
     [Parameter(Mandatory=$false)]
     [Int]$GPU_Count = 13,
     [Parameter(Mandatory=$false)]
@@ -180,9 +190,13 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$HiveOS = "Yes",
     [Parameter(Mandatory=$false)]
-    [string]$Update = "Yes",
+    [string]$Update = "No",
     [Parameter(Mandatory=$false)]
-    [string]$Cuda = "9.1"
+    [string]$Cuda = "9.1",
+    [Parameter(Mandatory=$false)]
+    [string]$Power = "Yes",
+    [Parameter(Mandatory=$false)]
+    [string]$WattOMeter = "No"
 )
 
 #SetLocation & Load Script Files
@@ -190,7 +204,7 @@ Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
 Get-ChildItem . -Recurse -Force | Out-Null 
 . .\Build\Unix\IncludeCoin.ps1
 . .\Build\Unix\Hive\HiveCmd.ps1
-
+. .\Build\PowerUp.ps1
 ##Close Open Miner & Screens
 $ActiveMinerPrograms = @()
 $ProfitTable = @()
@@ -236,13 +250,11 @@ $Cuda | Out-file ".\Build\Cuda.txt" -Force
 if($Update -eq "Yes")
  {
 $PreviousVersions = @()
-$PreviousVersions += "MM.Hash.1.4.0b"
-$PreviousVersions += "MM.Hash.1.0.4b"
-$PreviousVersions += "MM.Hash.1.4.2b"
-$PreviousVersions += "MM.Hash.1.4.3b"
-$PreviousVersions += "MM.Hash.1.4.4b"
 $PreviousVersions += "MM.Hash.1.4.6b"
-#$PreviousVersions += "SWARM.1.4.7b"
+$PreviousVersions += "SWARM.1.4.7b"
+$PreviousVersions += "SWARM.1.4.9b"
+$PreviousVersions += "SWARM.1.5.0b"
+$PreviousVersions += "SWARM.1.5.1b"
 
 $PreviousVersions | foreach {
   $PreviousPath = Join-Path "/hive/custom" "$_"
@@ -255,24 +267,28 @@ $PreviousVersions | foreach {
      $OldMiners = Join-Path $PreviousPath "Miners\unix"
      $OldTime = Join-Path $PreviousPath "Build\Data"
      $OldConfig = Join-Path $PreviousPath "Config"
-     if(Test-Path $OldBackup)
-      {
       if(-not (Test-Path "Backup")){New-Item "Backup" -ItemType "directory"  | Out-Null }
       if(-not (Test-Path "Stats")){New-Item "Stats" -ItemType "directory"  | Out-Null }
       if(-not (Test-Path "Miners")){New-Item "Miners" -ItemType "directory"  | Out-Null }
       if(-not (Test-Path "Miners\unix")){New-Item "Miners\unix" -ItemType "directory"  | Out-Null }
       if(-not (Test-Path "Config")){New-Item "Config" -ItemType "directory"  | Out-Null }
-      Get-ChildItem -Path "$($OldMiners)\*" -Include *.ps1 -Recurse | Copy-Item -Destination ".\Miners\unix" -force
-      Get-ChildItem -Path "$($OldBackup)\*" -Include *.txt -Recurse | Copy-Item -Destination ".\Stats" -force
-      Get-ChildItem -Path "$($OldBackup)\*" -Include *.txt -Recurse | Copy-Item -Destination ".\Backup" -force
-      Get-ChildItem -Path "$($OldTime)\*" -Include *.txt -Recurse | Copy-Item -Destination ".\Build\Data" -force
-      Get-ChildItem -Path "$($OldConfig)\*" -Include *.txt -Recurse | Copy-Item -Destination ".\Build\Data" -force
-      Get-ChildItem -Path "$($OldConfig)\*" -Include *.conf -Recurse | Copy-Item -Destination ".\Build\Data" -force
+      if(Test-Path $OldMiners){Get-ChildItem -Path "$($OldMiners)\*" -Include *.ps1 -Recurse | Copy-Item -Destination ".\Miners\unix" -force}
+      if(Test-Path $OldBackup)
+       {
+        Get-ChildItem -Path "$($OldBackup)\*" -Include *.txt -Recurse | Copy-Item -Destination ".\Stats" -force
+        Get-ChildItem -Path "$($OldBackup)\*" -Include *.txt -Recurse | Copy-Item -Destination ".\Backup" -force
+       }
+      if(Test-Path $OldTime){Get-ChildItem -Path "$($OldTime)\*" -Include *.txt -Recurse | Copy-Item -Destination ".\Build\Data" -force}
+      if(Test-Path $OldConfig)
+       {
+        Get-ChildItem -Path "$($OldConfig)\Naming" -Include *.txt,*.conf -Recurse | Copy-Item -Destination ".\Config\Naming" -force
+        Get-ChildItem -Path "$($OldConfig)\OC" -Include *.txt,*.conf -Recurse | Copy-Item -Destination ".\Config\OC" -force
+        Get-ChildItem -Path "$($OldConfig)\Power" -Include *.txt,*.conf -Recurse | Copy-Item -Destination ".\Config\Power" -force
+       }
+       Remove-Item $PreviousPath -recurse -force
      }
-    Remove-Item $PreviousPath -recurse -force
    }
   }
-}
 
 ##Set Objects
 $CmdDir = (Join-Path (Split-Path $script:MyInvocation.MyCommand.Path) "Build")
@@ -336,6 +352,13 @@ else{$PSDefaultParameterValues["*:Proxy"] = $Proxy}
 ##Check for libc 
 if($HiveOS -eq "Yes"){Start-Process ".\Build\Unix\Hive\libc.sh" -wait}
 
+##Restart Agent
+if($HiveOS -eq "Yes")
+ {
+  start-process "screen" -ArgumentList "-S agent -X quit" -wait
+  start-process "agent-screen" -wait
+ }
+    
 ##GPU Count & Miner Type
 $Type | Foreach {
 if($_ -eq "NVIDIA1"){
@@ -366,29 +389,29 @@ $LogGPUS = $Count.Substring(0,$Count.Length-1)
 
 ##Reset-Old Stats
 if(Test-Path "Stats"){Get-ChildItemContent "Stats" | ForEach {$Stat = Set-Stat $_.Name $_.Content.Week}}
-    
+
 ##Logo
 Write-Host "
                                                                                      BEWARE OF THE
                                                                       ███████╗██╗    ██╗ █████╗ ██████╗ ███╗   ███╗
                                                                       ██╔════╝██║    ██║██╔══██╗██╔══██╗████╗ ████║
                                                                       ███████╗██║ █╗ ██║███████║██████╔╝██╔████╔██║
-                                                                      ╚════██║██║███╗██║██╔══██║██╔══██╗██║╚██╔╝██║
-                                                                      ███████║╚███╔███╔╝██║  ██║██║  ██║██║ ╚═╝ ██║
-                                                                      ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝
-                                                                             Parental Discretion Is Advised
-                                                                                      v1.4.7b Unix       
-
-                                                                      GitHub: https://Github.com/MaynardMiner/Swarm
-
-                                                                                   SUDO APT-GET LAMBO
-                                                                     .h+.                                      .+h.
-                                                                     +MMd+.                                  .+dMM+ 
-                                                                    +sNMMMMd+.                            .+hMMMMNs+
-                                                                    .dMMMMMMMMh+.                       .+hNMMMMMMMd.
-                                                                    .mMMMMMMMMMNy:.  -+:        :+-  .:yNMMMMMMMMMm.
-                                                                     -mMMMMMMMMMMMms-  omhdmmdhmo  -smMMMMMMMMMMMm-
-                                                                      -mMMMMMMMMMMMMMd+mMMMMMMMMm+dMMMMMMMMMMMMMm-
+                                                                      ╚════██║██║███╗██║██╔══██║██╔══██╗██║╚██╔╝██║        ^^      .-=-=-=-.  ^^
+                                                                      ███████║╚███╔███╔╝██║  ██║██║  ██║██║ ╚═╝ ██║    ^^       (``=-=-=-=-=-=``)         ^^              
+                                                                      ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝      ^^   (``-=-=-=-=-=-=-=-``)   ^^     ^^
+                                                                             Parental Discretion Is Advised                  ( ``-=-=-=-(@)-=-=-`` )      ^^
+                                                                                  v1.5.2b Unix/HiveOS                        (``-=-=-=-=-=-=-=-=-``)  ^^
+                                                                                                                     ^^      (``-=-=-=-=-=-=-=-=-``)              ^^
+                                                                      GitHub: https://Github.com/MaynardMiner/Swarm     ^^   (``-=-=-=-=-=-=-=-=-``)                      ^^
+                                                                                                                    ^^       (``-=-=-=-=-=-=-=-=-``)  ^^
+                                                                                   SUDO APT-GET LAMBO        ^^   ^^     ^^   (``-=-=-=-=-=-=-=-``)          ^^
+                                                                     .h+.                                      .+h.   ^^       (``-=-=-=-=-=-=-``)  ^^                 ^^               
+                                                                     +MMd+.                    ^^      ^^    .+dMM+    ^^       (``-=-=-=-=-=-``)  ^^                 ^^                   
+                                                                    +sNMMMMd+.                     ^^     .+dMMMMNs+             (``-=-=-=-=-``) 
+                      `"This is my Hell.`"                            .dMMMMMMMh+.                       .+hMMMMMMMMd.     ^^       ``-=-=-=-=-``
+                    Caeser Vitus Aurelius                           .mMMMMMMMMMNy:.  -+:        :+-  .:yNMMMMMMMMMm.
+                            VITO                                     -mMMMMMMMMMMMms-  omhdmmdhmo  -smMMMMMMMMMMMm-      ^^
+                   http://vitosminions.com/                           -mMMMMMMMMMMMMMd+mMMMMMMMMm+dMMMMMMMMMMMMMm-  ^^
                                                                        \omNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNmo/
                                                                                        MMMMMMMMMM
                                                                               -oooo+++//MMMMMMMM\\+++oooo-
@@ -408,7 +431,8 @@ Write-Host "
 					                                    Hybrid Auto-Profit Switching Miner
 						       BTC DONATION ADRRESS TO SUPPORT DEVELOPMENT: 1DRxiWx6yuZfN9hrEJa3BDXWVJ9yyJU36i
 				  	             This Software Is Open-Source. However, 1.40% Dev Fee Was Written In This Code
-					                    It Can Take Awhile To Load At First Time Start-Up. Please Be Patient!
+							   Dev Fee is NOT 1.40% of all Mining. 1.40% of 86400 seconds (24 hours)
+					                   It Can Take Awhile To Load At First Time Start-Up. Please Be Patient!
 " -foregroundColor "darkyellow"
 #Start Watchdog
 Set-Location $CmdDir
@@ -429,20 +453,20 @@ if($Cuda -eq "9.1"){$miner_update_nvidia = Get-Content ".\Config\Update\nvidia9.
 if($Cuda -eq "9.2"){$miner_update_nvidia = Get-Content ".\Config\Update\nvidia9.2-linux.conf" -Force | ConvertFrom-Json}
 $miner_update_amd = Get-Content ".\Config\Update\amd-linux.conf" -Force | ConvertFrom-Json
 $miner_update_cpu = Get-Content ".\Config\Update\cpu-linux.conf" -Force | ConvertFrom-Json
-$miner_update_nvidia | foreach {
-$nvidia | Add-Member $_.Name $_
+$miner_update_nvidia | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {
+$nvidia | Add-Member $miner_update_nvidia.$_.Name $miner_update_nvidia.$_
 }
-$miner_update_amd | foreach {
-$amd | Add-Member $_.Name $_
+$miner_update_amd | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {
+$amd | Add-Member $miner_update_amd.$_.Name $miner_update_amd.$_
 }
-$miner_update_cpu | foreach {
-$cpu | Add-Member $_.Name $_
+$miner_update_cpu | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {
+$cpu | Add-Member $miner_update_cpu.$_.Name $miner_update_cpu.$_
 }
 
 while($true)
 {
 $CoinAlgo = $null  
-
+$Watts = get-content ".\Config\Power\power.conf" | ConvertFrom-Json
 ##Check Time Parameters
 $MinerWatch = New-Object -TypeName System.Diagnostics.Stopwatch
 $TimeoutTime = [int]$Timeout*3600
@@ -573,12 +597,12 @@ if($LastRan -ne "")
  
   ##Get Price Data
   try {
-	$T = [string]$CoinExchange
 	$R= [string]$Currency
-	Write-Host "SWARM Is Building The Database. Auto-Coin Switching: $Auto_Coin" -foreground "yellow"   
-  $Exchanged =  Invoke-RestMethod "https://min-api.cryptocompare.com/data/price?fsym=$T&tsyms=$R" -UseBasicParsing | Select-Object -ExpandProperty $R
-	$Rates = Invoke-RestMethod "https://api.coinbase.com/v2/exchange-rates?currency=$R" -UseBasicParsing | Select-Object -ExpandProperty data | Select-Object -ExpandProperty rates
+  Write-Host "SWARM Is Building The Database. Auto-Coin Switching: $Auto_Coin" -foreground "yellow"
+  $Rates = Invoke-RestMethod "https://api.coinbase.com/v2/exchange-rates?currency=BTC" -UseBasicParsing | Select-Object -ExpandProperty data | Select-Object -ExpandProperty rates
   $Currency | Where-Object {$Rates.$_} | ForEach-Object {$Rates | Add-Member $_ ([Double]$Rates.$_) -Force}
+  $WattCurr = (1/$Rates.$Currency)
+  $WattEx = [Double](($WattCurr*$Watts.KWh.KWh))
   }
   catch {
   Write-Host -Level Warn "Coinbase Unreachable. "
@@ -647,6 +671,7 @@ if($LastRan -ne "")
     }
   }
 
+  $Download = $false
    ##Download Miners
    $AlgoMiners = $AlgoMiners | ForEach {
    $AlgoMiner = $_
@@ -657,6 +682,7 @@ if($LastRan -ne "")
     if($AlgoMiner.BUILD -eq "Linux" -or $AlgoMiner.BUILD -eq "Linux-Clean" -or $AlgoMiner.BUILD -eq "Linux-Zip-Build")
      {
       Expand-WebRequest -URI $AlgoMiner.URI -BuildPath $AlgoMiner.BUILD -Path (Split-Path $AlgoMiner.Path) -MineName (Split-Path $AlgoMiner.Path -Leaf) -MineType $AlgoMiner.Type
+      $Download = $true
      }
     if($AlgoMiner.BUILD -eq "Windows" -or "Linux-Zip" -or "Zip")
      {
@@ -664,10 +690,12 @@ if($LastRan -ne "")
       {
        New-Item (Split-Path $AlgoMiner.Path) -ItemType "Directory" | Out-Null
        Invoke-WebRequest $AlgoMiner.URI -OutFile $_.Path -UseBasicParsing
+       $Download = $true
       }
      else
       {
        Expand-WebRequest -URI $AlgoMiner.URI -BuildPath $AlgoMiner.BUILD -Path (Split-Path $AlgoMiner.Path) -MineName (Split-Path $AlgoMiner.Path -Leaf) -MineType $AlgoMiner.Type
+       $Download = $true
       }
      }
    }
@@ -679,6 +707,8 @@ if($LastRan -ne "")
 
 if($AlgoMiners.Count -eq 0){"No Miners!" | Out-Host; start-sleep $Interval; continue}
 
+if($Download -eq $true){continue}
+
 ##Sort Alorithm Miners
 $AlgoMiners | ForEach {
        $AlgoMiner = $_
@@ -689,36 +719,44 @@ $AlgoMiners | ForEach {
        $AlgoMiner_Profits = [PSCustomObject]@{}
        $AlgoMiner_Profits_Comparison = [PSCustomObject]@{}
        $AlgoMiner_Profits_Bias = [PSCustomObject]@{}
+       $AlgoMiner_PowerX = [PSCustomObject]@{}
 
        $AlgoMiner_Types = $AlgoMiner.Type | Select -Unique
        $AlgoMiner_Indexes = $AlgoMiner.Index | Select -Unique
 
        $AlgoMiner.HashRates | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | ForEach {
+       $Day = 24
+       $Kilo = 1000
+       $WattCalc1 = (([Decimal]$AlgoMiner.PowerX.$_)*$Day)
+       $WattCalc2 = [Decimal]$WattCalc1/$Kilo
+       $WattCalc3 = [Decimal]$WattCalc2*$WattEX
        $AlgoMiner_HashRates | Add-Member $_ ([Double]$AlgoMiner.HashRates.$_)
+       $AlgoMiner_PowerX | Add-Member $_ ([Double]$AlgoMiner.PowerX.$_)
        $AlgoMiner_Pools | Add-Member $_ ([PSCustomObject]$AlgoPools.$_)
        $AlgoMiner_Pools_Comparison | Add-Member $_ ([PSCustomObject]$AlgoPools_Comparison.$_)
-       $AlgoMiner_Profits | Add-Member $_ ([Double]$AlgoMiner.HashRates.$_*$AlgoPools.$_.Price)
-       $AlgoMiner_Profits_Comparison | Add-Member $_ ([Double]$AlgoMiner.HashRates.$_*$AlgoPools_Comparison.$_.Price)
-       $AlgoMiner_Profits_Bias | Add-Member $_ ([Double]$AlgoMiner.HashRates.$_*$AlgoPools.$_.Price*(1-($AlgoPools.$_.MarginOfError*[Math]::Pow($DecayBase,$DecayExponent))))
+       $AlgoMiner_Profits | Add-Member $_ ([Decimal](($AlgoMiner.HashRates.$_*$AlgoPools.$_.Price)-$WattCalc3))
+       $AlgoMiner_Profits_Comparison | Add-Member $_ ([Decimal](($AlgoMiner.HashRates.$_*$AlgoPools_Comparison.$_.Price)-$WattCalc3))
+       $AlgoMiner_Profits_Bias | Add-Member $_ ([Decimal](($AlgoMiner.HashRates.$_*$AlgoPools.$_.Price*(1-($AlgoPools.$_.MarginOfError*[Math]::Pow($DecayBase,$DecayExponent))))-$WattCalc3))
        }
 
-      
-       
+       $AlgoMiner_Power = [Double]($AlgoMiner_PowerX.PSObject.Properties.Value | Measure -Sum).Sum
        $AlgoMiner_Profit = [Double]($AlgoMiner_Profits.PSObject.Properties.Value | Measure -Sum).Sum
        $AlgoMiner_Profit_Comparison = [Double]($AlgoMiner_Profits_Comparison.PSObject.Properties.Value | Measure -Sum).Sum
        $AlgoMiner_Profit_Bias = [Double]($AlgoMiner_Profits_Bias.PSObject.Properties.Value | Measure -Sum).Sum
 
        $AlgoMiner.HashRates | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | ForEach {
-        if(-not [String]$AlgoMiner.HashRates.$_)
-        {
+        if(-not [String]$AlgoMiner.HashRates.$_ -or -not [String]$Algominer.PowerX.$_)
+         {
                $AlgoMiner_HashRates.$_ = $null
+               $AlgoMiner_PowerX.$_ = $null
                $AlgoMiner_Profits.$_ = $null
                $AlgoMiner_Profits_Comparison.$_ = $null
                $AlgoMiner_Profits_Bias.$_ = $null
                $AlgoMiner_Profit = $null
                $AlgoMiner_Profit_Comparison = $null
                $AlgoMiner_Profit_Bias = $null
-           }
+               $AlgoMiner_Power = $null
+         }
        }
 
        if($AlgoMiner_Types -eq $null){$AlgoMiner_Types = $AlgoMiners.Type | Select -Unique}
@@ -728,7 +766,7 @@ $AlgoMiners | ForEach {
        if($AlgoMiner_Indexes -eq $null){$AlgoMiner_Indexes = 0}
        
        $AlgoMiner.HashRates = $AlgoMiner_HashRates
-
+       $AlgoMiner.PowerX = $AlgoMiner_HashRates
        $AlgoMiner | Add-Member Pools $AlgoMiner_Pools
        $AlgoMiner | Add-Member Profits $AlgoMiner_Profits
        $AlgoMiner | Add-Member Profits_Comparison $AlgoMiner_Profits_Comparison
@@ -736,6 +774,7 @@ $AlgoMiners | ForEach {
        $AlgoMiner | Add-Member Profit $AlgoMiner_Profit
        $AlgoMiner | Add-Member Profit_Comparison $AlgoMiner_Profit_Comparison
        $AlgoMiner | Add-Member Profit_Bias $AlgoMiner_Profit_Bias
+       $AlgoMiner | Add-Member Power $AlgoMiner_Power
 
        $AlgoMiner | Add-Member Type $AlgoMiner_Types -Force
        $AlgoMiner | Add-Member Index $AlgoMiner_Indexes -Force
@@ -753,9 +792,9 @@ $AlgoMiners | ForEach {
    }
 
    #Don't penalize active miners & sort by threshold
-   $ActiveMinerPrograms | ForEach {$AlgoMiners | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments | ForEach {$_.Profit_Bias = $_.Profit}}
    $GoodAlgoMiners = @()
-   $AlgoMiners | Where [Double]Profit -lt $Threshold | foreach {$GoodAlgoMiners += $_}
+   $ActiveMinerPrograms | ForEach {$AlgoMiners | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments | ForEach {$_.Profit_Bias = $_.Profit}}
+   $AlgoMiners | Foreach {if($_.Profit -lt $Threshold -or $_.Profit -eq $null){$GoodAlgoMiners += $_}}
 
    #Get most profitable algo miner combination i.e. AMD+NVIDIA+CPU add algo miners to miners list
    $Miners = @()
@@ -774,7 +813,7 @@ $AlgoMiners | ForEach {
    $BestAlgoMiners_Combo = $BestAlgoMiners_Combos | Sort-Object -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count},{($_.Combination | Measure Profit_Bias -Sum).Sum},{($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
    $BestAlgoMiners_Combo_Comparison = $BestAlgoMiners_Combos_Comparison | Sort-Object -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count},{($_.Combination | Measure Profit_Comparison -Sum).Sum},{($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
    $BestMiners_Combo = $BestAlgoMiners_Combo
-
+   
 #check if Auto_Coin is working- Start Coin Sorting
 if($Auto_Coin -eq "Yes")
  {
@@ -812,24 +851,33 @@ if($CoinMiners -ne $null)
   $CoinMiner = $_
 
   $CoinMiner_HashRates = [PSCustomObject]@{}
+  $CoinMiner_Watts = [PSCustomObject]@{}
   $CoinMiner_Pools = [PSCustomObject]@{}
   $CoinMiner_Pools_Comparison = [PSCustomObject]@{}
   $CoinMiner_Profits = [PSCustomObject]@{}
   $CoinMiner_Profits_Comparison = [PSCustomObject]@{}
   $CoinMiner_Profits_Bias = [PSCustomObject]@{}
-      
+  $CoinMiner_PowerX = [PSCustomObject]@{}
+
   $CoinMiner_Types = $CoinMiner.Type | Select -Unique
   $CoinMiner_Indexes = $CoinMiner.Index | Select -Unique
-      
+
   $CoinMiner.HashRates | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | ForEach {
+    $Day = 24
+    $Kilo = 1000
+    $WattCalc1 = (([Decimal]$CoinMiner.PowerX.$_)*$Day)
+    $WattCalc2 = [Decimal]$WattCalc1/$Kilo
+    $WattCalc3 = [Decimal]$WattCalc2*$WattEX
   $CoinMiner_HashRates | Add-Member $_ ([Double]$CoinMiner.HashRates.$_)
+  $CoinMiner_PowerX | Add-Member $_ ([Double]$CoinMiner.PowerX.$_)
   $CoinMiner_Pools | Add-Member $_ ([PSCustomObject]$CoinPools.$_)
   $CoinMiner_Pools_Comparison | Add-Member $_ ([PSCustomObject]$CoinPools_Comparison.$_)
-  $CoinMiner_Profits | Add-Member $_ ([Double]$CoinMiner.HashRates.$_*$CoinPools.$_.Price)
-  $CoinMiner_Profits_Comparison | Add-Member $_ ([Double]$CoinMiner.HashRates.$_*$CoinPools_Comparison.$_.Price)
-  $CoinMiner_Profits_Bias | Add-Member $_ ([Double]$CoinMiner.HashRates.$_*$CoinPools.$_.Price*(1-($CoinPools.$_.MarginOfError*[Math]::Pow($DecayBase,$DecayExponent))))
+  $CoinMiner_Profits | Add-Member $_ ([Double](($CoinMiner.HashRates.$_*$CoinPools.$_.Price)-$WattCalc3))
+  $CoinMiner_Profits_Comparison | Add-Member $_ ([Double](($CoinMiner.HashRates.$_*$CoinPools_Comparison.$_.Price)-$WattCalc3))
+  $CoinMiner_Profits_Bias | Add-Member $_ ([Double](($CoinMiner.HashRates.$_*$CoinPools.$_.Price*(1-($CoinPools.$_.MarginOfError*[Math]::Pow($DecayBase,$DecayExponent))))-$WattCalc3))
  }
-                       
+
+  $CoinMiner_Power = [Double]($CoinMiner_PowerX.PSObject.Properties.Value | Measure -Sum).Sum
   $CoinMiner_Profit = [Double]($CoinMiner_Profits.PSObject.Properties.Value | Measure -Sum).Sum
   $CoinMiner_Profit_Comparison = [Double]($CoinMiner_Profits_Comparison.PSObject.Properties.Value | Measure -Sum).Sum
   $CoinMiner_Profit_Bias = [Double]($CoinMiner_Profits_Bias.PSObject.Properties.Value | Measure -Sum).Sum
@@ -839,12 +887,14 @@ if($CoinMiners -ne $null)
   if(-not [String]$CoinMiner.HashRates.$_)
    {
     $CoinMiner_HashRates.$CoinMinerAlgo = $null
+    $CoinMiner_PowerX.$CoinMinerAlgo = $null
     $CoinMiner_Profits.$CoinSymbol = $null
     $CoinMiner_Profits_Comparison.$CoinSymbol = $null
     $CoinMiner_Profits_Bias.$CoinSymbol = $null
     $CoinMiner_Profit = $null
     $CoinMiner_Profit_Comparison = $null
     $CoinMiner_Profit_Bias = $null
+    $CoinMiner_Power = $null
    }
   }
       
@@ -855,7 +905,7 @@ if($CoinMiners -ne $null)
   if($CoinMiner_Indexes -eq $null){$CoinMiner_Indexes = 0}
               
   $CoinMiner.HashRates = $CoinMiner_HashRates
-              
+  $CoinMiner.PowerX = $CoinMiner_PowerX
   $CoinMiner | Add-Member Pools $CoinMiner_Pools
   $CoinMiner | Add-Member Profits $CoinMiner_Profits
   $CoinMiner | Add-Member Profits_Comparison $CoinMiner_Profits_Comparison
@@ -863,6 +913,7 @@ if($CoinMiners -ne $null)
   $CoinMiner | Add-Member Profit $CoinMiner_Profit
   $CoinMiner | Add-Member Profit_Comparison $CoinMiner_Profit_Comparison
   $CoinMiner | Add-Member Profit_Bias $CoinMiner_Profit_Bias
+  $CoinMiner | Add-Member Power $CoinMiner_Power
 
   $CoinMiner | Add-Member Type $CoinMiner_Types -Force
   $CoinMiner | Add-Member Index $CoinMiner_Indexes -Force
@@ -885,14 +936,21 @@ if($CoinMiners -ne $null)
     if($Favor_Coins -eq "Yes")
      {
       Write-Host "User Specified To Favor Coins & Best Pool Is CoinPool: Factoring Only Coins"
-      $CoinMiners | Where [Double]Profit -lt $Threshold | foreach {$Miners += $_}
+      $Miners = $CoinMiners | Where Profit -lt $Threshold 
      }
+  else
+   {
+    $Miners = $CoinMiners | Where Profit -lt $Threshold
+    $BestAlgoMiners_Combo | foreach {$Miners += $_}
+   }
   }
   else
    {
+    $Miners = $CoinMiners | Where Profit -lt $Threshold
     $BestAlgoMiners_Combo | foreach {$Miners += $_}
-    $CoinMiners | Where [Double]Profit -lt $Threshold | foreach {$Miners += $_}
    }
+
+
 
   $ActiveMinerPrograms | ForEach {$Miners | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments | ForEach {$_.Profit_Bias = $_.Profit}}
 
@@ -912,31 +970,50 @@ if($CoinMiners -ne $null)
 
   if($Favor_Coins -eq "Yes")
    {
-    $ProfitsArray = @()
-    $NewCoinAlgo = @()
-    $Miners = @()
+     $Miners = @()
+     $NewCoinSymbol = @()
+     $ProfitsArray = @()
+     $NewCoinAlgo = @()
+
     $BestMiners_Combo | Foreach {
+    $NewCoinSymbol += [PSCustomObject]@{
+      "$($_.Type)" = "$($_.Symbol)"
+      }
+     }  
+
+     $BestMiners_Combo | Foreach {
       $NewCoinAlgo += [PSCustomObject]@{
-       "$($_.Type)" = "$($_.Algo)"
+        "$($_.Type)" = "$($_.Algo)"
         }
        }  
 
-    $BestMiners_Combo | Foreach {
+     $BestMiners_Combo | Foreach {
      $ProfitsArray += [PSCustomObject]@{
      "$($_.Type)" = $($_.Profit)
       }
      }
 
-    $GoodAlgoMiners | Foreach{
-    if($NewCoinAlgo.$($_.Type) -ne $($_.Algo))
-     {
-      if($ProfitsArray.$($_.Type) -gt $($_.Profit))
-       {
+    $Type | Foreach {
+     $Selected = $_
+     $TypeAlgoMiners = $GoodAlgoMiners | Where Type -eq $Selected
+     $TypeAlgoMiners | Foreach{
+     if($NewCoinSymbol.$($_.Type) -ceq $($_.Symbol))
+      {
        $Miners += $_
+      }
+     else
+      {
+       if($NewCoinAlgo.$($_.Type) -cne $($_.Algo))
+        {
+        if($ProfitsArray.$($_.Type) -gt $($_.Profit))
+         {
+         $Miners += $_
+         }
        }
       }
      }
-    $CoinMiners | foreach {$Miners += $_}
+    }
+     $CoinMiners | foreach {$Miners += $_}
     }
     else
      {
@@ -959,6 +1036,7 @@ if($CoinMiners -ne $null)
  $ProfitTable = @()
  $Miners | foreach {
  $ProfitTable += [PSCustomObject]@{
+      Power = [Decimal]$($_.Power*24)/1000*$WattEX
       Type = $_.Type
       Miner = $_.Name
       Name = $($_.Symbol)
@@ -1005,6 +1083,7 @@ if($CoinMiners -ne $null)
               Connection = $_.Connection
               Password = $_.Password
               BestMiner = $null
+              JsonFile = $_.Config
           }
         }
       }
@@ -1060,7 +1139,7 @@ $ActiveMinerPrograms | foreach {
         else{$GPUGrouping = $_.Devices}
         if($CPUOnly -eq "Yes"){$GPUGrouping = $LogGPUS}
         $LaunchCodes = @{}
-        $LaunchCodes.Add("Type",$_.Type)
+        $LaunchCodes.Add("OCType",$_.Type)
         $LaunchCodes.Add("Logs",$LogDir)
         $LaunchCodes.Add("Name",$_.Name)
         $LaunchCodes.Add("MinerName",$_.MinerName)
@@ -1081,6 +1160,7 @@ $ActiveMinerPrograms | foreach {
         if($null -ne $_.Password){$LaunchCodes.Add("Password","$($_.Password)")}
         if($null -ne $_.DeviceCall){$LaunchCodes.Add("DeviceCall",$_.DeviceCall)}
         if($null -ne $_.Devices){$LaunchCodes.Add("Devices",$_.Devices)}
+        if($null -ne $_.JsonFile){$LaunchCodes.Add("jsonfile",$_.JsonFile)}
 
         Start-LaunchCode @LaunchCodes
 
@@ -1131,9 +1211,13 @@ if($NoMiners -eq $true)
 #Notify User Of Delay
 if($Restart -eq $true)
  {
-   Write-Host "
-                
-
+   Write-Host "         
+        
+                             //\\  _______
+                            //  \\//~//.--|
+                            Y   /\\~~//_  |
+                           _L  |_((_|___L_|
+                          (/\)(____(_______)      
 Waiting 20 Seconds For Miners To Load & Restarting Background Tracking
 
 Type 'mine' in another terminal to see miner working- This is NOT a remote command!
@@ -1141,7 +1225,6 @@ Type 'mine' in another terminal to see miner working- This is NOT a remote comma
 Type 'get-screen [MinerType]' to see last 100 lines of log- This IS a remote command!
 
 https://github.com/MaynardMiner/SWARM/wiki/HiveOS-management >> Right Click 'Open URL In Browser'  
-
 
    " -foreground Magenta
    Start-Sleep -s 20
@@ -1185,7 +1268,7 @@ function Get-MinerStatus {
                                                                             \__ \ \ \/\/ / / _ \ |   /| |\/| | 
                                                                             |___/  \_/\_/ /_/ \_\|_|_\|_|  |_| 
                                                                                                                                                      " -foregroundcolor "DarkRed"
-        Write-Host "                                                                                     Sudo Apt-Get Lambo" -foregroundcolor "Yellow"
+        Write-Host "                                                                                     sudo apt-get lambo" -foregroundcolor "Yellow"
         Write-Host ""
         Write-Host ""
         Write-Host ""
@@ -1193,16 +1276,15 @@ function Get-MinerStatus {
         $Y = [string]$CoinExchange
 	      $H = [string]$Currency
       	$J = [string]'BTC'
-    $BTCExchangeRate = Invoke-WebRequest "https://min-api.cryptocompare.com/data/pricemulti?fsyms=$Y&tsyms=$J" -UseBasicParsing | ConvertFrom-Json | Select-Object -ExpandProperty $Y | Select-Object -ExpandProperty $J
-    $CurExchangeRate = Invoke-WebRequest "https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC&tsyms=$H" -UseBasicParsing | ConvertFrom-Json | Select-Object -ExpandProperty $J | Select-Object -ExpandProperty $H
-    Write-Host "1 $CoinExchange = " "$Exchanged"  "$Currency" -foregroundcolor "Yellow"
-    $ProfitTable | Where {$_.Profits -ge 1E-5 -or $null -eq $_.Profits} | Sort-Object -Property Type,Profits -Descending | Format-Table -GroupBy Type (
+        $BTCExchangeRate = Invoke-WebRequest "https://min-api.cryptocompare.com/data/pricemulti?fsyms=$Y&tsyms=$J" -UseBasicParsing | ConvertFrom-Json | Select-Object -ExpandProperty $Y | Select-Object -ExpandProperty $J
+        $ProfitTable | Where {$_.Profits -ge 1E-5 -or $null -eq $_.Profits} | Sort-Object -Property Type,Profits -Descending | Format-Table -GroupBy Type (
         @{Label = "Miner"; Expression={$($_.Miner)}},
         @{Label = "Coin"; Expression={$($_.Name)}},
         @{Label = "Speed"; Expression={$($_.HashRates) | ForEach {if($null -ne $_){"$($_ | ConvertTo-Hash)/s"}else{"Bench"}}}; Align='center'},
+        @{Label = "Watt/Day"; Expression={$($_.Power) | ForEach {if($null -ne $_){($_ * $Rates.$Currency).ToString("N2")}else{"Bench"}}}; Align='center'},
         @{Label = "BTC/Day"; Expression={$($_.Profits) | ForEach {if($null -ne $_){  $_.ToString("N5")}else{"Bench"}}}; Align='right'},
         @{Label = "$Y/Day"; Expression={$($_.Profits) | ForEach {if($null -ne $_){  ($_ / $BTCExchangeRate).ToString("N5")}else{"Bench"}}}; Align='right'},
-        @{Label = "$Currency/Day"; Expression={$($_.Profits) | ForEach {if($null -ne $_){($_ / $BTCExchangeRate * $Exchanged).ToString("N3")}else{"Bench"}}}; Align='center'},
+        @{Label = "$Currency/Day"; Expression={$($_.Profits) | ForEach {if($null -ne $_){($_ * $Rates.$Currency).ToString("N2")}else{"Bench"}}}; Align='center'},
         @{Label = "Pool"; Expression={$($_.MinerPool)}; Align='center'}
             )
       }
@@ -1290,7 +1372,7 @@ $ActiveMinerPrograms | Foreach {
     if($null -eq $_.Devices){$GPUGrouping = $LogGPUS}
     else{$GPUGrouping = $_.Devices}
     $LaunchCodes = @{}
-    $LaunchCodes.Add("Type",$_.Type)
+    $LaunchCodes.Add("OCType",$_.Type)
     $LaunchCodes.Add("Logs",$LogDir)
     $LaunchCodes.Add("Name",$_.Name)
     $LaunchCodes.Add("MinerName",$_.MinerName)
@@ -1311,6 +1393,7 @@ $ActiveMinerPrograms | Foreach {
     if($null -ne $_.Password){$LaunchCodes.Add("Password","$($_.Password)")}
     if($null -ne $_.DeviceCall){$LaunchCodes.Add("DeviceCall",$_.DeviceCall)}
     if($null -ne $_.Devices){$LaunchCodes.Add("Devices",$_.Devices)}
+    if($null -ne $_.JsonFile){$LaunchCodes.Add("jsonfile",$_.JsonFile)}  
 
     Start-LaunchCode @LaunchCodes
 
@@ -1342,11 +1425,13 @@ $ActiveMinerPrograms | Foreach {
 
    Write-Host "
         
+              //\\  _______
+             //  \\//~//.--|
+             Y   /\\~~//_  |
+            _L  |_((_|___L_|
+           (/\)(____(_______)        
         
-        
-   Waiting 20 Seconds For Miners To Fully Load
-
-
+  Waiting 20 Seconds For Miners To Fully Load
 
    " 
    Start-Sleep -s 20
@@ -1413,10 +1498,13 @@ $ActiveMinerPrograms | foreach {
   {
    $Miner_HashRates = Get-HashRate -API $_.API -Port $_.Port -CPUThreads $CPUThreads
    $ScreenHash = "$($Miner_HashRates | ConvertTo-Hash)"
-   if($ScreenHash -eq "0.00PH")
+   if($ScreenHash -eq "0.00PH" -or $ScreenHash -eq '')
     {
+    if($BenchmarkMode -eq $false)
+     {
      $_.Status = "Failed"
      $Restart = "Yes"
+     }
     }
    }
   }
@@ -1475,8 +1563,28 @@ Do{
   if($RestartData -eq "Yes"){break}
 
 }While($MinerWatch.Elapsed.TotalSeconds -lt ($MinerInterval-20))
-      
-      
+
+##Get-Power
+if($WattOMeter -eq "Yes")
+ {
+Write-Host "
+
+Starting Watt-O-Meter
+     __________
+    |   ____   |
+    |  /    \  |
+    | | .''. | |
+    | |   /  | |
+    |==========|
+    |   WATT   |
+    |__________|
+  
+" -foregroundcolor yellow
+Set-Location "Build"
+Get-Power -PwrType $Type
+Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
+}
+
 ##Benchmarking/Timeout      
 $ActiveMinerPrograms | foreach {
 if($_.BestMiner -eq $true)
@@ -1484,7 +1592,7 @@ if($_.BestMiner -eq $true)
  if($null -eq $_.XProcess -or $_.XProcess.HasExited)
   {
    $_.Status = "Failed"
-   $_.WasBenchMarked = $False  
+   $_.WasBenchMarked = $False
   }
   else
    { 
@@ -1506,8 +1614,10 @@ if($_.BestMiner -eq $true)
          {
          if(-not (Test-Path "Backup")){New-Item "Backup" -ItemType "directory" | Out-Null}
          Write-Host "$($_.Name) $($_.Coins) Starting Bench"
-	       $HashRateFilePath = Join-Path ".\Stats" "$($_.Name)_$($_.Algo)_HashRate.txt"
+         $HashRateFilePath = Join-Path ".\Stats" "$($_.Name)_$($_.Algo)_HashRate.txt"
+	       $PowerFilePath = Join-Path ".\Stats" "$($_.Name)_$($_.Algo)_Power.txt"
          $NewHashrateFilePath = Join-Path ".\Backup" "$($_.Name)_$($_.Algo)_HashRate.txt"
+         $NewPowerFilePath = Join-Path ".\Backup" "$($_.Name)_$($_.Algo)_Power.txt"
          if($null -eq $Miner_HashRates -or $Miner_HashRates -eq 0)
           {
            $_.Timeout++
@@ -1515,8 +1625,15 @@ if($_.BestMiner -eq $true)
            Start-Sleep -S .25
           }
          else
-          {            
-           $Stat = Set-Stat -Name "$($_.Name)_$($_.Algo)_HashRate" -Value $Miner_HashRates
+          {
+           if(Test-Path ".\Build\PowerUp.txt")
+            {
+             if($($_.Devices) -ne $null){$GPUPower = Set-Power -PwrDevices $($_.Devices)}
+             else{$GPUPower = Set-Power -PwrCount $GPU_Count}
+            }
+           else{$GPUPower = 1}
+           $Power = Set-Stat -Name "$($_.Name)_$($_.Algo)_Power" -Value $GPUPower
+           if($Watt0Meter -eq "Yes"){$Stat = Set-Stat -Name "$($_.Name)_$($_.Algo)_HashRate" -Value $Miner_HashRates}
            Start-Sleep -s 1
            $GetLiveStat = Get-Stat "$($_.Name)_$($_.Algo)_HashRate"
            $StatCheck = "$($GetLiveStat.Live)"
@@ -1524,14 +1641,17 @@ if($_.BestMiner -eq $true)
            if($ScreenCheck -eq "0.00 PH" -or $null -eq $StatCheck)
             {
              $_.Timeout++
+             $_.WasBenchmarked = $False
              Write-Host "Stat Failed Write To File" -Foregroundcolor Red
             }
            else
             {
              Write-Host "Recorded Hashrate For $($_.Name) $($_.Coins) Is $($ScreenCheck)" -foregroundcolor "magenta"
+             if($WattOmeter -eq "Yes"){Write-Host "Watt-O-Meter scored $($_.Name) $($_.Coins) at $($GPUPower) Watts" -ForegroundColor magenta}
              if(-not (Test-Path $NewHashrateFilePath))
               {
-		           Copy-Item $HashrateFilePath -Destination $NewHashrateFilePath -force
+               Copy-Item $HashrateFilePath -Destination $NewHashrateFilePath -force
+               Copy-Item $PowerFilePath -Destination $NewPowerFilePath -force
                Write-Host "$($_.Name) $($_.Coins) Was Benchmarked And Backed Up" -foregroundcolor yellow
               }
              $_.New = $False
@@ -1561,7 +1681,7 @@ if($_.Timeout -gt 2 -or $null -eq $_.XProcess -or $_.XProcess.HasExited)
     $_.New = $False
     $_.Timeout = 0
     Write-Host "$($_.Name) $($_.Coins) Hashrate Check Timed Out $($_.Bad_Benchmark) Times- It Was Noted In Timeout Folder" -foregroundcolor "darkred"
-    if($_.Bad_Benchmark -eq 3 -or $_.Bad_Benchmark -gt 3)
+    if($_.Bad_Benchmark -ge 3)
      {
       $Stat = Set-Stat -Name "$($_.Name)_$($_.Algo)_HashRate" -Value 0
       Write-Host "Benchmarking Has Failed - Setting Stat To 0. Delete Stat In Stats Folder To Reset" -ForegroundColor DarkRed
@@ -1571,7 +1691,6 @@ if($_.Timeout -gt 2 -or $null -eq $_.XProcess -or $_.XProcess.HasExited)
   }
  }
 }
- 
   #Stop the log
   Stop-Transcript
   Get-Date | Out-File ".\Build\Data\TimeTable.txt"

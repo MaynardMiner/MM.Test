@@ -360,7 +360,7 @@ function Get-HashRate {
                     if(-not $Safe){break}
 
                     Start-sleep $Interval
-                } while($HashRates.Count -lt 6)
+                } while($HashRates.Count -lt 2)
             }
             "ccminer"
             {
@@ -387,7 +387,7 @@ function Get-HashRate {
                     if(-not $Safe){break}
 
                     Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
+                } while($HashRates.Count -lt 2)
             }
             "nicehashequihash"
             {
@@ -416,7 +416,7 @@ function Get-HashRate {
                     if(-not $Safe){break}
 
                     Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
+                } while($HashRates.Count -lt 2)
             }
             "nicehash"
             {
@@ -443,7 +443,7 @@ function Get-HashRate {
                     if(-not $Safe){break}
 
                     Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
+                } while($HashRates.Count -lt 2)
             }
             "ewbf"
             {
@@ -470,7 +470,7 @@ function Get-HashRate {
                     if(-not $Safe){break}
 
                     Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
+                } while($HashRates.Count -lt 2)
             }
           "claymore"
             {
@@ -487,7 +487,7 @@ function Get-HashRate {
                     if(-not $Safe){break}
 
 		    Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
+                } while($HashRates.Count -lt 2)
             }
             "dstm" {
                 $Message = "summary"
@@ -514,31 +514,9 @@ function Get-HashRate {
                     if (-not $Safe) {break}
 
                     Start-Sleep $Interval
-                } while ($HashRates.Count -lt 6)
+                } while ($HashRates.Count -lt 2)
               }
-              
-            "fireice"
-            {
-                do
-                {
-                    $Request = Invoke-WebRequest "http://$($Server):$Port/h" -UseBasicParsing
-
-                    $Data = $Request.Content -split "</tr>" -match "total*" -split "<td>" -replace "<[^>]*>",""
-
-                    $HashRate = $Data[1]
-                    if($HashRate -eq ""){$HashRate = $Data[2]}
-                    if($HashRate -eq ""){$HashRate = $Data[3]}
-
-                    if($HashRate -eq $null){$HashRates = @(); break}
-
-                    $HashRates += [Double]$HashRate
-
-                    if(-not $Safe){break}
-
-                    Start-Sleep $Interval
-               } while($HashRates.Count -lt 6)
-            }
-            "wrapper"
+        "wrapper"
             {
                 do
                 {
@@ -552,7 +530,7 @@ function Get-HashRate {
                     if(-not $Safe){break}
 
 		   Start-Sleep $Interval
-                } while($HashRates.Count -lt 6)
+                } while($HashRates.Count -lt 2)
             }
             "tdxminer"
              {
@@ -568,7 +546,7 @@ function Get-HashRate {
                 Start-Sleep $Interval
                 }
 
-                } while($HashRates.Count -lt 6)
+                } while($HashRates.Count -lt 2)
                 Clear-Content ".\Build\Unix\Hive\logstats.sh"
              }
              "lyclminer"
@@ -585,10 +563,10 @@ function Get-HashRate {
                 Start-Sleep $Interval
                 }
 
-                } while($HashRates.Count -lt 6)
+                } while($HashRates.Count -lt 2)
                 Clear-Content ".\Build\Unix\Hive\logstats.sh"
              }
-            "cpulog"
+             "cpulog"
              {
               $Hashrate = 0
               if(Test-Path ".\Logs\CPU.log")
@@ -610,8 +588,46 @@ function Get-HashRate {
                 $HashRates += [Double]$HashRate
                 }
                 else{$HashRates = @(); break}
-             }
-        }
+              }                 
+             "lolminer" {
+                do {
+                    $Client = New-Object System.Net.Sockets.TcpClient $server, $port
+                    $Writer = New-Object System.IO.StreamWriter $Client.GetStream()
+                    $Reader = New-Object System.IO.StreamReader $Client.GetStream()
+                    $Writer.AutoFlush = $true
+                    $Request = $Reader.ReadToEnd()
+
+                    $Data = $Request | ConvertFrom-Json
+
+                    $HashRate = [Double]$Data."TotalSpeed(10s)"
+                    if ($HashRate -eq $null) {$HashRates = @(); break}
+                    
+                    $HashRates += [Double]$HashRate
+                    
+                    if (-not $Safe) {break}
+
+                    Start-Sleep $Interval
+                } while ($HashRates.Count -lt 2)
+              }
+            
+          "xmrstak" {
+                  do {
+                   $Request="/api.json"
+                   $Reader = Invoke-WebRequest "http://$($server):$($port)$($Request)" -UseBasicParsing -TimeoutSec 2
+                   if ($Reader -ne "") {
+                        $Data = $Reader.Content | ConvertFrom-Json
+                        $HashRate = [Double]$Data.hashrate.total[0]
+                    }
+
+                    $HashRates += [Double]$HashRate
+
+                    if (-not $Safe) {break}
+
+                    Start-Sleep $Interval
+                   } while ($HashRates.Count -lt 2)
+  
+                  }
+                }
 
         $HashRates_Info = $HashRates | Measure-Object -Maximum -Minimum -Average
         if($HashRates_Info.Maximum-$HashRates_Info.Minimum -le $HashRates_Info.Average*$Delta){$HashRates_Info.Maximum}
@@ -975,17 +991,14 @@ if($BuildPath -eq "tar")
     
     Start-Process -Filepath "wget" -ArgumentList "$Uri -O x64/$DownloadFileURI" -Wait
     if(Test-Path $NewTargzPath){Remove-Item $NewTargzPath -recurse}
-    $Path_New = $Path
+    $Path_New = Join-Path ".\Bin" (Split-Path $Path -Leaf)
     
     Set-Location ".\x64"
     Start-Process "tar" -ArgumentList "-xzvf $DownloadFileURI" -Wait
     Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
-    
     if(Test-Path $Path_New){Remove-Item $Path_New -Recurse -Force; Start-Sleep -S 1}
-    
-    $FileItems = Get-ChildItem $TargzPath -Recurse
-    New-Item $Path_New -ItemType Directory
-    $FileItems | Move-Item -Destination $Path_New
+    Copy-Item $TargzPath -Destination ".\Bin" -Recurse
+    Rename-Item $NewTargzPath (Split-Path $Path_New -Leaf)
     Remove-Item $TargzPath -Recurse -Force
 
     if($MineName -eq "lyclMiner")
@@ -1013,7 +1026,7 @@ if($BuildPath -eq "tar")
         [String]$Coin
     )
 
-    $Coins = Get-Content ".\Config\get-nvidia.txt" | ConvertFrom-Json
+    $Coins = Get-Content ".\Config\Naming\get-nvidia.txt" | ConvertFrom-Json
 
     $Coin = (Get-Culture).TextInfo.ToTitleCase(($Coin -replace "_"," ")) -replace " "
 
@@ -1027,7 +1040,7 @@ function Get-AMD {
         [String]$Coin
     )
 
-    $Coins = Get-Content ".\Config\get-amd.txt" | ConvertFrom-Json
+    $Coins = Get-Content ".\Config\Naming\get-amd.txt" | ConvertFrom-Json
 
     $Coin = (Get-Culture).TextInfo.ToTitleCase(($Coin -replace "_"," ")) -replace " "
 
@@ -1041,7 +1054,7 @@ function Get-Algorithm {
         [String]$Algorithm
     )
 
-    $Algorithms = Get-Content ".\Config\get-pool.txt" | ConvertFrom-Json
+    $Algorithms = Get-Content ".\Config\Naming\get-pool.txt" | ConvertFrom-Json
 
     $Algorithm = (Get-Culture).TextInfo.ToTitleCase(($Algorithm -replace "_"," ")) -replace " "
 
@@ -1076,7 +1089,7 @@ function Convert-DateString ([string]$Date, [string[]]$Format)
         Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
     
         $AlgorithmList = @()
-        $GetAlgorithms = Get-Content ".\Config\get-pool.txt" | ConvertFrom-Json
+        $GetAlgorithms = Get-Content ".\Config\Naming\get-pool.txt" | ConvertFrom-Json
         $PoolAlgorithms = @()
         $GetAlgorithms | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {
          $PoolAlgorithms += $_

@@ -36,28 +36,63 @@ if($CudaVersion -eq "9.1"){$miner_update_nvidia = Get-Content ".\Config\Update\n
 if($CudaVersion -eq "9.2"){$miner_update_nvidia = Get-Content ".\Config\Update\nvidia9.2-linux.conf" | ConvertFrom-Json}
 $miner_update_amd = Get-Content ".\Config\Update\amd-linux.conf" | ConvertFrom-Json
 $miner_update_cpu = Get-Content ".\Config\Update\cpu-linux.conf" | ConvertFrom-Json
-$Allupdates = @()
-$Allupdates += $miner_update_nvidia
-$Allupdates += $miner_update_amd
-$Allupdates += $miner_update_cpu
 
 $nvidia = [PSCustomObject]@{}
 $amd = [PSCustomObject]@{}
 $cpu = [PSCustomObject]@{}
 
-$miner_update_nvidia | foreach {
-$nvidia | Add-Member $_.Name $_
+$miner_update_nvidia | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {$nvidia | Add-Member $miner_update_nvidia.$_.Name $miner_update_nvidia.$_}
+$miner_update_amd | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {$amd | Add-Member $miner_update_amd.$_.Name $miner_update_amd.$_}
+$miner_update_cpu | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {$cpu | Add-Member $miner_update_cpu.$_.Name $miner_update_cpu.$_}
+
+$nvidiatable = @()
+$amdtable = @()
+$cputable = @()
+
+$nvidia | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {
+    $nvidiatable += [PSCustomObject]@{
+     Name = $nvidia.$_.Name
+     Type = $nvidia.$_.Type
+     MinerName = $nvidia.$_.MinerName
+     Version = $nvidia.$_.version
+    }
 }
-$miner_update_amd | foreach {
-$amd | Add-Member $_.Name $_
+
+$amd | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {
+    $amdtable += [PSCustomObject]@{
+     Name = $amd.$_.Name
+     Type = $amd.$_.Type
+     MinerName = $amd.$_.MinerName
+     Version = $amd.$_.version
+    }
 }
-$miner_update_cpu | foreach {
-$cpu | Add-Member $_.Name $_
+
+$cpu | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {
+    $cputable += [PSCustomObject]@{
+     Name = $cpu.$_.Name
+     Type = $cpu.$_.Type
+     MinerName = $cpu.$_.MinerName
+     Version = $cpu.$_.version
+    }
 }
+
+
 
 if($Command -eq "!query")
  {
-    $Allupdates | Sort-Object -Property Type,Name  | Format-Table (
+    $nvidiatable | Sort-Object -Property Type,Name | Format-Table (
+        @{Label = "Name"; Expression={$($_.Name)}},
+        @{Label = "Type"; Expression={$($_.Type)}},
+        @{Label = "Executable"; Expression={$($_.MinerName)}},
+        @{Label = "Version"; Expression={$($_.Version)}}
+    ) | Out-Host
+    $amdtable | Sort-Object -Property Type,Name | Format-Table (
+        @{Label = "Name"; Expression={$($_.Name)}},
+        @{Label = "Type"; Expression={$($_.Type)}},
+        @{Label = "Executable"; Expression={$($_.MinerName)}},
+        @{Label = "Version"; Expression={$($_.Version)}}
+    ) | Out-Host
+    $cputable | Sort-Object -Property Type,Name | Format-Table (
         @{Label = "Name"; Expression={$($_.Name)}},
         @{Label = "Type"; Expression={$($_.Type)}},
         @{Label = "Executable"; Expression={$($_.MinerName)}},
@@ -68,9 +103,9 @@ if($Command -eq "!query")
 if($Command -eq "!update")
  {
     $Name = $Name -replace ("!","")
-    Write-Host "Stopping Miner & Waiting Three Seconds"
+    Write-Host "Stopping Miner & Waiting 5 Seconds"
     miner stop
-    Start-Sleep -S 3
+    Start-Sleep -S 5
     $newEXE = $EXE -replace("!","")
     $newVersion = $Version -replace("!","")
     $newURI = $uri -replace("!","")
@@ -88,7 +123,8 @@ if($Command -eq "!update")
        Write-Host "$Name new uri is $newuri"
        Write-Host "$Name new version is $newversion"
        if(Test-Path ".\Bin\*$Name*"){Remove-Item ".\Bin\*$Name*" -Recurse -Force}
-       $nvidiaupdate = $true
+       if($CudaVersion -eq "9.1"){$nvidia | ConvertTo-Json | Set-Content ".\Config\Update\nvidia9.1-linux.conf" -Force}
+       if($CudaVersion -eq "9.2"){$nvidia | ConvertTo-Json | Set-Content ".\Config\Update\nvidia9.2-linux.conf" -Force}
       }
      }
 
@@ -110,6 +146,7 @@ if($Command -eq "!update")
        Write-Host "$Name new version is $newversion"
        if(Test-Path ".\Bin\*$Name*"){Remove-Item ".\Bin\*$Name*" -Recurse -Force}
        $amdupdate = $true
+       $amd | ConvertTo-Json | Set-Content ".\Config\Update\amd-linux.conf" -Force
       }
     }
 
@@ -130,6 +167,7 @@ if($Command -eq "!update")
        Write-Host "$Name new uri is $newuri"
        Write-Host "$Name new version is $newversion"
        if(Test-Path ".\Bin\*$Name*"){Remove-Item ".\Bin\*$cpu*" -Recurse -Force}
+       $cpu | ConvertTo-Json | Set-Content ".\Config\Update\cpu-linux.conf" -Force
        $cpuupdate = $true
       }
     }

@@ -22,11 +22,11 @@ if($GPUDevices2 -ne '')
     if($CoinAlgo -eq $null)
     {
      $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name | ForEach-Object {
-     if($Algorithm -eq "$($AlgoPools.$_.Algorithm)")
+      if($Algorithm -eq "$($AlgoPools.$_.Algorithm)")
       {
-       [PSCustomObject]@{
+        [PSCustomObject]@{
          Platform = $Platform
-       Symbol = "$($_)"
+          Symbol = "$($_)"
        MinerName = $MinerName
                Type = "NVIDIA2"
                Path = $Path
@@ -35,7 +35,7 @@ if($GPUDevices2 -ne '')
                DeviceCall = "dstm"
                Arguments = "--server $($AlgoPools.$_.Host) --port $($AlgoPools.$_.Port) --user $($AlgoPools.$_.User2) --pass $($AlgoPools.$_.Pass2) --telemetry=0.0.0.0:43001 $($Commands.$_)"
                HashRates = [PSCustomObject]@{$_ = $Stats."$($Name)_$($_)_HashRate".Day}
-               Selected = [PSCustomObject]@{$_ = ""}
+               PowerX = [PSCustomObject]@{$_ = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($_)_Power".Day)}elseif($Watts.$($_).NVIDIA2_Watts){$Watts.$($_).NVIDIA2_Watts}elseif($Watts.default.NVIDIA2_Watts){$Watts.default.NVIDIA2_Watts}else{0}}
                FullName = "$($AlgoPools.$_.Mining)"
                API = "DSTM"
                Port = 43001
@@ -44,7 +44,6 @@ if($GPUDevices2 -ne '')
                URI = $Uri
                BUILD = $Build
              Algo = "$($_)"
-             NewAlgo = ''
              }
            }
          }
@@ -64,7 +63,7 @@ else{
             Arguments = "--server $($CoinPools.$_.Host) --port $($CoinPools.$_.Port) --user $($CoinPools.$_.User2) --pass $($CoinPools.$_.Pass2) --telemetry=0.0.0.0:43001 $($Commands.$($CoinPools.$_.Algorithm))"
             HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $Stats."$($Name)_$($CoinPools.$_.Algorithm)_HashRate".Day}
             API = "DSTM"
-            Selected = [PSCustomObject]@{$($CoinPools.$_.Algorithm) = ""}
+            PowerX = [PSCustomObject]@{$CoinPools.$_.Symbol = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($CoinPools.$_.Algorithm)_Power".Day)}elseif($Watts.$($_).NVIDIA2_Watts){$Watts.$($_).NVIDIA2_Watts}elseif($Watts.default.NVIDIA2_Watts){$Watts.default.NVIDIA2_Watts}else{0}}
             FullName = "$($CoinPools.$_.Mining)"
             MinerPool = "$($CoinPools.$_.Name)"
             Port = 43001
@@ -74,5 +73,4 @@ else{
             Algo = "$($CoinPools.$_.Algorithm)"
             }
            }
-          }
-   
+          }   

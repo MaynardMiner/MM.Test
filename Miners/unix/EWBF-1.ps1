@@ -24,13 +24,12 @@ $Commands = [PSCustomObject]@{
 
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName
 
-
 if($CoinAlgo -eq $null)
 {
 $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name | ForEach-Object {
   if($Algorithm -eq "$($AlgoPools.$_.Algorithm)")
   {
-    [PSCustomObject]@{
+      [PSCustomObject]@{
       Platform = $Platform
       Symbol = "$($_)"
       MinerName = $MinerName
@@ -40,7 +39,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
       DeviceCall = "ewbf"
       Arguments = "--api 0.0.0.0:42000 --server $($AlgoPools.$_.Host) --port $($AlgoPools.$_.Port) --user $($AlgoPools.$_.User1) --pass $($AlgoPools.$_.Pass1) $($Commands.$_)"
       HashRates = [PSCustomObject]@{$_ = $Stats."$($Name)_$($_)_HashRate".Day}
-      Selected = [PSCustomObject]@{$_ = ""}
+      PowerX = [PSCustomObject]@{$_ = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($_)_Power".Day)}elseif($Watts.$($_).NVIDIA1_Watts){$Watts.$($_).NVIDIA1_Watts}elseif($Watts.default.NVIDIA1_Watts){$Watts.default.NVIDIA1_Watts}else{0}}
       MinerPool = "$($AlgoPools.$_.Name)"
       FullName = "$($AlgoPools.$_.Mining)"
       API = "EWBF"
@@ -57,7 +56,7 @@ else{
   $CoinPools | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name |
   Where {$($Commands.$($CoinPools.$_.Algorithm)) -NE $null} |
   foreach {
-         [PSCustomObject]@{
+   [PSCustomObject]@{
           Platform = $Platform
           Symbol = "$($Coinpools.$_.Symbol)"
           MinerName = $MinerName
@@ -67,7 +66,7 @@ else{
            DeviceCall = "ewbf"
            Arguments = "--api 0.0.0.0:42000 --server $($CoinPools.$_.Host) --port $($CoinPools.$_.Port) --user $($CoinPools.$_.User1) --pass $($CoinPools.$_.Pass1) $($Commands.$($CoinPools.$_.Algorithm))"
            HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $Stats."$($Name)_$($CoinPools.$_.Algorithm)_HashRate".Day}
-           Selected = [PSCustomObject]@{$CoinPools.$_.Algorithm = ""}
+           PowerX = [PSCustomObject]@{$CoinPools.$_.Symbol = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($CoinPools.$_.Algorithm)_Power".Day)}elseif($Watts.$($_).NVIDIA1_Watts){$Watts.$($_).NVIDIA1_Watts}elseif($Watts.default.NVIDIA1_Watts){$Watts.default.NVIDIA1_Watts}else{0}}
            FullName = "$($CoinPools.$_.Mining)"
            API = "EWBF"
            MinerPool = "$($CoinPools.$_.Name)"
@@ -79,5 +78,5 @@ else{
            }
           }
          }
-      
+
         

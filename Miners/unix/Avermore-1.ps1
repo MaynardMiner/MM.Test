@@ -38,7 +38,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
     DeviceCall = "sgminer-gm"
     Arguments = "--api-listen --api-port 4028 -k $(Get-AMD($_)) -o stratum+tcp://$($AlgoPools.$_.Host):$($AlgoPools.$_.Port) -u $($AlgoPools.$_.User1) -p $($AlgoPools.$_.Pass1) -T $($Commands.$_)"
     HashRates = [PSCustomObject]@{$_ = $Stats."$($Name)_$($_)_HashRate".Day}
-    Selected = [PSCustomObject]@{$_ = ""}
+    PowerX = [PSCustomObject]@{$_ = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($_)_Power".Day)}elseif($Watts.$($_).AMD1_Watts){$Watts.$($_).AMD1_Watts}elseif($Watts.default.AMD1_Watts){$Watts.default.AMD1_Watts}else{0}}
     MinerPool = "$($AlgoPools.$_.Name)"
     FullName = "$($AlgoPools.$_.Mining)"
     Port = 4028
@@ -64,12 +64,12 @@ else{
    Path = $Path
    Devices = $Devices
    DeviceCall = "sgminer-gm"
-   Arguments = "--api-listen --api-port 4028 -k $(Get-AMD($CoinPools.$_.Algorithm)) -o stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port) -u $($CoinPools.$_.User1) -p $($CoinPools.$_.Pass1) -T $($CoinPools.$Commands.$($CoinPools.$_.Algorithm))"
+   Arguments = "--api-listen --api-port 4028 -k $(Get-AMD($CoinPools.$_.Algorithm)) -o stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port) -u $($CoinPools.$_.User1) -p $($CoinPools.$_.Pass1) -T $($Commands.$($CoinPools.$_.Algorithm))"
    HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $Stats."$($Name)_$($CoinPools.$_.Algorithm)_HashRate".Day}
    API = "sgminer-gm"
-   Selected = [PSCustomObject]@{$CoinPools.$_.Algorithm = ""}
+   PowerX = [PSCustomObject]@{$CoinPools.$_.Symbol = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($CoinPools.$_.Algorithm)_Power".Day)}elseif($Watts.$($_).AMD1_Watts){$Watts.$($_).AMD1_Watts}elseif($Watts.default.AMD1_Watts){$Watts.default.AMD1_Watts}else{0}}
    FullName = "$($CoinPools.$_.Mining)"
-  MinerPool = "$($CoinPools.$_.Name)"
+   MinerPool = "$($CoinPools.$_.Name)"
    Port = 4028
    Wrap = $false
    URI = $Uri
