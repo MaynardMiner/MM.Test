@@ -105,7 +105,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
       Config = "$_.json"
       Arguments = "-pool=$($AlgoPools.$_.Host) -port=$($AlgoPools.$_.Port) -user=$($AlgoPools.$_.User2) -pass=$($AlgoPools.$_.Pass2)"
       HashRates = [PSCustomObject]@{$_ = $Stats."$($Name)_$($_)_HashRate".Day}
-      Watts = [PSCustomObject]@{$_ = $MinerWatts}
+      PowerX = [PSCustomObject]@{$CoinPools.$_.Symbol = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($CoinPools.$_.Algorithm)_Power".Day)}elseif($Watts.$($CoinPools.$_.Algorithm).NVIDIA2_Watts){$Watts.$($CoinPools.$_.Algorithm).NVIDIA2_Watts}elseif($Watts.default.NVIDIA2_Watts){$Watts.default.NVIDIA2_Watts}else{0}}
       MinerPool = "$($AlgoPools.$_.Name)"
       FullName = "$($AlgoPools.$_.Mining)"
       API = "lolminer"
@@ -142,7 +142,7 @@ else{
            Config = "$($CoinPools.$_.Symbol).json"
            Arguments = "-pool=$($CoinPools.$_.Host) -port=$($CoinPools.$_.Port) -user=$($CoinPools.$_.User2) -pass=$($CoinPools.$_.Pass2)"
            HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $Stats."$($Name)_$($CoinPools.$_.Algorithm)_HashRate".Day}
-           Watts = [PSCustomObject]@{$CoinPools.$_.Symbol = $MinerWatts}
+           PowerX = [PSCustomObject]@{$CoinPools.$_.Symbol = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($CoinPools.$_.Algorithm)_Power".Day)}elseif($Watts.$($_).NVIDIA2_Watts){$Watts.$($_).NVIDIA2_Watts}elseif($Watts.default.NVIDIA2_Watts){$Watts.default.NVIDIA2_Watts}else{0}}
            FullName = "$($CoinPools.$_.Mining)"
            API = "lolminer"
            MinerPool = "$($CoinPools.$_.Name)"

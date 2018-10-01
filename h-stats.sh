@@ -170,7 +170,16 @@ function miner_stats {
 					--arg ac "$ac" --arg rj "$rj" \
 					--arg algo "$algo" \
 					'{$hs, $hs_units, $temp, $fan, $uptime, ar: [$ac, $rj], $algo}')
-			;;		
+			;;
+		wildrig)
+		stats_raw=`curl --connect-timeout 2 --max-time 5 --silent --noproxy '*' http://127.0.0.1:60050`
+		mkhs=`echo $stats_raw | jq -r '.hashrate.total[0]'`
+		khs=$(($mkhs/1000))
+		local temp=$Atemp
+		local fan=$Afan
+
+        stats=`echo $stats_raw | jq '{hs: [.hashrate.threads[][0]], hs_units: "hs", temp: '$temp', fan: '$fan', uptime: .uptime, ar: [.results.shares_good, .results.shares_total - .results.shares_good], algo: .algo}'`
+		;;
 		claymore)
 			stats_raw=`echo '{"id":0,"jsonrpc":"2.0","method":"miner_getstat2"}' | nc -w $API_TIMEOUT localhost $myport | jq '.result'`
 			if [[ $? -ne 0  || -z $stats_raw ]]; then

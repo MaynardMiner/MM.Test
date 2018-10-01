@@ -627,6 +627,25 @@ function Get-HashRate {
                    } while ($HashRates.Count -lt 2)
   
                   }
+
+         "wildrig" {
+            do {
+                $Request="/api.json"
+                $Reader = Invoke-WebRequest "http://$($server):$($port)$($Request)" -UseBasicParsing -TimeoutSec 2
+                if ($Reader -ne "") {
+                     $Data = $Reader.Content | ConvertFrom-Json
+                     $HashRate = [Double]$Data.hashrate.total[0]
+                 }
+
+                 $HashRates += [Double]$HashRate
+
+                 if (-not $Safe) {break}
+
+                 Start-Sleep $Interval
+                } while ($HashRates.Count -lt 2)
+
+               }
+               
                 }
 
         $HashRates_Info = $HashRates | Measure-Object -Maximum -Minimum -Average

@@ -22,7 +22,7 @@ param(
     [Parameter(Mandatory=$false)]
     [String]$Wallet3 = '', ##Group 3 Wallet
     [Parameter(Mandatory=$false)]
-    [String]$CPUWallet = '', ##CPU Wallet
+    [String]$CPUWallet = '1DRxiWx6yuZfN9hrEJa3BDXWVJ9yyJU36i', ##CPU Wallet
     [Parameter(Mandatory=$false)]
     [String]$ZergpoolWallet1 = '', ##Group 1 Zergpool Wallet
     [Parameter(Mandatory=$false)]
@@ -72,7 +72,7 @@ param(
     [Parameter(Mandatory=$false)]
     [String]$MPHLocation = "US", #europe/us/asia 
     [Parameter(Mandatory=$false)]
-    [Array]$Type = ("NVIDIA1"), #AMD/NVIDIA/CPU
+    [Array]$Type = ("AMD1","CPU"), #AMD/NVIDIA/CPU
     [Parameter(Mandatory=$false)]
     [String]$CCDevices1, ##Group 1 ccminer gpus
     [Parameter(Mandatory=$false)] 
@@ -180,7 +180,7 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$Platform = "linux",
     [Parameter(Mandatory=$false)]
-    [int]$CPUThreads = $null,
+    [int]$CPUThreads = 3,
     [Parameter(Mandatory=$false)]
     [string]$Stat_Coin = "Live",
     [Parameter(Mandatory=$false)]
@@ -196,7 +196,7 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$Power = "Yes",
     [Parameter(Mandatory=$false)]
-    [string]$WattOMeter = "No"
+    [string]$WattOMeter = "Yes"
 )
 
 #SetLocation & Load Script Files
@@ -350,7 +350,10 @@ if($Proxy -eq ""){$PSDefaultParameterValues.Remove("*:Proxy")}
 else{$PSDefaultParameterValues["*:Proxy"] = $Proxy}
 
 ##Check for libc 
-if($HiveOS -eq "Yes"){Start-Process ".\Build\Unix\Hive\libc.sh" -wait}
+if($HiveOS -eq "Yes"){
+Start-Process ".\Build\Unix\Hive\libc.sh" -wait
+Start-Process ".\Build\Unix\Hive\libv.sh" -wait
+}
 
 ##Restart Agent
 if($HiveOS -eq "Yes")
@@ -385,6 +388,7 @@ if($CPUOnly -eq "Yes"){$GPU_Count = $CPUThreads}
 $Count = @()
 for($i=0; $i -lt $GPU_Count; $i++){[string]$Count += "$i,"}
 Write-Host "Device Count = $GPU_Count" -foregroundcolor green
+Start-Sleep -S 2
 $LogGPUS = $Count.Substring(0,$Count.Length-1)
 
 ##Reset-Old Stats
@@ -396,22 +400,22 @@ Write-Host "
                                                                       ███████╗██╗    ██╗ █████╗ ██████╗ ███╗   ███╗
                                                                       ██╔════╝██║    ██║██╔══██╗██╔══██╗████╗ ████║
                                                                       ███████╗██║ █╗ ██║███████║██████╔╝██╔████╔██║
-                                                                      ╚════██║██║███╗██║██╔══██║██╔══██╗██║╚██╔╝██║        ^^      .-=-=-=-.  ^^
-                                                                      ███████║╚███╔███╔╝██║  ██║██║  ██║██║ ╚═╝ ██║    ^^       (``=-=-=-=-=-=``)         ^^              
-                                                                      ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝      ^^   (``-=-=-=-=-=-=-=-``)   ^^     ^^
-                                                                             Parental Discretion Is Advised                  ( ``-=-=-=-(@)-=-=-`` )      ^^
-                                                                                  v1.5.2b Unix/HiveOS                        (``-=-=-=-=-=-=-=-=-``)  ^^
-                                                                                                                     ^^      (``-=-=-=-=-=-=-=-=-``)              ^^
-                                                                      GitHub: https://Github.com/MaynardMiner/Swarm     ^^   (``-=-=-=-=-=-=-=-=-``)                      ^^
-                                                                                                                    ^^       (``-=-=-=-=-=-=-=-=-``)  ^^
-                                                                                   SUDO APT-GET LAMBO        ^^   ^^     ^^   (``-=-=-=-=-=-=-=-``)          ^^
-                                                                     .h+.                                      .+h.   ^^       (``-=-=-=-=-=-=-``)  ^^                 ^^               
-                                                                     +MMd+.                    ^^      ^^    .+dMM+    ^^       (``-=-=-=-=-=-``)  ^^                 ^^                   
-                                                                    +sNMMMMd+.                     ^^     .+dMMMMNs+             (``-=-=-=-=-``) 
-                      `"This is my Hell.`"                            .dMMMMMMMh+.                       .+hMMMMMMMMd.     ^^       ``-=-=-=-=-``
+                                                                      ╚════██║██║███╗██║██╔══██║██╔══██╗██║╚██╔╝██║        
+                                                                      ███████║╚███╔███╔╝██║  ██║██║  ██║██║ ╚═╝ ██║              
+                                                                      ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝ 
+                                                                             Parental Discretion Is Advised 
+                                                                                  v1.5.2b Unix/HiveOS        
+                                                                                                                    
+                                                                      GitHub: https://Github.com/MaynardMiner/Swarm      
+                                                                                                                    
+                                                                                   SUDO APT-GET LAMBO 
+                                                                     .h+.                                      .+h.             
+                                                                     +MMd+.                                  .+dMM+ 
+                                                                    +sNMMMMd+.                            .+dMMMMNs+
+                      `"This is my Hell.`"                            .dMMMMMMMh+.                       .+hMMMMMMMMd.
                     Caeser Vitus Aurelius                           .mMMMMMMMMMNy:.  -+:        :+-  .:yNMMMMMMMMMm.
-                            VITO                                     -mMMMMMMMMMMMms-  omhdmmdhmo  -smMMMMMMMMMMMm-      ^^
-                   http://vitosminions.com/                           -mMMMMMMMMMMMMMd+mMMMMMMMMm+dMMMMMMMMMMMMMm-  ^^
+                            VITO                                     -mMMMMMMMMMMMms-  omhdmmdhmo  -smMMMMMMMMMMMm- 
+                   http://vitosminions.com/                           -mMMMMMMMMMMMMMd+mMMMMMMMMm+dMMMMMMMMMMMMMm-
                                                                        \omNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMNmo/
                                                                                        MMMMMMMMMM
                                                                               -oooo+++//MMMMMMMM\\+++oooo-
@@ -725,11 +729,15 @@ $AlgoMiners | ForEach {
        $AlgoMiner_Indexes = $AlgoMiner.Index | Select -Unique
 
        $AlgoMiner.HashRates | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | ForEach {
+       if($AlgoMiner.PowerX.$_ -ne $null)
+        {
        $Day = 24
        $Kilo = 1000
        $WattCalc1 = (([Decimal]$AlgoMiner.PowerX.$_)*$Day)
        $WattCalc2 = [Decimal]$WattCalc1/$Kilo
        $WattCalc3 = [Decimal]$WattCalc2*$WattEX
+        }
+       else{$WattCalc3 = 0}
        $AlgoMiner_HashRates | Add-Member $_ ([Double]$AlgoMiner.HashRates.$_)
        $AlgoMiner_PowerX | Add-Member $_ ([Double]$AlgoMiner.PowerX.$_)
        $AlgoMiner_Pools | Add-Member $_ ([PSCustomObject]$AlgoPools.$_)
@@ -863,11 +871,15 @@ if($CoinMiners -ne $null)
   $CoinMiner_Indexes = $CoinMiner.Index | Select -Unique
 
   $CoinMiner.HashRates | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | ForEach {
-    $Day = 24
-    $Kilo = 1000
-    $WattCalc1 = (([Decimal]$CoinMiner.PowerX.$_)*$Day)
-    $WattCalc2 = [Decimal]$WattCalc1/$Kilo
-    $WattCalc3 = [Decimal]$WattCalc2*$WattEX
+    if($AlgoMiner.PowerX.$_ -ne $null)
+    {
+   $Day = 24
+   $Kilo = 1000
+   $WattCalc1 = (([Decimal]$CoinMiner.PowerX.$_)*$Day)
+   $WattCalc2 = [Decimal]$WattCalc1/$Kilo
+   $WattCalc3 = [Decimal]$WattCalc2*$WattEX
+    }
+   else{$WattCalc3 = 0}  
   $CoinMiner_HashRates | Add-Member $_ ([Double]$CoinMiner.HashRates.$_)
   $CoinMiner_PowerX | Add-Member $_ ([Double]$CoinMiner.PowerX.$_)
   $CoinMiner_Pools | Add-Member $_ ([PSCustomObject]$CoinPools.$_)
@@ -1277,7 +1289,7 @@ function Get-MinerStatus {
 	      $H = [string]$Currency
       	$J = [string]'BTC'
         $BTCExchangeRate = Invoke-WebRequest "https://min-api.cryptocompare.com/data/pricemulti?fsyms=$Y&tsyms=$J" -UseBasicParsing | ConvertFrom-Json | Select-Object -ExpandProperty $Y | Select-Object -ExpandProperty $J
-        $ProfitTable | Where {$_.Profits -ge 1E-5 -or $null -eq $_.Profits} | Sort-Object -Property Type,Profits -Descending | Format-Table -GroupBy Type (
+        $ProfitTable | Sort-Object -Property Type,Profits -Descending | Format-Table -GroupBy Type (
         @{Label = "Miner"; Expression={$($_.Miner)}},
         @{Label = "Coin"; Expression={$($_.Name)}},
         @{Label = "Speed"; Expression={$($_.HashRates) | ForEach {if($null -ne $_){"$($_ | ConvertTo-Hash)/s"}else{"Bench"}}}; Align='center'},
@@ -1285,7 +1297,7 @@ function Get-MinerStatus {
         @{Label = "BTC/Day"; Expression={$($_.Profits) | ForEach {if($null -ne $_){  $_.ToString("N5")}else{"Bench"}}}; Align='right'},
         @{Label = "$Y/Day"; Expression={$($_.Profits) | ForEach {if($null -ne $_){  ($_ / $BTCExchangeRate).ToString("N5")}else{"Bench"}}}; Align='right'},
         @{Label = "$Currency/Day"; Expression={$($_.Profits) | ForEach {if($null -ne $_){($_ * $Rates.$Currency).ToString("N2")}else{"Bench"}}}; Align='center'},
-        @{Label = "Pool"; Expression={$($_.MinerPool)}; Align='center'}
+        @{Label = "   Pool"; Expression={$($_.MinerPool)}; Align='center'}
             )
       }
 
@@ -1628,12 +1640,12 @@ if($_.BestMiner -eq $true)
           {
            if(Test-Path ".\Build\PowerUp.txt")
             {
-             if($($_.Devices) -ne $null){$GPUPower = Set-Power -PwrDevices $($_.Devices)}
-             else{$GPUPower = Set-Power -PwrCount $GPU_Count}
+             if($($_.Devices) -ne $null){$GPUPower = Set-Power -PwrDevices $($_.Devices) -PwrType $Type}
+             else{$GPUPower = Set-Power -PwrCount $GPU_Count -PwrType $Type}
             }
            else{$GPUPower = 1}
-           $Power = Set-Stat -Name "$($_.Name)_$($_.Algo)_Power" -Value $GPUPower
-           if($Watt0Meter -eq "Yes"){$Stat = Set-Stat -Name "$($_.Name)_$($_.Algo)_HashRate" -Value $Miner_HashRates}
+           if($WattOMeter -eq "Yes" -and $_.Type -ne "CPU"){$Stat = Set-Stat -Name "$($_.Name)_$($_.Algo)_Power" -Value $GPUPower}
+           $Stat = Set-Stat -Name "$($_.Name)_$($_.Algo)_HashRate" -Value $Miner_HashRates
            Start-Sleep -s 1
            $GetLiveStat = Get-Stat "$($_.Name)_$($_.Algo)_HashRate"
            $StatCheck = "$($GetLiveStat.Live)"
@@ -1651,7 +1663,7 @@ if($_.BestMiner -eq $true)
              if(-not (Test-Path $NewHashrateFilePath))
               {
                Copy-Item $HashrateFilePath -Destination $NewHashrateFilePath -force
-               Copy-Item $PowerFilePath -Destination $NewPowerFilePath -force
+               if($WattOMeter -eq "Yes" -and $_.Type -ne "CPU"){Copy-Item $PowerFilePath -Destination $NewPowerFilePath -force}
                Write-Host "$($_.Name) $($_.Coins) Was Benchmarked And Backed Up" -foregroundcolor yellow
               }
              $_.New = $False

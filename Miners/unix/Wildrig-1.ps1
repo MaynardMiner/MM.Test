@@ -1,7 +1,6 @@
-$Path = "$($amd.lyclminer.path1)"
-$Uri = "$($amd.lyclminer.uri)"
-$MinerName = "$($amd.lyclminer.minername)"
-
+$Path = "$($amd.wildrig.path1)"
+$Uri = "$($amd.wildrig.uri)"
+$MinerName = "$($amd.wildrig.minername)"
 
 $Build = "Tar"
 
@@ -10,20 +9,28 @@ if($GPUDevices1 -ne ''){$Devices = $GPUDevices1}
 
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName
 
-#Algorithms:
-#NeoScrypt
-#Groestl
 
 $Commands = [PSCustomObject]@{
 
-  "lyra2v2" = ''
+    "bcd" = ''
+    "c11" = ''
+    "geek" = ''
+    "hmq1725" = ''
+    "phi" = ''
+    "renesis" = ''
+    "sonoa" = ''
+    "timetravel" = ''
+    "tribus" = ''
+    "x16s" = ''
+    "x16r" = ''
+    "x17" = ''
 
 }
 
 if($CoinAlgo -eq $null)
 {
 $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name | ForEach-Object {
-  if($Algorithm -eq "$($AlgoPools.$_.Algorithm)")
+ if($Algorithm -eq "$($AlgoPools.$_.Algorithm)")
   {
     [PSCustomObject]@{
     Platform = $Platform
@@ -32,17 +39,14 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
     Type = "AMD1"
     Path = $Path
     Devices = $Devices
-    DeviceCall = "lyclminer"
-    Connection = "$($AlgoPools.$_.Host):$($AlgoPools.$_.Port)"
-    Username =  "$($AlgoPools.$_.User1)"
-    Password = "$($AlgoPools.$_.Pass1)"
-    Arguments = "stratum+tcp://$($AlgoPools.$_.Host):$($AlgoPools.$_.Port) $($AlgoPools.$_.User1) $($AlgoPools.$_.Pass1)"
+    DeviceCall = "wildrig"
+    Arguments = "--api-port 60050 --algo $($_) --url stratum+tcp://$($AlgoPools.$_.Host):$($AlgoPools.$_.Port) --user $($AlgoPools.$_.User1) --pass $($AlgoPools.$_.Pass1) $($Commands.$_)"
     HashRates = [PSCustomObject]@{$_ = $Stats."$($Name)_$($_)_HashRate".Day}
     PowerX = [PSCustomObject]@{$_ = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($_)_Power".Day)}elseif($Watts.$($_).AMD1_Watts){$Watts.$($_).AMD1_Watts}elseif($Watts.default.AMD1_Watts){$Watts.default.AMD1_Watts}else{0}}
     MinerPool = "$($AlgoPools.$_.Name)"
     FullName = "$($AlgoPools.$_.Mining)"
-    Port = 0
-    API = "lyclminer"
+    Port = 60050
+    API = "wildrig"
     Wrap = $false
     URI = $Uri
     BUILD = $Build
@@ -63,21 +67,18 @@ else{
    Type = "AMD1"
    Path = $Path
    Devices = $Devices
-   DeviceCall = "lyclminer"
-   Connection = "$($CoinPools.$_.Host):$($CoinPools.$_.Port)"
-   Username = "$($CoinPools.$_.User1)"
-   Password = "$($CoinPools.$_.Pass1)"
-   Arguments = "stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port) $($CoinPools.$_.User1) $($CoinPools.$_.Pass1)"
+   DeviceCall = "wildrig"
+   Arguments = "--api-port 60050 --algo $($CoinPools.$_.Algorithm) --url stratum+tcp://$($CoinPools.$_.Host):$($CoinPools.$_.Port) --user $($CoinPools.$_.User1) --pass $($CoinPools.$_.Pass1) $($Commands.$($CoinPools.$_.Algorithm))"
    HashRates = [PSCustomObject]@{$CoinPools.$_.Symbol= $Stats."$($Name)_$($CoinPools.$_.Algorithm)_HashRate".Day}
-   API = "lyclminer"
+   API = "wildrig"
    PowerX = [PSCustomObject]@{$CoinPools.$_.Symbol = if($WattOMeter -eq "Yes"){$($Stats."$($Name)_$($CoinPools.$_.Algorithm)_Power".Day)}elseif($Watts.$($CoinPools.$_.Algorithm).AMD1_Watts){$Watts.$($CoinPools.$_.Algorithm).AMD1_Watts}elseif($Watts.default.AMD1_Watts){$Watts.default.AMD1_Watts}else{0}}
    FullName = "$($CoinPools.$_.Mining)"
    MinerPool = "$($CoinPools.$_.Name)"
-   Port = 0
+   Port = 60050
    Wrap = $false
    URI = $Uri
    BUILD = $Build
-	 Algo = "$($CoinPools.$_.Algorithm)"
+   Algo = "$($CoinPools.$_.Algorithm)"
    }
   }
  }

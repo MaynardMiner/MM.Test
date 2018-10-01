@@ -1,1 +1,1 @@
-./NVIDIA2-42 -d 3,4,5,7,8,11,12 -a tribus -o stratum+tcp://tribus.mine.blazepool.com:8533 -b 0.0.0.0:4069 -u 1DRxiWx6yuZfN9hrEJa3BDXWVJ9yyJU36i -p c=BTC,ID=MMHash 
+./AMD1-1 -a phi2 -o stratum+tcp://phi2.mine.zergpool.com:8332 -u RKirUe978mBoa2MRWqeMGqDzVAKTafKh8H -p c=RVN,mc=LUX 

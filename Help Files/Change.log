@@ -484,8 +484,27 @@ Disclaimers:
 
 1.5.3b
 
+Remote Updates: Not Safe! Complete fresh install required! All miner files changed!
+This version is Beta- Use with caution
+NOTE: Changed OC-Nvidia.conf for future implementations! Added "Cards"{"Cards":""}
+Nvidia Watt-O-Meter doesn't seem too accurate.
+AMD Watt-O-Meter seems fairly accurate.
+CPU is not working yet! Don't use!
+
 -GetPower.ps1 added
 -Added Watt-O-Meter for Nvidia
+-Added Watt-O-Meter for AMD
+-Argument -WattOMeter "Yes" "No" 
+activates watt detection at benchmark. Not stable for larger rigs!
+-Miner Now Calculates Power
+-power.conf is for manual entries- enter as watts total. Will create helpme soon.
+-if WattOMeter is no: miner will defer to power.conf. It should be okay to leave blank-
+ I reccommend at least setting a default based on your power limit.
 -Fixed T-Rex logdata
 -Added Folders in Config to remove confusion
--
+-Added WildRig for AMD
+-Small bug fixes
+-Gui Changes
+-Added "Watt/Day" to stats
+-Ubuntu is not supported yet- HiveOS only. Will match soon.
+-fixed version command for miner updating.
