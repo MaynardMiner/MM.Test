@@ -14,118 +14,118 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
 $dir = (Split-Path $script:MyInvocation.MyCommand.Path)
+$dir
 
 ##Check for libc
 Start-Process ".\build\bash\libc.sh" -wait
 Start-Process ".\build\bash\libv.sh" -wait
 
-Set-Location ".\build\bash"
-
-if(Test-Path ".\version")
-{
- Copy-Item ".\version" -Destination "/usr/bin" -force | Out-Null
- Set-Location "/usr/bin"
- Start-Process "chmod" -ArgumentList "+x version"
- Set-Location "/"
- Set-Location $dir
-}
-
-if(Test-Path ".\get-oc")
-{
-     Copy-Item ".\get-oc" -Destination "/usr/bin" -force | Out-Null
-     Set-Location "/usr/bin"
-     Start-Process "chmod" -ArgumentList "+x get-oc"
-     Set-Location "/"
-     Set-Location $dir
-}
-
-if(Test-Path ".\benchmark")
-{
-   Copy-Item ".\benchmark" -Destination "/usr/bin" -force | Out-Null
-   Set-Location "/usr/bin"
-   Start-Process "chmod" -ArgumentList "+x benchmark"
-   Set-Location "/"
-   Set-Location $dir
-}
-
-
-if(Test-Path ".\clear_profits")
- {
-  Copy-Item ".\clear_profits" -Destination "/usr/bin" -force | Out-Null
-  Set-Location "/usr/bin"
-  Start-Process "chmod" -ArgumentList "+x clear_profits"
-  Set-Location "/"
-  Set-Location $dir
-}  
-
-    if(Test-Path ".\dir.sh")
-     {
-      Copy-Item ".\dir.sh" -Destination "/usr/bin" -force | Out-Null
-      Set-Location "/usr/bin"
-      Start-Process "chmod" -ArgumentList "+x dir.sh"
-      Set-Location "/"
-      Set-Location $dir
-    }
-
-    if(Test-Path ".\stats")
+    if(Test-Path ".\build\bash\stats")
     {
-         Copy-Item ".\stats" -Destination "/usr/bin" -force | Out-Null
+         Copy-Item ".\build\bash\stats" -Destination "/usr/bin" -force | Out-Null
          Set-Location "/usr/bin"
          Start-Process "chmod" -ArgumentList "+x stats"
          Set-Location "/"
-         Set-Location $dir
-        }
-   
-   if(Test-Path ".\active")
+         Set-Location $Dir     
+    }
+
+    if(Test-Path ".\build\bash\get-oc")
     {
-       Copy-Item ".\active" -Destination "/usr/bin" -force | Out-Null
+         Copy-Item ".\build\bash\get-oc" -Destination "/usr/bin" -force | Out-Null
+         Set-Location "/usr/bin"
+         Start-Process "chmod" -ArgumentList "+x get-oc"
+         Set-Location "/"
+         Set-Location $Dir     
+    }
+   
+   if(Test-Path ".\build\bash\active")
+    {
+       Copy-Item ".\build\bash\active" -Destination "/usr/bin" -force | Out-Null
        Set-Location "/usr/bin"
        Start-Process "chmod" -ArgumentList "+x active"
        Set-Location "/"
-       Set-Location $dir
+         Set-Location $Dir     
+       }
+
+    if(Test-Path ".\build\bash\version")
+     {
+      Copy-Item ".\build\bash\version" -Destination "/usr/bin" -force | Out-Null
+      Set-Location "/usr/bin"
+      Start-Process "chmod" -ArgumentList "+x version"
+      Set-Location "/"
+         Set-Location $Dir     
     }
     
-       if(Test-Path ".\get-screen")
+       if(Test-Path ".\build\bash\get-screen")
     {
-       Copy-Item ".\get-screen" -Destination "/usr/bin" -force | Out-Null
+       Copy-Item ".\build\bash\get-screen" -Destination "/usr/bin" -force | Out-Null
        Set-Location "/usr/bin"
        Start-Process "chmod" -ArgumentList "+x get-screen"
        Set-Location "/"
-       Set-Location $dir
-    }
+         Set-Location $Dir     
+       }
    
-   if(Test-Path ".\mine")
+   if(Test-Path ".\build\bash\mine")
     {
-       Copy-Item ".\mine" -Destination "/usr/bin" -force | Out-Null
+       Copy-Item ".\build\bash\mine" -Destination "/usr/bin" -force | Out-Null
        Set-Location "/usr/bin"
        Start-Process "chmod" -ArgumentList "+x mine"
        Set-Location "/"
-       Set-Location $dir
-    }
+         Set-Location $Dir     
+       }
    
-   if(Test-Path ".\logdata")
+   if(Test-Path ".\build\bash\background")
     {
-       Copy-Item ".\logdata" -Destination "/usr/bin" -force | Out-Null
+       Copy-Item ".\build\bash\background" -Destination "/usr/bin" -force | Out-Null
        Set-Location "/usr/bin"
-       Start-Process "chmod" -ArgumentList "+x logdata"
+       Start-Process "chmod" -ArgumentList "+x background"
        Set-Location "/"
-       Set-Location $dir
-    }
+         Set-Location $Dir     
+       }
    
-   if(Test-Path ".\pidinfo")
+   if(Test-Path ".\build\bash\pidinfo")
     {
-       Copy-Item ".\pidinfo" -Destination "/usr/bin" -force | Out-Null
+       Copy-Item ".\build\bash\pidinfo" -Destination "/usr/bin" -force | Out-Null
        Set-Location "/usr/bin"
        Start-Process "chmod" -ArgumentList "+x pidinfo"
        Set-Location "/"
-       Set-Location $dir
-    }
+         Set-Location $Dir     
+       }
 
-   if(Test-Path ".\dir.sh")
+   if(Test-Path ".\build\bash\dir.sh")
     {
-       Copy-Item ".\dir.sh" -Destination "/usr/bin" -force | Out-Null
+       Copy-Item ".\build\bash\dir.sh" -Destination "/usr/bin" -force | Out-Null
        Set-Location "/usr/bin"
        Start-Process "chmod" -ArgumentList "+x dir.sh"
        Set-Location "/"
-       Set-Location $dir
-    }
+         Set-Location $Dir     
+       }
+
+       if(Test-Path ".\build\bash\benchmark")
+       {
+          Copy-Item ".\build\bash\benchmark" -Destination "/usr/bin" -force | Out-Null
+          Set-Location "/usr/bin"
+          Start-Process "chmod" -ArgumentList "+x benchmark"
+          Set-Location "/"
+         Set-Location $Dir     
+          }
+
+          if(Test-Path ".\build\bash\clear_profits")
+          {
+             Copy-Item ".\build\bash\clear_profits" -Destination "/usr/bin" -force | Out-Null
+             Set-Location "/usr/bin"
+             Start-Process "chmod" -ArgumentList "+x clear_profits"
+             Set-Location "/"
+         Set-Location $Dir     
+             }  
+
+          if(Test-Path ".\build\bash\get-lambo")
+           {
+              Copy-Item ".\build\bash\get-lambo" -Destination "/usr/bin" -force | Out-Null
+              Set-Location "/usr/bin"
+              Start-Process "chmod" -ArgumentList "+x get-lambo"
+              Set-Location "/"
+         Set-Location $Dir     
+           }      
+   
+    Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)

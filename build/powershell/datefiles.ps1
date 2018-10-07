@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     {New-Item -Path ".\build\data\" -Name "error.txt" -Force | Out-Null}
     $TimeoutClear = Get-Content ".\build\data\error.txt" -Force | Out-Null
     if(Test-Path ".\build\pid"){Remove-Item ".\build\pid\*" -Force | Out-Null}
-    else{New-Item -Path "." -Name "pid" -ItemType "Directory" -Force | Out-Null}   
+    else{New-Item -Path ".\build" -Name "pid" -ItemType "Directory" -Force | Out-Null}   
     if($TimeoutClear -ne "")
      {
       Clear-Content ".\build\data\system.txt" -Force

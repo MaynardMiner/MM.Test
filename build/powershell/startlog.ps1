@@ -26,5 +26,7 @@ if(Test-Path ".\logs\*active*")
   } 
  Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
 }
-Start-Transcript ".\logs\miner$($Log)-active.log" -Force
+Set-Location ".\logs"
+Start-Transcript "miner$($Log)-active.log" -
+Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
 }

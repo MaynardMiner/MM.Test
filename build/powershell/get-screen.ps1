@@ -18,6 +18,6 @@ param(
 
      Set-Location (Split-Path (Split-Path (Split-Path $script:MyInvocation.MyCommand.Path)))
      if(Test-Path ".\logs\$($Type).log"){$Log = Get-Content ".\logs\$($Type).log"}
-     if($Type -eq "miner"){if(Test-Path ".\logs\*active*"){$Log = Get-Content ".\logs\*active.log"}}
+     if($Type -eq "miner"){if(Test-Path ".\logs\*active*"){$Log = Get-Content ".\logs\*active.log*"}}
      $Log | Select -Last 500
      

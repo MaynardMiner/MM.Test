@@ -30,12 +30,11 @@ if (-not (Test-Path ".\x64")) {New-Item "x64" -ItemType "directory" | Out-Null; 
 if (-not $Path) {$Path = Join-Path ".\x64" ([IO.FileInfo](Split-Path $Uri -Leaf)).BaseName}
 $Old_Path = Split-Path $Uri -Parent
 $FileName1 = Join-Path ".\x64" (Split-Path $Uri -Leaf)
-$FileName = Join-Path ".\bin" $New_Path
 $New_Path = Split-Path $Old_Path -Leaf
+$FileName = Join-Path ".\bin" $New_Path
 
-Switch($BuildPath)
-{
-    "Linux"
+
+    if($BuildPath -eq "Linux")
      {
         if(-not (Test-Path $Filename))
         {
@@ -61,7 +60,7 @@ Switch($BuildPath)
         }
      }
 
-     "Zip"
+     if($BuildPath -eq "Zip")
       {
        if (-not $Path) {$Path = Join-Path ".\x64" ([IO.FileInfo](Split-Path $Uri -Leaf)).BaseName}
        $FileName = Join-Path ".\x64" (Split-Path $Uri -Leaf)
@@ -86,7 +85,7 @@ Switch($BuildPath)
       }
      }
 
-    "Tar"
+    if($BuildPath -eq "Tar")
      {
         $DownloadFileURI = Split-Path "$Uri" -Leaf
         $DownloadFileName = $DownloadFileURI -replace (".tar.gz","")
@@ -128,6 +127,5 @@ Switch($BuildPath)
          }
        }
     }
-  }
     
 
