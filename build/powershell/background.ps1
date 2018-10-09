@@ -28,28 +28,25 @@ $GetMiners = Get-Content ".\build\txt\bestminers.txt" | ConvertFrom-Json
 
 ##Set-OC
 $GetMiners | foreach {
-$NvidiaDone = $false
-$AMDDone = $false
-if($_.Type -like "*NVIDIA*" -and $NvidiaDone -eq $false -and $Platforms -eq "linux")
-{
-Write-Host "Starting Tuning"
-$NvidiaDone = $true
-Start-OC -OCType $($_.Type) -Miner_Algo $($_.Algo)
+ if($_.Type -like "*NVIDIA*")
+ {
+  Write-Host "Starting Tuning"
+  if($_.Devices -eq $null){$OCDevices = $LogGPUS}
+  else{$OCDevices = $_.Devices}
+  Start-OC -Devices $OCDevices -OCType $($_.Type) -Miner_Algo $($_.Algo) -Platforms $Platforms -Dir $WorkingDir
  }
 }
 
 $CPUOnly = $true
 
 $GetMiners | Foreach {
-  if($_.Type -like "*NVIDIA*" -or $_.Type -like "*AMD*")
-  {
-  $CPUOnly = $false; "GPU" | Set-Content ".\build\txt\miner.txt"
-  }
-  else
-  {"CPU" | Set-Content ".\build\txt\miner.txt"}
+  if($_.Type -like "*NVIDIA*" -or $_.Type -like "*AMD*"){$CPUOnly = $false; "GPU" | Set-Content ".\build\txt\miner.txt"}
 }
+if($CPUOnly -eq $true){"CPU" | Set-Content ".\build\txt\miner.txt"}
+
 $BackgroundTimer = New-Object -TypeName System.Diagnostics.Stopwatch
 $BackgroundTimer.Restart()
+
 $GetMiners | Foreach {
 $NEW=0 
 $NEW | Set-Content ".\build\txt\$($_.Type)-hash.txt" 
@@ -72,15 +69,9 @@ $GetMiners | Foreach {
  }
  else
  {
-  if($_.Devices -eq $null)
-  {
-   $GetDevices = Get-DeviceString -TypeDevices $_.LogGPUS
-  }
-  else
-  {
-   $GetDevices = Get-DeviceString -TypeDevices $_.Devices
-  }
-   $GetDevices | foreach {$GPUHashrates += 0; $GPUFans += 0; $GPUTemps += 0}
+  if($_.Devices -eq $null){$Devices = Get-DeviceString -TypeDevices $_.LogGPUS}
+  else{$GetDevices = Get-DeviceString -TypeDevices $_.Devices}
+  $GetDevices | foreach {$GPUHashrates += 0; $GPUFans += 0; $GPUTemps += 0}
  }
 }
 
@@ -102,7 +93,8 @@ if($_.Type -like "*NVIDIA*" -or $_.Type -like "*AMD*")
     "claymore"
       {
       Write-Host "Miner $MinerType is claymore api"
-      Write-Host "Miner Port is $Port"    
+      Write-Host "Miner Port is $Port"
+      Write-Host "Miner Devices is $Devices"   
       $Request = Invoke-WebRequest "http://$($server):$($port)" -UseBasicParsing -TimeoutSec 10
       $Data = $Request.Content.Substring($Request.Content.IndexOf("{"), $Request.Content.LastIndexOf("}") - $Request.Content.IndexOf("{") + 1) | ConvertFrom-Json
       $Hash = $Data.result[3] -split ";"
@@ -127,7 +119,8 @@ if($_.Type -like "*NVIDIA*" -or $_.Type -like "*AMD*")
    "ewbf"
       {
        Write-Host "Miner $MinerType is ewbf api"
-       Write-Host "Miner Port is $Port"  
+       Write-Host "Miner Port is $Port"
+       Write-Host "Miner Devices is $Devices"  
        $Message = @{id = 1; method = "getstat"} | ConvertTo-Json -Compress
        $Client = New-Object System.Net.Sockets.TcpClient $server, $port
        $Writer = New-Object System.IO.StreamWriter $Client.GetStream()
@@ -158,6 +151,7 @@ if($_.Type -like "*NVIDIA*" -or $_.Type -like "*AMD*")
       {
         Write-Host "Miner $MinerType is ccminer api"
         Write-Host "Miner Port is $Port"  
+        Write-Host "Miner Devices is $Devices"  
         $GetSummary = Get-TCP -Server $Server -Port $port -Message "summary"
         $GetThreads = Get-TCP -Server $Server -Port $port -Message "threads"
         $Data = $GetThreads -split "\|"
@@ -180,6 +174,7 @@ if($_.Type -like "*NVIDIA*" -or $_.Type -like "*AMD*")
      {
       Write-Host "Miner $MinerType is trex api"
       Write-Host "Miner Port is $Port"  
+      Write-Host "Miner Devices is $Devices"  
       $Request = Invoke-WebRequest "http://$($server):$($port)/summary" -UseBasicParsing -TimeoutSec 10
       $Data = $Request.Content | ConvertFrom-Json
       for($i=0;$i -lt $Devices.Count; $i++){$GPU = $Devices[$i]; $GPUHashrates[$GPU] = $Data.gpus.hashrate_minute[$i]} 
@@ -197,6 +192,7 @@ if($_.Type -like "*NVIDIA*" -or $_.Type -like "*AMD*")
       {
         Write-Host "Miner $MinerType is dstm api"
         Write-Host "Miner Port is $Port"
+        Write-Host "Miner Devices is $Devices"  
         $GetSummary = Get-TCP -Server $Server -Port $port -Message "summary"
         $Data = $GetSummary | ConvertFrom-Json
         $Data = $Data.result       
@@ -225,6 +221,7 @@ elseif($_.Type -eq "CPU")
  $Interval = 15
  $Port = $($_.Port)
  $MinerType = $($_.Type)
+ $Devices = Get-DeviceString -TypeDevices $_.LogGPUS
  try
  {
  switch($_.API)
@@ -233,21 +230,22 @@ elseif($_.Type -eq "CPU")
    {
     Write-Host "Miner $MinerType is cpuminer api"
     Write-Host "Miner Port is $Port"
+    Write-Host "Miner Devices is $Devices"  
     $GetThreads = Get-TCP -Server $Server -Port $Port -Message "threads"
     $GetSummary = Get-TCP -Server $Server -Port $Port -Message "summary"
     $Hash = $GetThreads -split "="
     $Hash = $Hash -split "\|" | Select-String "\."
-    for($i=0;$i -lt $GetDevices.Count; $i++){$GPU = $GetDevices[$i]; $CPUHashrates[$GPU] = $Hash[$i]}
+    for($i=0;$i -lt $Devices.Count; $i++){$GPU = $Devices[$i]; $CPUHashrates[$GPU] = $Hash[$i]}
     $CPUACC = $GetSummary -split ";" | Select-String "ACC=" | foreach{$_ -replace ("ACC=","")}
     $CPUREJ = $GetSummary -split ";" | Select-String "REJ=" | foreach{$_ -replace ("REJ=","")}
     $CPUKHS = $GetSummary -split ";" | Select-String "KHS=" | foreach{$_ -replace ("KHS=","")}
-    $CPURAW = ([Double]$KHS*1000)
+    $CPURAW = ([Double]$CPUKHS*1000)
     $CPUUPTIME = $GetSummary -split ";" | Select-String "UPTIME=" | foreach{$_ -replace ("UPTIME=","")}
     $CPUALGO = $GetSummary -split ";" | Select-String "ALGO=" | foreach{$_ -replace ("ALGO=","")}
     $CPUTEMP = $GetSummary -split ";" | Select-String "TEMP=" | foreach{$_ -replace ("TEMP=","")}
     $CPUFAN = $GetSummary -split ";" | Select-String "FAN=" | foreach{$_ -replace ("FAN=","")}
     $CPUHashRates = @()
-    $RAW | Set-Content ".\build\txt\$MinerType-hash.txt"
+    $CPURAW | Set-Content ".\build\txt\$MinerType-hash.txt"
     $Hash = $Hash | % {iex $_}
     $Hash | foreach {$RAW += $_}
     $Hash | foreach {$CPUHashRates += "GPU=$_"}

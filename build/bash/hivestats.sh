@@ -1,12 +1,10 @@
 
-0
-0
-0
-KHS=
+GPU=0
+KHS=0
 ACC=
 REJ=
 ALGO=
-TEMP=
-FAN=
+FAN=0
+TEMP=0
 UPTIME=
 

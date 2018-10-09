@@ -48,9 +48,7 @@ switch($Types)
      }
 }
 
-$update | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {
-$miner_update | Add-Member $update.$_.Name $update.$_
-}
+$update | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | foreach {$miner_update | Add-Member $update.$_.Name $update.$_}
 
 $miner_update
 

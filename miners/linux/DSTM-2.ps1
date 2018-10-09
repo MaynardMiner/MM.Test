@@ -3,7 +3,7 @@ $Uri = "$($nvidia.dstm.uri)"
 $MinerName = "$($nvidia.dstm.minername)"
 
 
-$Build = "Tar"
+$Build = "Zip"
 
 if($DSTMDevices2 -ne ''){$Devices = $DSTMDevices2}
 if($GPUDevices2 -ne '')

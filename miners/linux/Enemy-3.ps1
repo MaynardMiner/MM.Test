@@ -2,7 +2,7 @@ $Path = "$($nvidia.enemy.path3)"
 $Uri = "$($nvidia.enemy.uri)"
 $MinerName = "$($nvidia.enemy.MinerName)"
 
-$Build = "Tar"
+$Build = "Zip"
 
 if($CCDevices3 -ne ''){$Devices = $CCDevices3}
 if($GPUDevices3 -ne ''){$Devices = $GPUDevices3}

@@ -4,7 +4,7 @@ $MinerName = "$($cpu.cryptozeny.minername)"
 
 if($CPUThreads -ne ''){$Devices = $CPUThreads}
 
-$Build =  "Linux"
+$Build =  "Zip"
 
 $Commands = [PSCustomObject]@{
 

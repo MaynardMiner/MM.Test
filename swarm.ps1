@@ -71,7 +71,7 @@ param(
     [Parameter(Mandatory=$false)]
     [String]$MPHLocation = "US", #europe/us/asia 
     [Parameter(Mandatory=$false)]
-    [Array]$Type, #AMD/NVIDIA/CPU
+    [Array]$Type = ("NVIDIA1"), #AMD/NVIDIA/CPU
     [Parameter(Mandatory=$false)]
     [String]$CCDevices1, ##Group 1 ccminer gpus
     [Parameter(Mandatory=$false)] 
@@ -177,7 +177,7 @@ param(
     [Parameter(Mandatory=$false)]
     [double]$Threshold = .01,
     [Parameter(Mandatory=$false)]
-    [string]$Platform = "linux",
+    [string]$Platform = "Windows",
     [Parameter(Mandatory=$false)]
     [int]$CPUThreads = 3,
     [Parameter(Mandatory=$false)]
@@ -205,7 +205,7 @@ if($Platform -eq "Linux"){$Platform = "linux"}
 if($Platform -eq "windows"){
 $Cuda = "9.2"
 }
-
+if(-not (Test-Path ".\build\txt")){New-Item -Path ".\build" -Name "txt" -ItemType "directory"}
 . .\build\powershell\killall.ps1
 . .\build\powershell\startlog.ps1
 . .\build\powershell\remoteupdate.ps1
@@ -333,7 +333,7 @@ start-watchdog
 elseif($Platform -eq "windows"){$PID | Set-Content ".\build\pid\miner_pid.txt"}
 
 ##Threads
-$GPU_Count = Get-GPUCount -DeviceType $Type -CmdDir $Dir
+$GPU_Count = Get-GPUCount -DeviceType $Type -CmdDir $Dir -Platforms $Platform
 if($GPU_Count -ne 0){$GPUCount = @(); for($i=0; $i -lt $GPU_Count; $i++){[string]$GPUCount += "$i,"}}
 if($CPUThreads -ne 0){$CPUCount = @(); for($i=0; $i -lt $CPUThreads; $i++){[string]$CPUCount += "$i,"}}
 if($GPU_Count -eq 0){$Device_Count = $CPUThreads}
@@ -341,8 +341,7 @@ else{$Device_Count = $GPU_Count}
 Write-Host "Device Count = $Device_Count" -foregroundcolor green
 Start-Sleep -S 2
 if($GPUCount -ne $null){$LogGPUS = $GPUCount.Substring(0,$GPUCount.Length-1)}
-if($CPUThreads -ne 0 -and $GPU_Count -eq 0){$LogGPUS = $CPUCount.Substring(0,$CPUCount.Length-1)}
-elseif($CPUThreads -ne 0 ){$LogGPUS = $CPUCount.Substring(0,$CPUCount.Length-1)}
+if($CPUCount -ne $null){$LogCPUS = $CPUCount.Substring(0,$CPUCount.Length-1)}
 
 ##GPU Count & Miner Type
 if($Platform -eq "linux" -and $HiveOS -eq "Yes")
@@ -692,10 +691,12 @@ Write-Host "Most Ideal Choice Is $($BestMiners_Selected) on $($BestPool_Selected
 $BestMiners_Combo | ForEach {
  if(-not ($ActiveMinerPrograms | Where Path -eq $_.Path | Where Arguments -eq $_.Arguments ))
   {
-   if($_.Type -eq "CPU" -and $GPU_Count -eq 0){$LogType = $LogGPUS}
-   elseif($_.Type -eq "CPU" -and $GPU_Count -ne 0){$LogType = $LogCPUS}
-   elseif($_.Devices -eq $null){$LogType = $LogGPUS}
-   elseif($_.Devices -ne $null){$LogType = $_.Devices}
+   if($_.Type -eq "CPU"){$LogType = $LogCPUS}
+   if($_.Type -like "*NVIDIA*" -or $_.Type -like "*AMD*")
+    {
+     if($_.Devices -eq $null){$LogType = $LogGPUS}
+     else{$LogType = $_.Devices}
+    }
   $ActiveMinerPrograms += [PSCustomObject]@{
    Name = $_.Name
    Type = $_.Type
@@ -777,7 +778,7 @@ $ActiveMinerPrograms | foreach {
      $PIDDateFile = Get-Content $PIDDate | Out-String
      $PIDTime = [DateTime]$PIDDateFile
      $_.Active += (Get-Date)-$PIDTime
-     if($Platform -eq "windows"){$_.XProcess.CloseMainWindow(); Start-Sleep -S $Delay}
+     if($Platform -eq "windows"){$_.XProcess.CloseMainWindow() | Out-Null; Start-Sleep -S $Delay}
     }
    }
   }
@@ -790,7 +791,7 @@ if($TimeDeviation -ne 0)
  if(Test-Path $CurrentLog){"" | Out-File $CurrentLog -NoNewline}    
  if($null -eq $_.XProcess -or $_.XProcess.HasExited -ne $false)
  {
-  $Restart = $true
+  $Restart = $true;
   $DecayStart = Get-Date
   $_.Activated++
   $LogDir = Join-Path $Dir "logs\$($_.Type).log"
@@ -1023,10 +1024,6 @@ $CrazyLink | Out-File ".\build\bash\minerstats.sh" -Append
    }
  }
 }
-else{
-Get-MinerActive | Out-Host
-Get-MinerStatus | Out-Host
-}
 
 function Restart-Miner {
 $BestActiveMiners | Foreach {
@@ -1068,9 +1065,11 @@ if($null -ne $_.JsonFile){$LaunchCodes.Add("jsonfile",$_.JsonFile)}
 Start-LaunchCode @LaunchCodes
 
 $_.Instance = "$($_.Type)-$($Instance)"
-$MinerID = Get-Content ".\build\pid\$($_.Instance)_pid.txt" 
+$MinerID = ".\build\pid\$($_.Instance)_pid.txt"
+if(Test-Path $MinerId){$MinerID = Get-Content ".\build\pid\$($_.Instance)_pid.txt"}
 $_.XProcess = Get-Process -Id $MinerID
 
+$_.InstanceNumber = $($Instance)
 $Instance++
 $LaunchCodes = $null
 

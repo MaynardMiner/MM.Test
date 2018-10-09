@@ -22,8 +22,8 @@ function Tee-ObjectNoColor {
     )
 
   process{
-        $InputObject = $InputObject -replace '\\[\d+(;\d+)?m'
-        $InputObject | Out-File $FilePath -Append
+        $Logs = $InputObject -replace '\\[\d+(;\d+)?m'
+        $Logs | Out-File $FilePath -Append
         $InputObject | Out-Host
          }
 }
@@ -200,8 +200,18 @@ if($OCType -like '*CPU*')
 
 if($Platforms -eq "windows")
 {
-$Command = Start-Process "powershell" -WorkingDirectory $MinerDir -ArgumentList "-noexit -executionpolicy bypass -windowstyle minimized -command `"&{. `'$dir\build\powershell\launchcode.ps1`'; `$host.ui.RawUI.WindowTitle = `'$MinerName`'; Invoke-Expression `'.\$MinerName $MinerArguments`' | Tee-ObjectNoColor -FilePath `'$Logs`' -erroraction SilentlyContinue}`"" -PassThru | foreach {$_.Id} > ".\build\pid\$($MinerInstance)_pid.txt"
-$BackgroundTimer.Restart()
+ Set-Location $MinerDir
+ $script = @()
+ $script += ". C:\Users\Mayna\Desktop\MM.Test\build\powershell\launchcode.ps1;"
+ $script += "`$host.ui.RawUI.WindowTitle = `'$MinerName`';"
+ if($DeviceCall -eq "ewbf"){$script += "Invoke-Expression `'.\$MinerName $MinerArguments --log 3 --logfile $Logs`'"}
+ elseif($DeviceCall -eq "claymore"){$script += "Invoke-Expression `'.\$MinerName $MinerArguments`'"}
+ else{$script += "Invoke-Expression `'.\$MinerName $MinerArguments`' | Tee-ObjectNoColor -FilePath `'$Logs`' -erroraction SilentlyContinue"}
+ $script | Set-Content "swarm-start.ps1" -Force
+ Start-Sleep -S 1
+ $Command = start-process "CMD" -ArgumentList "/c ""powershell.exe -executionpolicy bypass -windowstyle minimized -command "".\swarm-start.ps1""" -PassThru | foreach {$_.Id} > "$dir\build\pid\$($MinerInstance)_pid.txt"
+ Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
+ $BackgroundTimer.Restart()
  do
  {
   Start-Sleep -S 1

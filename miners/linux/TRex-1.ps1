@@ -2,7 +2,7 @@ $Path = "$($nvidia.trex.path1)"
 $Uri = "$($nvidia.trex.uri)"
 $MinerName = "$($nvidia.trex.minername)"
 
-$Build = "Tar"
+$Build = "Zip"
 
 if($RexDevices1 -ne ''){$Devices = $RexDevices1}
 if($GPUDevices1 -ne ''){$Devices = $GPUDevices1}

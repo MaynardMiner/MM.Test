@@ -17,27 +17,50 @@ function Get-GPUCount {
         [Parameter(Mandatory=$true)]
         [String]$CmdDir,
         [Parameter(Mandatory=$false)]
-        [String]$CPUThreads 
+        [String]$CPUThreads,
+        [Parameter(Mandatory=$false)]
+        [String]$Platforms
     )
 
+    $GPU_Count = 0
+    $nvidiacounted = $false
+    $amdcounted = $false
     $DeviceType | foreach{
-     if($_ -like "*NVIDIA*")
+    if($Platforms -eq "Linux")
       {
+       if($_ -like "*NVIDIA*" -and $nvidiacounted -eq $false)
+        {
+       $nvidiacounted = $true
        Write-Host "Getting NVIDIA GPU Count" -foregroundcolor cyan
        lspci | Tee-Object ".\build\txt\gpucount.txt" | Out-Null
        $GCount = Get-Content ".\build\txt\gpucount.txt" -Force
        $AttachedGPU = $GCount | Select-String "VGA","3d" | Select-String "NVIDIA"   
-       [int]$GPU_Count = $AttachedGPU.Count
+       [int]$GPU_Count += $AttachedGPU.Count
        }
-      if($_ -like "*AMD*")
+      if($_ -like "*AMD*" -and $amdcounted -eq $false)
        {
+         $amdcounted = $true
          Write-Host "Getting AMD GPU Count" -foregroundcolor cyan
          lspci | Tee-Object ".\build\txt\gpucount.txt" | Out-Null
          $GCount = Get-Content ".\build\txt\gpucount.txt" -Force
          $AttachedGPU = $GCount | Select-String "VGA" | Select-String "AMD"   
-         [int]$GPU_Count = $AttachedGPU.Count
+         [int]$GPU_Count += $AttachedGPU.Count
        }
-    }
+      }
+    if($Platforms -eq "Windows")
+     {
+      if($_ -like "*NVIDIA*" -and $nvidiacounted -eq $false)
+      {
+        $nvidiacounted = $true
+       $GPU_Count += ((Get-WMIObject Win32_VideoController).Name | Select-String "NVIDIA").count
+      }
+      if($_ -like "*AMD*" -and $amdcounted -eq $false)
+      {
+        $amdcounted = $true
+        $GPU_Count += ((Get-WMIObject Win32_VideoController).Name | Select-String "AMD").count       
+      }
+     }
+   }
     
     $GPU_Count  
 }

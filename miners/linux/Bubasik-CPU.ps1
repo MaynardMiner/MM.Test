@@ -4,7 +4,7 @@ $MinerName = "$($cpu.bubasik.minername)"
 
 if($CPUThreads -ne ''){$Devices = $CPUThreads}
 
-$Build = "Linux"
+$Build = "Zip"
 
 #Algorithms
 #Yescrypt

@@ -2,7 +2,7 @@ $Path = "$($amd.teamredminer.path1)"
 $Uri = "$($amd.teamredminer.uri)"
 $MinerName = "$($amd.teamredminer.minername)"
 
-$Build = "Tar"
+$Build = "Zip"
 
 if($SGDevices1 -ne ''){$Devices = $SGDevices1}
 if($GPUDevices1 -ne ''){$Devices = $GPUDevices1}
