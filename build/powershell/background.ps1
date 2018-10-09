@@ -69,7 +69,7 @@ $GetMiners | Foreach {
  }
  else
  {
-  if($_.Devices -eq $null){$Devices = Get-DeviceString -TypeDevices $_.LogGPUS}
+  if($_.Devices -eq $null){$GetDevices = Get-DeviceString -TypeDevices $_.LogGPUS}
   else{$GetDevices = Get-DeviceString -TypeDevices $_.Devices}
   $GetDevices | foreach {$GPUHashrates += 0; $GPUFans += 0; $GPUTemps += 0}
  }
